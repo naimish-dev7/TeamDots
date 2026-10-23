@@ -388,7 +388,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
       <button class="btn-icon" onclick="toggleSettings(true)" title="Settings">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       </button>
     </div>
   </header>
@@ -469,9 +469,9 @@
       <div class="field">
         <label>Primary Model Engine</label>
         <select id="modelField" onchange="persistSettings()">
-          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-          <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash 8B (Highest Uptime)</option>
+          <option value="gemini-3.8-flash">Gemini 3.8 Flash (Latest & Required)</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash (Stable)</option>
+          <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash 8B</option>
         </select>
       </div>
       <button class="btn-modal-close" onclick="toggleSettings(false)">Save & Close</button>
@@ -641,7 +641,7 @@
         const meta = document.createElement("div");
         meta.className = "agent-meta-bar";
         meta.innerHTML = `
-          <span class="agent-tag">${TEAM[dotKey].name} • ${TEAM[dotKey].role}</span>
+          <span class="agent-tag">${TEAM[dotKey].name} •${TEAM[dotKey].role}</span>
           <span class="agent-tool-status">${TEAM[dotKey].tool}</span>
         `;
         body.appendChild(meta);
@@ -658,7 +658,7 @@
       canvas.scrollTop = canvas.scrollHeight;
     }
 
-    // Dynamic Multi-Tier Network Engine with Exponential Backoff
+    // Dynamic Multi-Tier Network Engine with Gemini 3.8 Flash & Fallback Chain
     async function sendToGemini(systemPrompt, userText, img64 = null, mime = null) {
       const key = document.getElementById("keyField").value.trim();
       const selectedModel = document.getElementById("modelField").value;
@@ -667,7 +667,7 @@
         throw new Error("Paste your Gemini API key in Settings (⚙️)");
       }
 
-      const modelChain = [selectedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-8b"];
+      const modelChain = [selectedModel, "gemini-3.8-flash", "gemini-2.0-flash", "gemini-1.5-flash-8b"];
       const uniqueModels = [...new Set(modelChain)];
 
       const parts = [{ text: userText }];
@@ -704,7 +704,7 @@
             const msg = data.error?.message || "";
             lastError = msg;
 
-            if (response.status === 503 || response.status === 429 || msg.includes("high demand")) {
+            if (response.status === 503 || response.status === 429 || msg.includes("high demand") || msg.includes("no longer available")) {
               await new Promise(r => setTimeout(r, 1200));
               continue;
             }
@@ -712,7 +712,7 @@
             throw new Error(msg);
           } catch (err) {
             lastError = err.message;
-            if (!err.message.includes("high demand") && !err.message.includes("503")) {
+            if (!err.message.includes("high demand") && !err.message.includes("503") && !err.message.includes("no longer available")) {
               throw err;
             }
           }
@@ -764,8 +764,7 @@
           appendBubble(`🌙 Autonomous Queue initiated: ${list.length} task(s). Keep browser active.`, true);
 
           for (let i = 0; i < list.length; i++) {
-            status.textContent = `Queue (${i+1}/${list.length})`;
-            appendBubble(`[Task ${i+1}/${list.length}] ${list[i]}`, true);
+            status.textContent = `Queue (${i+1}/${list.length})`; appendBubble(`[Task ${i+1}/${list.length}]${list[i]}`, true);
 
             const plan = await sendToGemini(TEAM.nexus.prompt, list[i]);
             appendBubble(plan, false, 'nexus');
