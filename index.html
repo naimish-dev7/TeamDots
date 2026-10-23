@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TeamDots — AI Coworkers Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --border: #eaeaea;
+      --border-strong: #e1e4e8;
+      --text: #09090b;
+      --text-muted: #71717a;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+      letter-spacing: -0.02em;
+    }
+
+    /* Minimalist Top Nav */
+    header {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .brand-circle {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+    .badge-tag {
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 400;
+    }
+    .actions-wrap {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background 0.15s ease;
+    }
+    .btn-icon:hover { background: var(--surface); color: var(--text); }
+
+    /* Modern Pill Selector */
+    .agent-nav {
+      display: flex;
+      gap: 6px;
+      padding: 8px 16px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+      scrollbar-width: none;
+    }
+    .agent-nav::-webkit-scrollbar { display: none; }
+    .pill {
+      font-size: 0.76rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .pill.active {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    /* Canvas Area */
+    #canvas {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--surface);
+      position: relative;
+    }
+
+    /* Centered Minimal Empty State */
+    .hero-center {
+      margin: auto;
+      text-align: center;
+      max-width: 380px;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .avatar-cluster {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .hero-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+    .hero-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Messages & Avatars */
+    .chat-row {
+      display: flex;
+      gap: 10px;
+      max-width: 90%;
+      align-self: flex-start;
+      width: 100%;
+    }
+    .chat-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+      max-width: 82%;
+    }
+    .avatar-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-content {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      flex: 1;
+    }
+    .chat-row.user .msg-content {
+      background: #000;
+      color: #fff;
+      border-color: #000;
+      border-bottom-right-radius: 2px;
+    }
+    .agent-header-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-family: 'Geist Mono', monospace;
+    }
+
+    /* Image Attachment */
+    .img-preview-tray {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+    }
+    .img-preview-tray img {
+      width: 30px;
+      height: 30px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    .btn-remove {
+      font-size: 0.7rem;
+      color: #ef4444;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Bottom Input Box */
+    .dock {
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+    .dock-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .dock-box:focus-within {
+      border-color: var(--border-strong);
+    }
+    textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      resize: none;
+      height: 48px;
+      background: transparent;
+      color: var(--text);
+    }
+    .dock-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-top: 1px solid #f6f6f6;
+    }
+    .left-tools {
+      display: flex;
+      gap: 6px;
+    }
+    .tool-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+    }
+    .tool-btn:hover { background: var(--surface); color: var(--text); }
+    .btn-send {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-send:disabled { opacity: 0.4; }
+
+    /* Footer Strip */
+    footer {
+      height: 22px;
+      padding: 0 16px;
+      background: #ffffff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+    .watermark {
+      font-family: 'Geist Mono', monospace;
+      color: #a1a1aa;
+    }
+
+    /* Settings Modal */
+    .modal-shade {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+    .modal-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .field {
+      margin-bottom: 12px;
+    }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .btn-modal-close {
+      width: 100%;
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Minimal Nav -->
+  <header>
+    <div class="brand">
+      <div class="brand-circle"></div>
+      <span>TeamDots</span>
+      <span class="badge-tag">v0.2</span>
+    </div>
+    <div class="actions-wrap">
+      <button class="btn-icon" onclick="resetCanvas()" title="Clear Chat">
+        <!-- Lucide Trash2 -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+      </button>
+      <button class="btn-icon" onclick="toggleSettings(true)" title="Settings">
+        <!-- Lucide Sliders -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Agent Pill Switcher -->
+  <div class="agent-nav">
+    <button class="pill active" onclick="pickAgent('all', this)">⚡ All Dots</button>
+    <button class="pill" onclick="pickAgent('nexus', this)">Nexus (Plan)</button>
+    <button class="pill" onclick="pickAgent('cypher', this)">Cypher (Code)</button>
+    <button class="pill" onclick="pickAgent('aegis', this)">Aegis (Audit)</button>
+    <button class="pill" onclick="pickAgent('prism', this)">Prism (Style)</button>
+    <button class="pill" onclick="pickAgent('sleep', this)">🌙 Overnight Queue</button>
+  </div>
+
+  <!-- Workspace Canvas -->
+  <div id="canvas">
+    <!-- Middle-of-Screen Hero Card -->
+    <div id="heroCard" class="hero-center">
+      <div class="avatar-cluster">
+        <!-- Nexus Avatar (Cube Bot) -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="4" fill="#EEF2FF" stroke="#6366F1" stroke-width="1.5"/>
+          <circle cx="9" cy="11" r="1.5" fill="#4338CA"/>
+          <circle cx="15" cy="11" r="1.5" fill="#4338CA"/>
+          <path d="M10 15h4" stroke="#4338CA" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Cypher Avatar (Coder Bot) -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="4" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/>
+          <path d="M8 10l2 2-2 2" stroke="#047857" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="13" y1="14" x2="16" y2="14" stroke="#047857" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Aegis Avatar (Shield Bot) -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="4" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+          <circle cx="9" cy="11" r="1.5" fill="#B45309"/>
+          <circle cx="15" cy="11" r="1.5" fill="#B45309"/>
+          <path d="M9 15c1 1 5 1 6 0" stroke="#B45309" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Prism Avatar (Star Bot) -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="16" rx="4" fill="#FDF2F8" stroke="#EC4899" stroke-width="1.5"/>
+          <circle cx="9" cy="11" r="1.5" fill="#BE185D"/>
+          <circle cx="15" cy="11" r="1.5" fill="#BE185D"/>
+          <line x1="11" y1="15" x2="13" y2="15" stroke="#BE185D" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="hero-title">Meet your AI Coworkers</div>
+      <div class="hero-desc">Collaborative agents built to plan, code, audit, and design tasks. Add your Gemini key in settings to start.</div>
+    </div>
+  </div>
+
+  <!-- Attachment Tray -->
+  <div id="fileTray" class="img-preview-tray">
+    <img id="thumbImg" src="" alt="file"/>
+    <span id="thumbLabel" style="font-size:0.75rem; color:var(--text-muted); flex:1;"></span>
+    <button class="btn-remove" onclick="detachFile()">Remove</button>
+  </div>
+
+  <!-- Floating Dock -->
+  <div class="dock">
+    <div class="dock-box">
+      <textarea id="dockInput" placeholder="Give your dots an objective..."></textarea>
+      <div class="dock-actions">
+        <div class="left-tools">
+          <input type="file" id="filePicker" accept="image/*" style="display:none;" onchange="onFileSelected(event)" />
+          <button class="tool-btn" onclick="document.getElementById('filePicker').click()">
+            <!-- Lucide Paperclip -->
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            Attach
+          </button>
+          <button class="tool-btn" onclick="enhanceDraft()">
+            <!-- Lucide Wand2 -->
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/></svg>
+            Enhance
+          </button>
+        </div>
+        <button id="execBtn" class="btn-send" onclick="startWorkflow()">
+          <span>Run</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 14-8v16z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimal Footer -->
+  <footer>
+    <span id="statusMessage">Idle</span>
+    <span class="watermark">built by naimish dev</span>
+  </footer>
+
+  <!-- Clean Settings Modal -->
+  <div id="settingsBox" class="modal-shade">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span>Workspace Settings</span>
+        <span style="cursor:pointer;" onclick="toggleSettings(false)">✕</span>
+      </div>
+      <div class="field">
+        <label>Gemini API Key</label>
+        <input type="password" id="keyField" placeholder="Paste key (AIza...)" oninput="persistSettings()" />
+      </div>
+      <div class="field">
+        <label>Model Engine</label>
+        <select id="modelField" onchange="persistSettings()">
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+          <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+        </select>
+      </div>
+      <button class="btn-modal-close" onclick="toggleSettings(false)">Done</button>
+    </div>
+  </div>
+
+  <script>
+    let currentDot = 'all';
+    let fileBase64 = null;
+    let fileMime = null;
+
+    // Agent Avatars & Roles
+    const TEAM = {
+      nexus: {
+        name: "Nexus",
+        title: "Architect",
+        avatar: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="4" fill="#EEF2FF" stroke="#6366F1" stroke-width="1.5"/><circle cx="9" cy="11" r="1.5" fill="#4338CA"/><circle cx="15" cy="11" r="1.5" fill="#4338CA"/><path d="M10 15h4" stroke="#4338CA" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        prompt: "You are Nexus, strategic software architect. Break the user's objective into a clean, numbered, minimal roadmap."
+      },
+      cypher: {
+        name: "Cypher",
+        title: "Developer",
+        avatar: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="4" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/><path d="M8 10l2 2-2 2" stroke="#047857" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="13" y1="14" x2="16" y2="14" stroke="#047857" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        prompt: "You are Cypher, full-stack engineer. Write clean, complete, working production code based on the plan. Provide full implementations."
+      },
+      aegis: {
+        name: "Aegis",
+        title: "Auditor",
+        avatar: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="4" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/><circle cx="9" cy="11" r="1.5" fill="#B45309"/><circle cx="15" cy="11" r="1.5" fill="#B45309"/><path d="M9 15c1 1 5 1 6 0" stroke="#B45309" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        prompt: "You are Aegis, security auditor. Review the implementation for errors, edge cases, and performance bottlenecks."
+      },
+      prism: {
+        name: "Prism",
+        title: "Designer",
+        avatar: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="4" fill="#FDF2F8" stroke="#EC4899" stroke-width="1.5"/><circle cx="9" cy="11" r="1.5" fill="#BE185D"/><circle cx="15" cy="11" r="1.5" fill="#BE185D"/><line x1="11" y1="15" x2="13" y2="15" stroke="#BE185D" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+        prompt: "You are Prism, interface designer. Provide modern aesthetic guidelines, typography, and styling improvements."
+      }
+    };
+
+    window.onload = () => {
+      const k = localStorage.getItem("td_key");
+      const m = localStorage.getItem("td_model");
+      if (k) document.getElementById("keyField").value = k;
+      if (m) document.getElementById("modelField").value = m;
+    };
+
+    function persistSettings() {
+      localStorage.setItem("td_key", document.getElementById("keyField").value.trim());
+      localStorage.setItem("td_model", document.getElementById("modelField").value);
+    }
+
+    function toggleSettings(open) {
+      document.getElementById("settingsBox").style.display = open ? 'flex' : 'none';
+    }
+
+    function pickAgent(mode, btn) {
+      currentDot = mode;
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function resetCanvas() {
+      const canvas = document.getElementById("canvas");
+      canvas.innerHTML = `
+        <div id="heroCard" class="hero-center">
+          <div class="avatar-cluster">
+            ${TEAM.nexus.avatar}
+            ${TEAM.cypher.avatar}
+            ${TEAM.aegis.avatar}
+            ${TEAM.prism.avatar}
+          </div>
+          <div class="hero-title">Meet your AI Coworkers</div>
+          <div class="hero-desc">Collaborative agents built to plan, code, audit, and design tasks. Add your Gemini key in settings to start.</div>
+        </div>
+      `;
+    }
+
+    function onFileSelected(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      fileMime = file.type;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        fileBase64 = evt.target.result.split(',')[1];
+        document.getElementById("thumbImg").src = evt.target.result;
+        document.getElementById("thumbLabel").textContent = file.name;
+        document.getElementById("fileTray").style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function detachFile() {
+      fileBase64 = null;
+      fileMime = null;
+      document.getElementById("fileTray").style.display = 'none';
+      document.getElementById("filePicker").value = '';
+    }
+
+    function appendBubble(text, isUser, dotKey = null) {
+      const hero = document.getElementById("heroCard");
+      if (hero) hero.remove(); // Clear center card on first interaction
+
+      const canvas = document.getElementById("canvas");
+      const row = document.createElement("div");
+      row.className = "chat-row " + (isUser ? "user" : "");
+
+      if (!isUser && dotKey && TEAM[dotKey]) {
+        const avatar = document.createElement("div");
+        avatar.className = "avatar-box";
+        avatar.innerHTML = TEAM[dotKey].avatar;
+        row.appendChild(avatar);
+      }
+
+      const body = document.createElement("div");
+      body.className = "msg-content";
+
+      if (!isUser && dotKey && TEAM[dotKey]) {
+        const meta = document.createElement("div");
+        meta.className = "agent-header-row";
+        meta.textContent = `${TEAM[dotKey].name} • ${TEAM[dotKey].title}`;
+        body.appendChild(meta);
+      }
+
+      const txt = document.createElement("div");
+      txt.textContent = text;
+      body.appendChild(txt);
+
+      row.appendChild(body);
+      canvas.appendChild(row);
+      canvas.scrollTop = canvas.scrollHeight;
+    }
+
+    async function sendToGemini(systemPrompt, userText, img64 = null, mime = null) {
+      const key = document.getElementById("keyField").value.trim();
+      const model = document.getElementById("modelField").value;
+      if (!key) {
+        toggleSettings(true);
+        throw new Error("Add your Gemini key in settings");
+      }
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+      const parts = [{ text: userText }];
+
+      if (img64 && mime) {
+        parts.push({
+          inlineData: { mimeType: mime, data: img64 }
+        });
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: "user", parts: parts }]
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || "API request failed");
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || "No output returned.";
+    }
+
+    async function enhanceDraft() {
+      const input = document.getElementById("dockInput");
+      const draft = input.value.trim();
+      if (!draft) return alert("Write a prompt draft first.");
+
+      document.getElementById("statusMessage").textContent = "Enhancing...";
+      try {
+        const enhanced = await sendToGemini(
+          "You are an expert prompt engineer. Expand the user's short brief into a detailed, structured software requirements prompt with functional constraints and layout details. Return ONLY the enhanced text.",
+          draft
+        );
+        input.value = enhanced;
+        document.getElementById("statusMessage").textContent = "Prompt enhanced";
+      } catch (err) {
+        alert(err.message);
+        document.getElementById("statusMessage").textContent = "Idle";
+      }
+    }
+
+    async function startWorkflow() {
+      const input = document.getElementById("dockInput");
+      const rawPrompt = input.value.trim();
+      const btn = document.getElementById("execBtn");
+      const status = document.getElementById("statusMessage");
+
+      if (!rawPrompt && !fileBase64) return;
+
+      const img = fileBase64;
+      const mime = fileMime;
+
+      input.value = "";
+      btn.disabled = true;
+      detachFile();
+
+      try {
+        if (currentDot === 'sleep') {
+          const list = rawPrompt.split('\n').map(t => t.trim()).filter(Boolean);
+          appendBubble(`🌙 Starting queue with ${list.length} tasks.`, true);
+
+          for (let i = 0; i < list.length; i++) {
+            status.textContent = `Queue (${i+1}/${list.length})`;
+            appendBubble(`Task ${i+1}: ${list[i]}`, true);
+
+            const plan = await sendToGemini(TEAM.nexus.prompt, list[i]);
+            appendBubble(plan, false, 'nexus');
+
+            const code = await sendToGemini(TEAM.cypher.prompt, `Task: ${list[i]}\nPlan:\n${plan}`);
+            appendBubble(code, false, 'cypher');
+          }
+          status.textContent = "Queue finished";
+        }
+        else if (currentDot === 'all') {
+          appendBubble(rawPrompt, true);
+
+          status.textContent = "Nexus planning...";
+          const plan = await sendToGemini(TEAM.nexus.prompt, rawPrompt, img, mime);
+          appendBubble(plan, false, 'nexus');
+
+          status.textContent = "Cypher coding...";
+          const code = await sendToGemini(TEAM.cypher.prompt, `Prompt: ${rawPrompt}\nPlan:\n${plan}`);
+          appendBubble(code, false, 'cypher');
+
+          status.textContent = "Aegis auditing...";
+          const review = await sendToGemini(TEAM.aegis.prompt, `Code:\n${code}`);
+          appendBubble(review, false, 'aegis');
+
+          status.textContent = "Workflow complete";
+        }
+        else {
+          appendBubble(rawPrompt, true);
+          status.textContent = `${TEAM[currentDot].name} working...`;
+          const reply = await sendToGemini(TEAM[currentDot].prompt, rawPrompt, img, mime);
+          appendBubble(reply, false, currentDot);
+          status.textContent = "Ready";
+        }
+      } catch (e) {
+        appendBubble("Error: " + e.message, false, 'aegis');
+        status.textContent = "Error";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
