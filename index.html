@@ -53,7 +53,6 @@
       justify-content: space-between;
     }
 
-    /* 1. 3D Viewport */
     #webgl-container {
       position: fixed;
       inset: 0;
@@ -64,7 +63,6 @@
       background: #fdfdfd;
     }
 
-    /* 2. OpenDots Clean White Glass Panels */
     .clean-panel {
       background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(16px);
@@ -73,7 +71,6 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
-    /* 3. Floating 3D Node Labels */
     .node-label {
       position: fixed;
       transform: translate(-50%, -50%);
@@ -98,7 +95,6 @@
       border-radius: 50%;
     }
 
-    /* 4. Top Header & Nav */
     .hud-header {
       position: relative;
       z-index: 20;
@@ -164,7 +160,6 @@
     }
     .hud-btn:hover { background: #f1f5f9; }
 
-    /* Workspace Simulation Tabs Bar */
     .workspace-tabs {
       pointer-events: auto;
       display: flex;
@@ -196,7 +191,6 @@
       border-color: #0f172a;
     }
 
-    /* 5. Bottom Unified Chat & Coworker Interface */
     #chat-drawer {
       position: relative;
       z-index: 20;
@@ -217,7 +211,6 @@
       max-height: 68dvh;
     }
 
-    /* Chubby Dots Selector Bar */
     .dots-bar {
       display: flex;
       align-items: center;
@@ -260,7 +253,6 @@
       border-color: #0f172a;
     }
 
-    /* Chat Stream */
     #chat-stream {
       flex: 1;
       overflow-y: auto;
@@ -305,7 +297,6 @@
       word-break: break-word;
     }
 
-    /* Code Blocks */
     .code-box {
       border-radius: 10px;
       overflow: hidden;
@@ -347,7 +338,6 @@
       white-space: pre;
     }
 
-    /* Attachment Bar */
     #attachment-bar {
       display: none;
       padding: 6px 16px;
@@ -366,7 +356,6 @@
       border: 1px solid var(--border-light);
     }
 
-    /* Input Command Area */
     .command-dock {
       padding: 12px;
       background: #ffffff;
@@ -423,7 +412,6 @@
     }
     .btn-execute:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* 6. Settings Modal */
     #settings-modal {
       position: fixed;
       inset: 0;
@@ -499,7 +487,6 @@
       cursor: pointer;
     }
 
-    /* 7. Watermark Fixed Corner */
     .watermark-fixed {
       position: fixed;
       bottom: 6px;
@@ -519,10 +506,8 @@
 </head>
 <body>
 
-  <!-- 1. 3D SPATIAL CUBBY VIEWPORT -->
   <div id="webgl-container"></div>
 
-  <!-- 3D Floating HUD Node Labels -->
   <div id="label-dot" class="node-label">
     <span class="dot-indicator" style="background: var(--accent-dot);"></span>
     <span style="color: var(--accent-dot);">DOT (Assistant)</span>
@@ -543,12 +528,11 @@
     <span style="color: var(--nexus-amber);">NEXUS (Architect)</span>
   </div>
 
-  <!-- 2. TOP HUD: OPEN-DOTS WHITE HEADER & WORKSPACE SIMULATION TABS -->
   <header class="hud-header">
     <div class="clean-panel top-bar">
       <div class="brand-group">
         <span class="brand-title">OpenDots // TeamDots</span>
-        <span class="os-badge">v3.8 Clean</span>
+        <span class="os-badge">v3.8 Turbo</span>
       </div>
 
       <div class="hud-controls">
@@ -558,7 +542,6 @@
       </div>
     </div>
 
-    <!-- Workspace Simulation Tabs (Computer, Browser, Files, Terminal) -->
     <div class="workspace-tabs">
       <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">💻 Computer</button>
       <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">🌐 Browser</button>
@@ -567,11 +550,9 @@
     </div>
   </header>
 
-  <!-- 3. BOTTOM UNIFIED CHAT & COWORKER INTERFACE -->
   <main id="chat-drawer">
     <div class="clean-panel chat-container">
 
-      <!-- Chubby Coworkers Selector Bar -->
       <div class="dots-bar">
         <div class="dots-group">
           <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active">
@@ -593,20 +574,18 @@
         <button onclick="UI.clearHistory()" style="background:none; border:none; color:var(--text-muted); font-size:10px; cursor:pointer;">Clear</button>
       </div>
 
-      <!-- Chat Stream -->
       <div id="chat-stream">
         <div class="msg-card">
           <div class="msg-card-header">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots AI Coworkers Online</span>
-            <span style="font-size: 10px; color: var(--text-muted);">Always-On Agents</span>
+            <span style="font-size: 10px; color: var(--text-muted);">Turbo Speed & Persistent Storage</span>
           </div>
           <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            Your autonomous AI team is active. Each coworker has its own role, browser, and computer environment. Select a coworker or run a full team collaboration workflow.
+            Your autonomous AI team is active. Chat history now automatically persists across browser refreshes.
           </p>
         </div>
       </div>
 
-      <!-- Attachment Bar -->
       <div id="attachment-bar">
         <div style="display:flex; align-items:center; gap:8px;">
           <img id="attachment-preview" src="" alt="preview" />
@@ -615,7 +594,6 @@
         <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:10px; cursor:pointer;">REMOVE</button>
       </div>
 
-      <!-- Input Command Bar -->
       <div class="command-dock">
         <textarea
           id="prompt-input"
@@ -640,7 +618,6 @@
     </div>
   </main>
 
-  <!-- 4. SETTINGS MODAL -->
   <div id="settings-modal">
     <div class="modal-box">
       <div class="modal-header">
@@ -651,13 +628,10 @@
       <div class="field-group">
         <label class="field-label">Active Model Provider</label>
         <select id="model-selector" onchange="UI.saveConfig()" class="field-input">
-          <optgroup label="Google Gemini API">
+          <optgroup label="Google Gemini API (Fastest)">
             <option value="gemini:gemini-3.8-flash">Gemini 3.8 Flash (Recommended)</option>
             <option value="gemini:gemini-2.5-flash">Gemini 2.5 Flash</option>
             <option value="gemini:gemini-2.0-flash">Gemini 2.0 Flash</option>
-          </optgroup>
-          <optgroup label="Groq Cloud LPU">
-            <option value="groq:llama-3.3-70b-versatile">Groq // Llama 3.3 70B</option>
           </optgroup>
         </select>
       </div>
@@ -667,21 +641,14 @@
         <input type="password" id="key-gemini" oninput="UI.saveConfig()" placeholder="Paste Gemini API Key..." class="field-input" />
       </div>
 
-      <div class="field-group">
-        <label class="field-label">Groq Cloud API Key (gsk_...)</label>
-        <input type="password" id="key-groq" oninput="UI.saveConfig()" placeholder="Paste Groq API Key..." class="field-input" />
-      </div>
-
       <button onclick="UI.toggleSettings(false)" class="btn-lock">Save Configuration</button>
     </div>
   </div>
 
-  <!-- 5. FIXED WATERMARK (NAMISH) -->
   <div class="watermark-fixed">
     created by naimish
   </div>
 
-  <!-- 6. JAVASCRIPT ENGINE -->
   <script>
     const STATE = {
       activeDot: 'swarm',
@@ -689,14 +656,15 @@
       chatCollapsed: false,
       isProcessing: false,
       selectedModel: 'gemini:gemini-3.8-flash',
-      keys: { gemini: '', groq: '' },
+      keys: { gemini: '' },
       attachment: { base64: null, mimeType: null, name: null },
       dots: {
         dot: { id: 'dot', name: 'Dot', role: 'Assistant', colorHex: 0x2563eb, cssColor: '#2563eb', position: new THREE.Vector3(-2.2, 1.2, 0), prompt: "You are Dot, the primary AI assistant. Be direct, helpful, and coordinate tasks." },
         scout: { id: 'scout', name: 'Scout', role: 'Researcher', colorHex: 0x10b981, cssColor: '#10b981', position: new THREE.Vector3(-0.8, -1.0, 1.2), prompt: "You are Scout, the researcher. Gather deep insights, scan documentation, and provide facts." },
         quill: { id: 'quill', name: 'Quill', role: 'Writer', colorHex: 0x8b5cf6, cssColor: '#8b5cf6', position: new THREE.Vector3(0.8, -1.0, 1.2), prompt: "You are Quill, the writer. Draft clean copy, markdown reports, and documentation." },
         nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', colorHex: 0xd97706, cssColor: '#d97706', position: new THREE.Vector3(2.2, 1.2, 0), prompt: "You are Nexus, the system architect. Design bulletproof code, structure, and architecture." }
-      }
+      },
+      history: []
     };
 
     const SPATIAL = {
@@ -730,33 +698,23 @@
         window.addEventListener('resize', () => this.onResize());
         this.animate();
       },
-
       buildDots() {
         Object.values(STATE.dots).forEach(dot => {
           const group = new THREE.Group();
           group.position.copy(dot.position);
-
-          // Chubby Rounded Bot Mesh
           const geo = new THREE.SphereGeometry(0.52, 24, 24);
-          const mat = new THREE.MeshStandardMaterial({
-            color: dot.colorHex,
-            roughness: 0.3,
-            metalness: 0.1
-          });
+          const mat = new THREE.MeshStandardMaterial({ color: dot.colorHex, roughness: 0.3, metalness: 0.1 });
           const mesh = new THREE.Mesh(geo, mat);
           group.add(mesh);
-
           this.scene.add(group);
           dot.mesh = group;
         });
       },
-
       onResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
       },
-
       updateLabels() {
         Object.values(STATE.dots).forEach(dot => {
           const el = document.getElementById(`label-${dot.id}`);
@@ -764,17 +722,13 @@
           const pos = dot.mesh.position.clone();
           pos.y += 0.85;
           pos.project(this.camera);
-
-          const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-          const y = (-(pos.y * 0.5) + 0.5) * window.innerHeight;
-          el.style.left = `${x}px`;
-          el.style.top = `${y}px`;
+          el.style.left = `${(pos.x * 0.5 + 0.5) * window.innerWidth}px`;
+          el.style.top = `${(-(pos.y * 0.5) + 0.5) * window.innerHeight}px`;
         });
       },
-
       animate() {
         requestAnimationFrame(() => this.animate());
-        const t = clock = Date.now() * 0.002;
+        const t = Date.now() * 0.002;
         Object.values(STATE.dots).forEach((dot, idx) => {
           if (!dot.mesh) return;
           dot.mesh.position.y = dot.position.y + Math.sin(t + idx) * 0.12;
@@ -788,23 +742,29 @@
     const ENGINE = {
       async callLLM(systemPrompt, userText, img64 = null, mime = null) {
         const gKey = (STATE.keys.gemini || '').trim();
-        const qKey = (STATE.keys.groq || '').trim();
-
-        if (!gKey && !qKey) {
+        if (!gKey) {
           UI.toggleSettings(true);
-          throw new Error("Add your API Key in Settings (⚙️).");
+          throw new Error("Add your Gemini API Key in Settings (⚙️).");
         }
 
         const [provider, model] = STATE.selectedModel.split(':');
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(gKey)}`;
-        const parts = [{ text: `SYSTEM:\n${systemPrompt}\n\nUSER:\n${userText}` }];
+        
+        // Optimized payload with temperature for fast response times
+        const payload = {
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userText }] }],
+          generationConfig: { temperature: 0.4, maxOutputTokens: 2048 }
+        };
 
-        if (img64 && mime) parts.push({ inlineData: { mimeType: mime, data: img64 } });
+        if (img64 && mime) {
+          payload.contents[0].parts.push({ inlineData: { mimeType: mime, data: img64 } });
+        }
 
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ role: 'user', parts }] })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -831,15 +791,12 @@
           if (STATE.activeDot === 'swarm') {
             UI.appendUserMessage(text);
             
-            // Step 1: Scout Researches
             const research = await this.callLLM(STATE.dots.scout.prompt, text, img64, mime);
             UI.appendMessage('scout', research);
 
-            // Step 2: Nexus Architectures
             const arch = await this.callLLM(STATE.dots.nexus.prompt, `Research context:\n${research}\n\nTask: ${text}`);
             UI.appendMessage('nexus', arch);
 
-            // Step 3: Quill Writes
             const written = await this.callLLM(STATE.dots.quill.prompt, `Architecture:\n${arch}\n\nDraft final output.`);
             UI.appendMessage('quill', written);
           } else {
@@ -861,8 +818,19 @@
       init() {
         const m = localStorage.getItem('od_model');
         const g = localStorage.getItem('od_gemini');
+        const h = localStorage.getItem('od_history');
+
         if (m) { STATE.selectedModel = m; document.getElementById('model-selector').value = m; }
         if (g) { STATE.keys.gemini = g; document.getElementById('key-gemini').value = g; }
+        if (h) {
+          try {
+            STATE.history = JSON.parse(h);
+            STATE.history.forEach(item => {
+              if (item.type === 'user') this.renderUserBubble(item.text);
+              else this.renderAgentCard(item.dotId, item.text);
+            });
+          } catch(err) { localStorage.removeItem('od_history'); }
+        }
       },
       saveConfig() {
         const m = document.getElementById('model-selector').value;
@@ -896,7 +864,16 @@
         SPATIAL.controls.target.set(0, 0, 0);
       },
       clearHistory() {
-        document.getElementById('chat-stream').innerHTML = '';
+        STATE.history = [];
+        localStorage.removeItem('od_history');
+        document.getElementById('chat-stream').innerHTML = `
+          <div class="msg-card">
+            <div class="msg-card-header">
+              <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots AI Coworkers Online</span>
+              <span style="font-size: 10px; color: var(--text-muted);">History Purged</span>
+            </div>
+          </div>
+        `;
       },
       handleFileAttach(e) {
         const file = e.target.files[0];
@@ -915,7 +892,16 @@
         STATE.attachment = { base64: null, mimeType: null, name: null };
         document.getElementById('attachment-bar').classList.remove('active');
       },
+      saveHistory(item) {
+        STATE.history.push(item);
+        if (STATE.history.length > 50) STATE.history.shift(); // Keep last 50 items
+        localStorage.setItem('od_history', JSON.stringify(STATE.history));
+      },
       appendUserMessage(text) {
+        this.renderUserBubble(text);
+        this.saveHistory({ type: 'user', text });
+      },
+      renderUserBubble(text) {
         const stream = document.getElementById('chat-stream');
         const bubble = document.createElement('div');
         bubble.className = 'user-bubble';
@@ -924,8 +910,12 @@
         stream.scrollTop = stream.scrollHeight;
       },
       appendMessage(dotId, raw) {
+        this.renderAgentCard(dotId, raw);
+        this.saveHistory({ type: 'agent', dotId, text: raw });
+      },
+      renderAgentCard(dotId, raw) {
         const stream = document.getElementById('chat-stream');
-        const dot = STATE.dots[dotId];
+        const dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', cssColor: '#2563eb' };
 
         const card = document.createElement('div');
         card.className = 'msg-card';
@@ -933,7 +923,7 @@
           <div class="msg-card-header">
             <span style="font-size:11px; font-weight:700; color:${dot.cssColor}">● ${dot.name} // ${dot.role.toUpperCase()}</span>
           </div>
-          <div style="font-size:12px; line-height:1.5; white-space:pre-wrap;">${raw}</div>
+          <div style="font-size:12px; line-height:1.5; white-space:pre-wrap; word-break:break-word;">${raw}</div>
         `;
         stream.appendChild(card);
         stream.scrollTop = stream.scrollHeight;
