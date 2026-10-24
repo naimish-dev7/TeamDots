@@ -14,6 +14,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
+  <!-- Firebase SDK CDNs (Firestore Cloud Sync) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <style>
     :root {
       --bg-white: #ffffff;
@@ -53,6 +57,7 @@
       justify-content: space-between;
     }
 
+    /* 1. 3D Viewport */
     #webgl-container {
       position: fixed;
       inset: 0;
@@ -63,6 +68,7 @@
       background: #fdfdfd;
     }
 
+    /* 2. OpenDots Clean White Glass Panels */
     .clean-panel {
       background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(16px);
@@ -71,6 +77,7 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
+    /* 3. Floating 3D Node Labels */
     .node-label {
       position: fixed;
       transform: translate(-50%, -50%);
@@ -95,6 +102,7 @@
       border-radius: 50%;
     }
 
+    /* 4. Top Header & Nav */
     .hud-header {
       position: relative;
       z-index: 20;
@@ -160,6 +168,7 @@
     }
     .hud-btn:hover { background: #f1f5f9; }
 
+    /* Workspace Simulation Tabs Bar */
     .workspace-tabs {
       pointer-events: auto;
       display: flex;
@@ -191,6 +200,7 @@
       border-color: #0f172a;
     }
 
+    /* 5. Bottom Unified Chat & Coworker Interface */
     #chat-drawer {
       position: relative;
       z-index: 20;
@@ -211,6 +221,7 @@
       max-height: 68dvh;
     }
 
+    /* Chubby Dots Selector Bar */
     .dots-bar {
       display: flex;
       align-items: center;
@@ -253,6 +264,7 @@
       border-color: #0f172a;
     }
 
+    /* Chat Stream */
     #chat-stream {
       flex: 1;
       overflow-y: auto;
@@ -297,6 +309,7 @@
       word-break: break-word;
     }
 
+    /* Code Blocks */
     .code-box {
       border-radius: 10px;
       overflow: hidden;
@@ -338,6 +351,7 @@
       white-space: pre;
     }
 
+    /* Attachment Bar */
     #attachment-bar {
       display: none;
       padding: 6px 16px;
@@ -356,6 +370,7 @@
       border: 1px solid var(--border-light);
     }
 
+    /* Input Command Area */
     .command-dock {
       padding: 12px;
       background: #ffffff;
@@ -412,6 +427,7 @@
     }
     .btn-execute:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* 6. Settings Modal */
     #settings-modal {
       position: fixed;
       inset: 0;
@@ -487,6 +503,7 @@
       cursor: pointer;
     }
 
+    /* 7. Watermark Fixed Corner */
     .watermark-fixed {
       position: fixed;
       bottom: 6px;
@@ -506,8 +523,10 @@
 </head>
 <body>
 
+  <!-- 1. 3D SPATIAL CUBBY VIEWPORT -->
   <div id="webgl-container"></div>
 
+  <!-- 3D Floating HUD Node Labels -->
   <div id="label-dot" class="node-label">
     <span class="dot-indicator" style="background: var(--accent-dot);"></span>
     <span style="color: var(--accent-dot);">DOT (Assistant)</span>
@@ -528,11 +547,12 @@
     <span style="color: var(--nexus-amber);">NEXUS (Architect)</span>
   </div>
 
+  <!-- 2. TOP HUD: OPEN-DOTS WHITE HEADER & WORKSPACE SIMULATION TABS -->
   <header class="hud-header">
     <div class="clean-panel top-bar">
       <div class="brand-group">
         <span class="brand-title">OpenDots // TeamDots</span>
-        <span class="os-badge">v3.8 Turbo</span>
+        <span class="os-badge">v3.8 Master</span>
       </div>
 
       <div class="hud-controls">
@@ -542,6 +562,7 @@
       </div>
     </div>
 
+    <!-- Workspace Simulation Tabs -->
     <div class="workspace-tabs">
       <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">💻 Computer</button>
       <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">🌐 Browser</button>
@@ -550,9 +571,11 @@
     </div>
   </header>
 
+  <!-- 3. BOTTOM UNIFIED CHAT & COWORKER INTERFACE -->
   <main id="chat-drawer">
     <div class="clean-panel chat-container">
 
+      <!-- Chubby Coworkers Selector Bar -->
       <div class="dots-bar">
         <div class="dots-group">
           <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active">
@@ -574,18 +597,20 @@
         <button onclick="UI.clearHistory()" style="background:none; border:none; color:var(--text-muted); font-size:10px; cursor:pointer;">Clear</button>
       </div>
 
+      <!-- Chat Stream -->
       <div id="chat-stream">
         <div class="msg-card">
           <div class="msg-card-header">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots AI Coworkers Online</span>
-            <span style="font-size: 10px; color: var(--text-muted);">Turbo Speed & Persistent Storage</span>
+            <span style="font-size: 10px; color: var(--text-muted);">Always-On Agents + Firebase</span>
           </div>
           <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            Your autonomous AI team is active. Chat history now automatically persists across browser refreshes.
+            Your autonomous AI team is active. Each coworker has its own role, browser, and computer environment. Your history is safely syncing to Firebase Firestore.
           </p>
         </div>
       </div>
 
+      <!-- Attachment Bar -->
       <div id="attachment-bar">
         <div style="display:flex; align-items:center; gap:8px;">
           <img id="attachment-preview" src="" alt="preview" />
@@ -594,6 +619,7 @@
         <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:10px; cursor:pointer;">REMOVE</button>
       </div>
 
+      <!-- Input Command Bar -->
       <div class="command-dock">
         <textarea
           id="prompt-input"
@@ -618,17 +644,18 @@
     </div>
   </main>
 
+  <!-- 4. SETTINGS MODAL -->
   <div id="settings-modal">
     <div class="modal-box">
       <div class="modal-header">
-        <span style="font-size: 14px; font-weight: 700;">⚙️ OpenDots Settings & API Router</span>
+        <span style="font-size: 14px; font-weight: 700;">⚙️ OpenDots Settings</span>
         <button onclick="UI.toggleSettings(false)" style="background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer;">✕</button>
       </div>
 
       <div class="field-group">
         <label class="field-label">Active Model Provider</label>
         <select id="model-selector" onchange="UI.saveConfig()" class="field-input">
-          <optgroup label="Google Gemini API (Fastest)">
+          <optgroup label="Google Gemini API">
             <option value="gemini:gemini-3.8-flash">Gemini 3.8 Flash (Recommended)</option>
             <option value="gemini:gemini-2.5-flash">Gemini 2.5 Flash</option>
             <option value="gemini:gemini-2.0-flash">Gemini 2.0 Flash</option>
@@ -645,11 +672,35 @@
     </div>
   </div>
 
+  <!-- 5. FIXED WATERMARK (NAMISH) -->
   <div class="watermark-fixed">
     created by naimish
   </div>
 
+  <!-- 6. MASTER JAVASCRIPT ENGINE -->
   <script>
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA",
+      authDomain: "teamdots-d57a8.firebaseapp.com",
+      projectId: "teamdots-d57a8",
+      storageBucket: "teamdots-d57a8.firebasestorage.app",
+      messagingSenderId: "141410499215",
+      appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa",
+      measurementId: "G-1X58JCFSB2"
+    };
+
+    let db = null;
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.firestore();
+    } catch(e) {
+      console.warn("Firebase offline mode. Using localStorage fallback.");
+    }
+
+    // --- STATE MANAGEMENT ---
     const STATE = {
       activeDot: 'swarm',
       activeSpace: 'computer',
@@ -663,10 +714,10 @@
         scout: { id: 'scout', name: 'Scout', role: 'Researcher', colorHex: 0x10b981, cssColor: '#10b981', position: new THREE.Vector3(-0.8, -1.0, 1.2), prompt: "You are Scout, the researcher. Gather deep insights, scan documentation, and provide facts." },
         quill: { id: 'quill', name: 'Quill', role: 'Writer', colorHex: 0x8b5cf6, cssColor: '#8b5cf6', position: new THREE.Vector3(0.8, -1.0, 1.2), prompt: "You are Quill, the writer. Draft clean copy, markdown reports, and documentation." },
         nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', colorHex: 0xd97706, cssColor: '#d97706', position: new THREE.Vector3(2.2, 1.2, 0), prompt: "You are Nexus, the system architect. Design bulletproof code, structure, and architecture." }
-      },
-      history: []
+      }
     };
 
+    // --- 3D SPATIAL ENGINE ---
     const SPATIAL = {
       scene: null, camera: null, renderer: null, controls: null,
       init() {
@@ -698,23 +749,32 @@
         window.addEventListener('resize', () => this.onResize());
         this.animate();
       },
+
       buildDots() {
         Object.values(STATE.dots).forEach(dot => {
           const group = new THREE.Group();
           group.position.copy(dot.position);
+
           const geo = new THREE.SphereGeometry(0.52, 24, 24);
-          const mat = new THREE.MeshStandardMaterial({ color: dot.colorHex, roughness: 0.3, metalness: 0.1 });
+          const mat = new THREE.MeshStandardMaterial({
+            color: dot.colorHex,
+            roughness: 0.3,
+            metalness: 0.1
+          });
           const mesh = new THREE.Mesh(geo, mat);
           group.add(mesh);
+
           this.scene.add(group);
           dot.mesh = group;
         });
       },
+
       onResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
       },
+
       updateLabels() {
         Object.values(STATE.dots).forEach(dot => {
           const el = document.getElementById(`label-${dot.id}`);
@@ -722,10 +782,14 @@
           const pos = dot.mesh.position.clone();
           pos.y += 0.85;
           pos.project(this.camera);
-          el.style.left = `${(pos.x * 0.5 + 0.5) * window.innerWidth}px`;
-          el.style.top = `${(-(pos.y * 0.5) + 0.5) * window.innerHeight}px`;
+
+          const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
+          const y = (-(pos.y * 0.5) + 0.5) * window.innerHeight;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
         });
       },
+
       animate() {
         requestAnimationFrame(() => this.animate());
         const t = Date.now() * 0.002;
@@ -739,9 +803,11 @@
       }
     };
 
+    // --- API & LLM ENGINE ---
     const ENGINE = {
       async callLLM(systemPrompt, userText, img64 = null, mime = null) {
         const gKey = (STATE.keys.gemini || '').trim();
+
         if (!gKey) {
           UI.toggleSettings(true);
           throw new Error("Add your Gemini API Key in Settings (⚙️).");
@@ -749,27 +815,34 @@
 
         const [provider, model] = STATE.selectedModel.split(':');
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(gKey)}`;
-        
-        // Optimized payload with temperature for fast response times
-        const payload = {
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: userText }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 2048 }
-        };
+        const parts = [{ text: `SYSTEM:\n${systemPrompt}\n\nUSER:\n${userText}` }];
 
-        if (img64 && mime) {
-          payload.contents[0].parts.push({ inlineData: { mimeType: mime, data: img64 } });
-        }
+        if (img64 && mime) parts.push({ inlineData: { mimeType: mime, data: img64 } });
 
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ contents: [{ role: 'user', parts }] })
         });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error?.message || `API HTTP ${res.status}`);
         return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
+      },
+
+      async enhancePrompt() {
+        const input = document.getElementById('prompt-input');
+        const raw = input.value.trim();
+        if (!raw) return alert("Enter a brief prompt first.");
+        try {
+          const upgraded = await this.callLLM(
+            "You are JARVIS. Rewrite the user's brief prompt into a high-precision technical specification. Return ONLY the enhanced prompt.",
+            raw
+          );
+          input.value = upgraded;
+        } catch (e) {
+          alert("Enhance failed: " + e.message);
+        }
       },
 
       async executeWorkflow() {
@@ -814,67 +887,66 @@
       }
     };
 
+    // --- UI & MARKDOWN / FIREBASE ORCHESTRATION ---
     const UI = {
       init() {
         const m = localStorage.getItem('od_model');
         const g = localStorage.getItem('od_gemini');
-        const h = localStorage.getItem('od_history');
-
         if (m) { STATE.selectedModel = m; document.getElementById('model-selector').value = m; }
         if (g) { STATE.keys.gemini = g; document.getElementById('key-gemini').value = g; }
-        if (h) {
-          try {
-            STATE.history = JSON.parse(h);
-            STATE.history.forEach(item => {
-              if (item.type === 'user') this.renderUserBubble(item.text);
-              else this.renderAgentCard(item.dotId, item.text);
-            });
-          } catch(err) { localStorage.removeItem('od_history'); }
-        }
+        this.loadHistory();
       },
+
       saveConfig() {
         const m = document.getElementById('model-selector').value;
         const g = document.getElementById('key-gemini').value.trim();
         STATE.selectedModel = m; STATE.keys.gemini = g;
         localStorage.setItem('od_model', m); localStorage.setItem('od_gemini', g);
       },
+
       toggleSettings(open) {
         document.getElementById('settings-modal').classList.toggle('active', open);
       },
+
       toggleChatPanel() {
         STATE.chatCollapsed = !STATE.chatCollapsed;
         const drawer = document.getElementById('chat-drawer');
         drawer.style.transform = STATE.chatCollapsed ? 'translateY(84%)' : 'translateY(0%)';
         document.getElementById('chatToggleBtn').textContent = STATE.chatCollapsed ? 'Show UI' : 'Hide UI';
       },
+
       switchSpace(space) {
         STATE.activeSpace = space;
         ['computer', 'browser', 'files', 'terminal'].forEach(s => {
           document.getElementById(`space-${s}`).classList.toggle('active', s === space);
         });
       },
+
       selectDot(dot) {
         STATE.activeDot = dot;
         ['swarm', 'dot', 'scout', 'quill', 'nexus'].forEach(d => {
           document.getElementById(`dot-${d}`).classList.toggle('active', d === dot);
         });
       },
+
       resetCamera() {
         SPATIAL.camera.position.set(0, 0.6, 7.5);
         SPATIAL.controls.target.set(0, 0, 0);
       },
-      clearHistory() {
-        STATE.history = [];
-        localStorage.removeItem('od_history');
-        document.getElementById('chat-stream').innerHTML = `
-          <div class="msg-card">
-            <div class="msg-card-header">
-              <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots AI Coworkers Online</span>
-              <span style="font-size: 10px; color: var(--text-muted);">History Purged</span>
-            </div>
-          </div>
-        `;
+
+      async clearHistory() {
+        if (db) {
+          try {
+            const snap = await db.collection('teamdots_history').get();
+            const batch = db.batch();
+            snap.docs.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+          } catch(e) {}
+        }
+        localStorage.removeItem('od_local_history');
+        document.getElementById('chat-stream').innerHTML = '';
       },
+
       handleFileAttach(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -888,45 +960,170 @@
         };
         reader.readAsDataURL(file);
       },
+
       clearAttachment() {
         STATE.attachment = { base64: null, mimeType: null, name: null };
         document.getElementById('attachment-bar').classList.remove('active');
       },
-      saveHistory(item) {
-        STATE.history.push(item);
-        if (STATE.history.length > 50) STATE.history.shift(); // Keep last 50 items
-        localStorage.setItem('od_history', JSON.stringify(STATE.history));
+
+      async saveHistory(item) {
+        if (db) {
+          try {
+            await db.collection('teamdots_history').add({
+              ...item,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return;
+          } catch(e) { console.warn('Firebase save failed, falling back to local'); }
+        }
+        // Fallback localStorage
+        let local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
+        local.push(item);
+        if (local.length > 50) local.shift();
+        localStorage.setItem('od_local_history', JSON.stringify(local));
       },
+
+      async loadHistory() {
+        const stream = document.getElementById('chat-stream');
+        if (db) {
+          try {
+            const snap = await db.collection('teamdots_history').orderBy('timestamp', 'asc').get();
+            if (!snap.empty) {
+              // Only clear placeholder if we have history
+              if (stream.children.length === 1 && stream.children[0].textContent.includes('Always-On')) {
+                 stream.innerHTML = '';
+              }
+              snap.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.type === 'user') this.renderUserBubble(data.text);
+                else this.renderAgentCard(data.dotId, data.text);
+              });
+              return;
+            }
+          } catch(e) { console.warn('Firebase load failed'); }
+        }
+        // Fallback load
+        let local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
+        if (local.length > 0) {
+          if (stream.children.length === 1 && stream.children[0].textContent.includes('Always-On')) {
+             stream.innerHTML = '';
+          }
+          local.forEach(item => {
+            if (item.type === 'user') this.renderUserBubble(item.text);
+            else this.renderAgentCard(item.dotId, item.text);
+          });
+        }
+      },
+
       appendUserMessage(text) {
         this.renderUserBubble(text);
         this.saveHistory({ type: 'user', text });
       },
+
       renderUserBubble(text) {
         const stream = document.getElementById('chat-stream');
+        // Remove placeholder if present
+        if (stream.children.length === 1 && stream.children[0].textContent.includes('Always-On')) {
+           stream.innerHTML = '';
+        }
         const bubble = document.createElement('div');
         bubble.className = 'user-bubble';
         bubble.textContent = text;
         stream.appendChild(bubble);
         stream.scrollTop = stream.scrollHeight;
       },
+
       appendMessage(dotId, raw) {
         this.renderAgentCard(dotId, raw);
         this.saveHistory({ type: 'agent', dotId, text: raw });
       },
+
       renderAgentCard(dotId, raw) {
         const stream = document.getElementById('chat-stream');
         const dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', cssColor: '#2563eb' };
 
         const card = document.createElement('div');
         card.className = 'msg-card';
-        card.innerHTML = `
-          <div class="msg-card-header">
-            <span style="font-size:11px; font-weight:700; color:${dot.cssColor}">● ${dot.name} // ${dot.role.toUpperCase()}</span>
-          </div>
-          <div style="font-size:12px; line-height:1.5; white-space:pre-wrap; word-break:break-word;">${raw}</div>
+
+        const header = document.createElement('div');
+        header.className = 'msg-card-header';
+        header.innerHTML = `
+          <span style="font-size:11px; font-weight:700; color:${dot.cssColor}">● ${dot.name} // ${dot.role.toUpperCase()}</span>
         `;
+        card.appendChild(header);
+        
+        // Use the advanced code block formatter
+        card.appendChild(this.formatCodeBlocks(raw));
+        
         stream.appendChild(card);
         stream.scrollTop = stream.scrollHeight;
+      },
+
+      formatCodeBlocks(raw) {
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '8px';
+        container.style.fontSize = '12px';
+        container.style.color = '#334155';
+        container.style.lineHeight = '1.5';
+
+        const regex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+        let lastIndex = 0;
+        let match;
+
+        while ((match = regex.exec(raw)) !== null) {
+          const before = raw.slice(lastIndex, match.index);
+          if (before.trim()) {
+            const p = document.createElement('div');
+            p.style.whiteSpace = 'pre-wrap';
+            p.style.wordBreak = 'break-word';
+            p.textContent = before.trim();
+            container.appendChild(p);
+          }
+
+          const lang = match[1] || 'code';
+          const codeText = match[2];
+
+          const codeBox = document.createElement('div');
+          codeBox.className = 'code-box';
+
+          const topBar = document.createElement('div');
+          topBar.className = 'code-topbar';
+          topBar.innerHTML = `<span>${lang.toUpperCase()}</span>`;
+
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'copy-code-btn';
+          copyBtn.textContent = 'Copy';
+          copyBtn.onclick = () => {
+            navigator.clipboard.writeText(codeText).then(() => {
+              copyBtn.textContent = 'Copied!';
+              setTimeout(() => (copyBtn.textContent = 'Copy'), 2000);
+            });
+          };
+
+          topBar.appendChild(copyBtn);
+          codeBox.appendChild(topBar);
+
+          const pre = document.createElement('pre');
+          pre.className = 'code-pre';
+          pre.textContent = codeText;
+          codeBox.appendChild(pre);
+
+          container.appendChild(codeBox);
+          lastIndex = regex.lastIndex;
+        }
+
+        const rest = raw.slice(lastIndex);
+        if (rest.trim()) {
+          const p = document.createElement('div');
+          p.style.whiteSpace = 'pre-wrap';
+          p.style.wordBreak = 'break-word';
+          p.textContent = rest.trim();
+          container.appendChild(p);
+        }
+
+        return container;
       }
     };
 
