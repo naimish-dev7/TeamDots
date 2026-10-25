@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,7 +8,7 @@
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Three.js & OrbitControls CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -19,19 +19,36 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
+    /* ==========================================================================
+       1. ROOT COLOR PALETTE & VARIABLES (OPENDOTS THEME)
+       ========================================================================== */
     :root {
       --bg-white: #ffffff;
       --surface-light: #f8fafc;
+      --surface-card: #ffffff;
+      --surface-subtle: #f1f5f9;
       --border-light: #e2e8f0;
+      --border-focus: #cbd5e1;
+      
       --text-main: #0f172a;
       --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      
       --accent-dot: #2563eb;
       --scout-green: #10b981;
       --quill-purple: #8b5cf6;
       --nexus-amber: #d97706;
       --danger: #ef4444;
+
+      --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+      --modal-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+      --glass-panel: rgba(255, 255, 255, 0.85);
+      --blur-val: 18px;
     }
 
+    /* ==========================================================================
+       2. RESET & BASE STYLES
+       ========================================================================== */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -45,9 +62,10 @@
       overflow: hidden;
       background-color: var(--bg-white);
       color: var(--text-main);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       user-select: none;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
@@ -57,7 +75,9 @@
       justify-content: space-between;
     }
 
-    /* 1. 3D Viewport */
+    /* ==========================================================================
+       3. 3D WEBGL CONTAINER & BACKGROUND VIEWPORT
+       ========================================================================== */
     #webgl-container {
       position: fixed;
       inset: 0;
@@ -65,48 +85,116 @@
       height: 100%;
       z-index: 1;
       touch-action: none;
-      background: #fdfdfd;
+      background: #fafafc;
     }
 
-    /* 2. OpenDots Clean White Glass Panels */
-    .clean-panel {
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+    /* ==========================================================================
+       4. SIMULATION WORKSPACE VIEWS (BROWSER / FILES / TERMINAL)
+       ========================================================================== */
+    .workspace-overlay {
+      position: fixed;
+      top: 108px;
+      left: 14px;
+      right: 14px;
+      bottom: 240px;
+      z-index: 10;
+      display: none;
+      border-radius: 16px;
+      overflow: hidden;
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(var(--blur-val));
+      -webkit-backdrop-filter: blur(var(--blur-val));
       border: 1px solid var(--border-light);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      box-shadow: var(--card-shadow);
+      flex-direction: column;
+    }
+    .workspace-overlay.active {
+      display: flex;
     }
 
-    /* 3. Floating 3D Node Labels */
+    .sim-header {
+      padding: 10px 16px;
+      background: var(--surface-light);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sim-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-main);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .sim-terminal-line {
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+    .sim-terminal-prefix {
+      color: var(--scout-green);
+      font-weight: 700;
+      margin-right: 6px;
+    }
+
+    .file-tree-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .file-tree-item:hover {
+      background: var(--surface-subtle);
+    }
+
+    /* ==========================================================================
+       5. FLOATING 3D NODE LABELS
+       ========================================================================== */
     .node-label {
       position: fixed;
       transform: translate(-50%, -50%);
       pointer-events: none;
       z-index: 5;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       font-size: 11px;
       font-weight: 600;
       white-space: nowrap;
-      background: #ffffff;
+      background: rgba(255, 255, 255, 0.95);
       border: 1px solid var(--border-light);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
     .dot-indicator {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
+      display: inline-block;
     }
 
-    /* 4. Top Header & Nav */
+    /* ==========================================================================
+       6. TOP HUD: BRAND HEADER & NAVIGATION
+       ========================================================================== */
     .hud-header {
       position: relative;
       z-index: 20;
-      padding: 12px;
+      padding: 14px 14px 8px 14px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -115,11 +203,16 @@
 
     .top-bar {
       pointer-events: auto;
-      border-radius: 14px;
-      padding: 10px 16px;
+      border-radius: 16px;
+      padding: 10px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: var(--glass-panel);
+      backdrop-filter: blur(var(--blur-val));
+      -webkit-backdrop-filter: blur(var(--blur-val));
+      border: 1px solid var(--border-light);
+      box-shadow: var(--card-shadow);
     }
 
     .brand-group {
@@ -132,17 +225,18 @@
       font-size: 15px;
       font-weight: 700;
       color: var(--text-main);
-      letter-spacing: -0.03em;
+      letter-spacing: -0.02em;
     }
 
     .os-badge {
       font-size: 10px;
       padding: 2px 7px;
       border-radius: 6px;
-      background: #f1f5f9;
+      background: var(--surface-subtle);
       border: 1px solid var(--border-light);
       color: var(--text-muted);
       font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
     }
 
     .hud-controls {
@@ -152,10 +246,10 @@
     }
 
     .hud-btn {
-      background: #f8fafc;
+      background: var(--surface-light);
       border: 1px solid var(--border-light);
       color: var(--text-main);
-      padding: 6px 11px;
+      padding: 6px 12px;
       border-radius: 9px;
       font-family: inherit;
       font-size: 11px;
@@ -163,27 +257,35 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 5px;
-      transition: background 0.15s ease;
+      gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease;
     }
-    .hud-btn:hover { background: #f1f5f9; }
+    .hud-btn:hover {
+      background: var(--surface-subtle);
+      border-color: var(--border-focus);
+    }
 
-    /* Workspace Simulation Tabs Bar */
+    /* Simulation Tabs */
     .workspace-tabs {
       pointer-events: auto;
       display: flex;
       gap: 6px;
       padding: 6px 12px;
-      background: rgba(255,255,255,0.9);
+      background: var(--glass-panel);
+      backdrop-filter: blur(var(--blur-val));
+      -webkit-backdrop-filter: blur(var(--blur-val));
       border-radius: 12px;
       border: 1px solid var(--border-light);
       overflow-x: auto;
       scrollbar-width: none;
+      box-shadow: var(--card-shadow);
     }
-    .workspace-tabs::-webkit-scrollbar { display: none; }
+    .workspace-tabs::-webkit-scrollbar {
+      display: none;
+    }
 
     .space-tab {
-      padding: 5px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       font-size: 11px;
       font-weight: 600;
@@ -193,6 +295,13 @@
       cursor: pointer;
       white-space: nowrap;
       transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .space-tab:hover {
+      color: var(--text-main);
+      background: rgba(0, 0, 0, 0.03);
     }
     .space-tab.active {
       background: #0f172a;
@@ -200,11 +309,13 @@
       border-color: #0f172a;
     }
 
-    /* 5. Bottom Unified Chat & Coworker Interface */
+    /* ==========================================================================
+       7. BOTTOM CHAT DRAWER & COWORKER AGENTS INTERFACE
+       ========================================================================== */
     #chat-drawer {
       position: relative;
       z-index: 20;
-      margin: 0 12px 24px 12px;
+      margin: 0 14px 24px 14px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -214,11 +325,16 @@
 
     .chat-container {
       pointer-events: auto;
-      border-radius: 18px;
+      border-radius: 20px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       max-height: 68dvh;
+      background: var(--glass-panel);
+      backdrop-filter: blur(var(--blur-val));
+      -webkit-backdrop-filter: blur(var(--blur-val));
+      border: 1px solid var(--border-light);
+      box-shadow: var(--card-shadow);
     }
 
     /* Chubby Dots Selector Bar */
@@ -226,23 +342,25 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 14px;
-      background: #f8fafc;
+      padding: 10px 16px;
+      background: var(--surface-light);
       border-bottom: 1px solid var(--border-light);
       gap: 8px;
       overflow-x: auto;
       scrollbar-width: none;
     }
-    .dots-bar::-webkit-scrollbar { display: none; }
+    .dots-bar::-webkit-scrollbar {
+      display: none;
+    }
 
     .dots-group {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
 
     .dot-pill {
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
       font-family: inherit;
       font-size: 11px;
@@ -258,48 +376,79 @@
       flex-shrink: 0;
       transition: all 0.15s ease;
     }
+    .dot-pill:hover {
+      border-color: var(--border-focus);
+      color: var(--text-main);
+    }
     .dot-pill.active {
       background: #0f172a;
       color: #ffffff;
       border-color: #0f172a;
     }
 
-    /* Chat Stream */
+    /* Live Status Ticker (Swarm Protection Feedback) */
+    #status-ticker {
+      display: none;
+      padding: 8px 18px;
+      background: var(--surface-subtle);
+      border-bottom: 1px solid var(--border-light);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-dot);
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid var(--accent-dot);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinAnim 0.75s linear infinite;
+    }
+    @keyframes spinAnim {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Chat Stream Area */
     #chat-stream {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       max-height: 38dvh;
       user-select: text;
       -webkit-user-select: text;
     }
 
     .msg-card {
-      padding: 14px;
+      padding: 14px 16px;
       border-radius: 14px;
       background: #ffffff;
       border: 1px solid var(--border-light);
       display: flex;
       flex-direction: column;
       gap: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
+      line-height: 1.55;
     }
 
     .msg-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 6px;
+      border-bottom: 1px solid var(--surface-subtle);
+      padding-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .user-bubble {
       margin-left: auto;
       max-width: 85%;
-      padding: 11px 14px;
+      padding: 12px 16px;
       border-radius: 14px;
       background: #0f172a;
       color: #ffffff;
@@ -307,22 +456,23 @@
       font-weight: 500;
       white-space: pre-wrap;
       word-break: break-word;
+      line-height: 1.55;
     }
 
-    /* Code Blocks */
+    /* Code Blocks Inside Chat */
     .code-box {
       border-radius: 10px;
       overflow: hidden;
       border: 1px solid #cbd5e1;
       background: #0f172a;
-      margin-top: 6px;
+      margin: 8px 0;
     }
 
     .code-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 12px;
+      padding: 8px 14px;
       background: #1e293b;
       border-bottom: 1px solid #334155;
       font-size: 10px;
@@ -331,8 +481,8 @@
     }
 
     .copy-code-btn {
-      padding: 2px 8px;
-      border-radius: 4px;
+      padding: 3px 9px;
+      border-radius: 5px;
       background: #38bdf8;
       color: #0f172a;
       border: none;
@@ -340,44 +490,57 @@
       font-size: 10px;
       font-weight: 700;
       cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .copy-code-btn:hover {
+      background: #7dd3fc;
     }
 
     .code-pre {
-      padding: 12px;
+      padding: 14px;
       font-size: 11px;
       color: #38bdf8;
       overflow-x: auto;
       font-family: 'JetBrains Mono', monospace;
       white-space: pre;
+      line-height: 1.5;
     }
 
-    /* Attachment Bar */
+    /* Attachment Preview Bar */
     #attachment-bar {
       display: none;
-      padding: 6px 16px;
-      background: #f8fafc;
+      padding: 8px 18px;
+      background: var(--surface-light);
       border-top: 1px solid var(--border-light);
       align-items: center;
       justify-content: space-between;
     }
-    #attachment-bar.active { display: flex; }
+    #attachment-bar.active {
+      display: flex;
+    }
+
+    .attachment-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
     #attachment-preview {
-      width: 26px;
-      height: 26px;
+      width: 30px;
+      height: 30px;
       border-radius: 6px;
       object-fit: cover;
       border: 1px solid var(--border-light);
     }
 
-    /* Input Command Area */
+    /* Command Input Dock */
     .command-dock {
-      padding: 12px;
+      padding: 14px;
       background: #ffffff;
       border-top: 1px solid var(--border-light);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     #prompt-input {
@@ -387,31 +550,33 @@
       outline: none;
       color: var(--text-main);
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.5;
       resize: none;
       user-select: text;
       -webkit-user-select: text;
     }
-    #prompt-input::placeholder { color: var(--text-muted); }
+    #prompt-input::placeholder {
+      color: var(--text-muted);
+    }
 
     .command-actions {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 6px;
-      border-top: 1px solid #f1f5f9;
+      padding-top: 8px;
+      border-top: 1px solid var(--surface-subtle);
     }
 
     .tool-buttons {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .btn-execute {
-      padding: 7px 18px;
-      border-radius: 9px;
+      padding: 8px 20px;
+      border-radius: 10px;
       background: #0f172a;
       color: #ffffff;
       border: none;
@@ -422,12 +587,20 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: opacity 0.15s ease;
+      gap: 7px;
+      transition: opacity 0.15s ease, transform 0.1s ease;
     }
-    .btn-execute:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-execute:active {
+      transform: scale(0.98);
+    }
+    .btn-execute:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
 
-    /* 6. Settings Modal */
+    /* ==========================================================================
+       8. MODAL FOR CONFIGURATION & SETTINGS
+       ========================================================================== */
     #settings-modal {
       position: fixed;
       inset: 0;
@@ -440,37 +613,39 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
-    #settings-modal.active { display: flex; }
+    #settings-modal.active {
+      display: flex;
+    }
 
     .modal-box {
       width: 100%;
-      max-width: 420px;
-      border-radius: 18px;
-      padding: 22px;
+      max-width: 440px;
+      border-radius: 20px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
       background: #ffffff;
       border: 1px solid var(--border-light);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      box-shadow: var(--modal-shadow);
     }
 
     .modal-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 10px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--border-light);
     }
 
     .field-group {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
     }
 
     .field-label {
-      font-size: 10px;
+      font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
@@ -479,21 +654,24 @@
 
     .field-input {
       width: 100%;
-      background: #f8fafc;
+      background: var(--surface-light);
       border: 1px solid var(--border-light);
-      border-radius: 9px;
-      padding: 10px 12px;
+      border-radius: 10px;
+      padding: 11px 14px;
       color: var(--text-main);
       font-family: inherit;
       font-size: 12px;
       outline: none;
+      transition: border-color 0.15s ease;
     }
-    .field-input:focus { border-color: var(--accent-dot); }
+    .field-input:focus {
+      border-color: var(--accent-dot);
+    }
 
     .btn-lock {
       width: 100%;
-      padding: 11px;
-      border-radius: 9px;
+      padding: 12px;
+      border-radius: 10px;
       background: #0f172a;
       color: #ffffff;
       border: none;
@@ -503,58 +681,97 @@
       cursor: pointer;
     }
 
-    /* 7. Watermark Fixed Corner */
+    /* ==========================================================================
+       9. FIXED WATERMARK (NAIMISH)
+       ========================================================================== */
     .watermark-fixed {
       position: fixed;
-      bottom: 6px;
-      right: 14px;
+      bottom: 8px;
+      right: 16px;
       z-index: 30;
       pointer-events: none;
-      font-size: 10px;
+      font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
       letter-spacing: 0.08em;
       color: rgba(15, 23, 42, 0.35);
     }
 
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
 </head>
 <body>
 
-  <!-- 1. 3D SPATIAL CUBBY VIEWPORT -->
+  <!-- 1. THREE.JS 3D VIEWPORT CONTAINER -->
   <div id="webgl-container"></div>
 
-  <!-- 3D Floating HUD Node Labels -->
+  <!-- 2. FLOATING 3D AGENT LABELS -->
   <div id="label-dot" class="node-label">
     <span class="dot-indicator" style="background: var(--accent-dot);"></span>
     <span style="color: var(--accent-dot);">DOT (Assistant)</span>
   </div>
-
   <div id="label-scout" class="node-label">
     <span class="dot-indicator" style="background: var(--scout-green);"></span>
     <span style="color: var(--scout-green);">SCOUT (Researcher)</span>
   </div>
-
   <div id="label-quill" class="node-label">
     <span class="dot-indicator" style="background: var(--quill-purple);"></span>
     <span style="color: var(--quill-purple);">QUILL (Writer)</span>
   </div>
-
   <div id="label-nexus" class="node-label">
     <span class="dot-indicator" style="background: var(--nexus-amber);"></span>
     <span style="color: var(--nexus-amber);">NEXUS (Architect)</span>
   </div>
 
-  <!-- 2. TOP HUD: OPEN-DOTS WHITE HEADER & WORKSPACE SIMULATION TABS -->
+  <!-- 3. WORKSPACE OVERLAYS (SIMULATIONS) -->
+  <div id="overlay-browser" class="workspace-overlay">
+    <div class="sim-header">
+      <span>🌐 Browser Simulation Sandbox</span>
+      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 6px;">Close</button>
+    </div>
+    <div class="sim-body">
+      <div style="padding: 10px; background: var(--surface-light); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-light);">
+        <span>https://teamdots.internal/session/active</span>
+      </div>
+      <p style="color: var(--text-muted);">Browser viewport active. Scout Dot can browse documentation, perform web queries, and pipe summaries directly into Quill Dot.</p>
+    </div>
+  </div>
+
+  <div id="overlay-files" class="workspace-overlay">
+    <div class="sim-header">
+      <span>📁 Cloud Virtual Filesystem</span>
+      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 6px;">Close</button>
+    </div>
+    <div class="sim-body">
+      <div class="file-tree-item">📄 index.html (TeamDots Master Core)</div>
+      <div class="file-tree-item">📄 firebase-sync.json (Cloud Storage Cache)</div>
+      <div class="file-tree-item">📁 agents/ (Dot, Scout, Quill, Nexus Specs)</div>
+      <div class="file-tree-item">📄 README.md (Architecture Notes)</div>
+    </div>
+  </div>
+
+  <div id="overlay-terminal" class="workspace-overlay">
+    <div class="sim-header">
+      <span>🖥️ Autonomous Agent Terminal</span>
+      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 6px;">Close</button>
+    </div>
+    <div class="sim-body" id="sim-terminal-output">
+      <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>TeamDots OS v4.5 Master initialized.</div>
+      <div class="sim-terminal-line"><span class="sim-terminal-prefix">[firebase]</span>Connecting to project: teamdots-d57a8... OK</div>
+      <div class="sim-terminal-line"><span class="sim-terminal-prefix">[models]</span>Gemini 3.8 Flash engine standing by.</div>
+    </div>
+  </div>
+
+  <!-- 4. TOP HUD HEADER & WORKSPACE TABS -->
   <header class="hud-header">
-    <div class="clean-panel top-bar">
+    <div class="top-bar">
       <div class="brand-group">
         <span class="brand-title">OpenDots // TeamDots</span>
-        <span class="os-badge">v3.8 Master</span>
+        <span class="os-badge">v4.5 Master</span>
       </div>
-
       <div class="hud-controls">
         <button onclick="UI.resetCamera()" class="hud-btn">3D Sync</button>
         <button onclick="UI.toggleChatPanel()" id="chatToggleBtn" class="hud-btn">Hide UI</button>
@@ -562,20 +779,27 @@
       </div>
     </div>
 
-    <!-- Workspace Simulation Tabs -->
     <div class="workspace-tabs">
-      <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">💻 Computer</button>
-      <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">🌐 Browser</button>
-      <button onclick="UI.switchSpace('files')" id="space-files" class="space-tab">📁 Files</button>
-      <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab">🖥️ Terminal</button>
+      <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">
+        <span>💻</span> Computer
+      </button>
+      <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">
+        <span>🌐</span> Browser
+      </button>
+      <button onclick="UI.switchSpace('files')" id="space-files" class="space-tab">
+        <span>📁</span> Files
+      </button>
+      <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab">
+        <span>🖥️</span> Terminal
+      </button>
     </div>
   </header>
 
-  <!-- 3. BOTTOM UNIFIED CHAT & COWORKER INTERFACE -->
+  <!-- 5. BOTTOM UNIFIED CHAT INTERFACE -->
   <main id="chat-drawer">
-    <div class="clean-panel chat-container">
+    <div class="chat-container">
 
-      <!-- Chubby Coworkers Selector Bar -->
+      <!-- Coworker Selection Bar -->
       <div class="dots-bar">
         <div class="dots-group">
           <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active">
@@ -594,44 +818,54 @@
             <span>🟠 Nexus</span>
           </button>
         </div>
-        <button onclick="UI.clearHistory()" style="background:none; border:none; color:var(--text-muted); font-size:10px; cursor:pointer;">Clear</button>
+        <button onclick="UI.clearHistory()" style="background:none; border:none; color:var(--text-muted); font-size:11px; font-weight:600; cursor:pointer;">Clear</button>
       </div>
 
-      <!-- Chat Stream -->
+      <!-- Live Status Ticker (API Circuit-Breaker Visuals) -->
+      <div id="status-ticker">
+        <div class="spinner"></div>
+        <span id="ticker-text">Agent is processing directive...</span>
+      </div>
+
+      <!-- Scrollable Message Stream -->
       <div id="chat-stream">
         <div class="msg-card">
           <div class="msg-card-header">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots AI Coworkers Online</span>
-            <span style="font-size: 10px; color: var(--text-muted);">Always-On Agents + Firebase</span>
+            <span style="font-size: 10px; color: var(--text-muted);">Master Engine + Cloud Sync</span>
           </div>
           <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            Your autonomous AI team is active. Each coworker has its own role, browser, and computer environment. Your history is safely syncing to Firebase Firestore.
+            Your autonomous AI team is ready. Swarm Mode features automatic cooldowns to prevent Google rate limits, and all chat history syncs permanently to Firebase.
           </p>
         </div>
       </div>
 
-      <!-- Attachment Bar -->
+      <!-- Image Attachment Bar -->
       <div id="attachment-bar">
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div class="attachment-meta">
           <img id="attachment-preview" src="" alt="preview" />
-          <span id="attachment-name" style="font-size: 10px; color: var(--text-muted);"></span>
+          <span id="attachment-name" style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;"></span>
         </div>
-        <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:10px; cursor:pointer;">REMOVE</button>
+        <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:600; cursor:pointer;">REMOVE</button>
       </div>
 
-      <!-- Input Command Bar -->
+      <!-- Command Input Bar -->
       <div class="command-dock">
         <textarea
           id="prompt-input"
           rows="2"
-          placeholder="Ask your AI coworkers to research, code, or build..."
+          placeholder="Ask your AI coworkers to research, architect, or write code..."
         ></textarea>
 
         <div class="command-actions">
           <div class="tool-buttons">
             <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="UI.handleFileAttach(event)" />
-            <button onclick="document.getElementById('file-input').click()" class="hud-btn">📷 Attach</button>
-            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);">✨ Enhance</button>
+            <button onclick="document.getElementById('file-input').click()" class="hud-btn">
+              📷 Attach
+            </button>
+            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);">
+              ✨ Enhance
+            </button>
           </div>
 
           <button onclick="ENGINE.executeWorkflow()" id="send-btn" class="btn-execute">
@@ -644,19 +878,19 @@
     </div>
   </main>
 
-  <!-- 4. SETTINGS MODAL -->
+  <!-- 6. SETTINGS MODAL -->
   <div id="settings-modal">
     <div class="modal-box">
       <div class="modal-header">
         <span style="font-size: 14px; font-weight: 700;">⚙️ OpenDots Settings</span>
-        <button onclick="UI.toggleSettings(false)" style="background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer;">✕</button>
+        <button onclick="UI.toggleSettings(false)" style="background:none; border:none; color:var(--text-muted); font-size:16px; cursor:pointer;">✕</button>
       </div>
 
       <div class="field-group">
         <label class="field-label">Active Model Provider</label>
         <select id="model-selector" onchange="UI.saveConfig()" class="field-input">
           <optgroup label="Google Gemini API">
-            <option value="gemini:gemini-3.8-flash">Gemini 3.8 Flash (Recommended)</option>
+            <option value="gemini:gemini-3.8-flash">Gemini 3.8 Flash (Fastest / Recommended)</option>
             <option value="gemini:gemini-2.5-flash">Gemini 2.5 Flash</option>
             <option value="gemini:gemini-2.0-flash">Gemini 2.0 Flash</option>
           </optgroup>
@@ -672,14 +906,16 @@
     </div>
   </div>
 
-  <!-- 5. FIXED WATERMARK (NAMISH) -->
+  <!-- 7. FIXED BRAND WATERMARK -->
   <div class="watermark-fixed">
     created by naimish
   </div>
 
-  <!-- 6. MASTER JAVASCRIPT ENGINE -->
+  <!-- 8. MASTER JAVASCRIPT SYSTEM ENGINE -->
   <script>
-    // --- FIREBASE CONFIGURATION ---
+    /* ==========================================================================
+       A. FIREBASE CLOUD PERSISTENCE INITIALIZATION
+       ========================================================================== */
     const firebaseConfig = {
       apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA",
       authDomain: "teamdots-d57a8.firebaseapp.com",
@@ -696,11 +932,13 @@
         firebase.initializeApp(firebaseConfig);
       }
       db = firebase.firestore();
-    } catch(e) {
-      console.warn("Firebase offline mode. Using localStorage fallback.");
+    } catch(err) {
+      console.warn("Firebase offline or unavailable, falling back to local storage:", err);
     }
 
-    // --- STATE MANAGEMENT ---
+    /* ==========================================================================
+       B. MASTER STATE OBJECT
+       ========================================================================== */
     const STATE = {
       activeDot: 'swarm',
       activeSpace: 'computer',
@@ -710,56 +948,110 @@
       keys: { gemini: '' },
       attachment: { base64: null, mimeType: null, name: null },
       dots: {
-        dot: { id: 'dot', name: 'Dot', role: 'Assistant', colorHex: 0x2563eb, cssColor: '#2563eb', position: new THREE.Vector3(-2.2, 1.2, 0), prompt: "You are Dot, the primary AI assistant. Be direct, helpful, and coordinate tasks." },
-        scout: { id: 'scout', name: 'Scout', role: 'Researcher', colorHex: 0x10b981, cssColor: '#10b981', position: new THREE.Vector3(-0.8, -1.0, 1.2), prompt: "You are Scout, the researcher. Gather deep insights, scan documentation, and provide facts." },
-        quill: { id: 'quill', name: 'Quill', role: 'Writer', colorHex: 0x8b5cf6, cssColor: '#8b5cf6', position: new THREE.Vector3(0.8, -1.0, 1.2), prompt: "You are Quill, the writer. Draft clean copy, markdown reports, and documentation." },
-        nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', colorHex: 0xd97706, cssColor: '#d97706', position: new THREE.Vector3(2.2, 1.2, 0), prompt: "You are Nexus, the system architect. Design bulletproof code, structure, and architecture." }
+        dot: {
+          id: 'dot',
+          name: 'Dot',
+          role: 'Assistant',
+          colorHex: 0x2563eb,
+          cssColor: '#2563eb',
+          position: new THREE.Vector3(-2.2, 1.2, 0),
+          prompt: "You are Dot, the primary AI assistant. Be direct, crisp, and orchestrate the team."
+        },
+        scout: {
+          id: 'scout',
+          name: 'Scout',
+          role: 'Researcher',
+          colorHex: 0x10b981,
+          cssColor: '#10b981',
+          position: new THREE.Vector3(-0.8, -1.0, 1.2),
+          prompt: "You are Scout, the researcher. Scan requirements, formulate facts, and outline essential context."
+        },
+        quill: {
+          id: 'quill',
+          name: 'Quill',
+          role: 'Writer',
+          colorHex: 0x8b5cf6,
+          cssColor: '#8b5cf6',
+          position: new THREE.Vector3(0.8, -1.0, 1.2),
+          prompt: "You are Quill, the technical writer. Draft clean markdown reports, complete codebases, and instructions."
+        },
+        nexus: {
+          id: 'nexus',
+          name: 'Nexus',
+          role: 'Architect',
+          colorHex: 0xd97706,
+          cssColor: '#d97706',
+          position: new THREE.Vector3(2.2, 1.2, 0),
+          prompt: "You are Nexus, the system architect. Design robust data structures, logic pipelines, and system architectures."
+        }
       }
     };
 
-    // --- 3D SPATIAL ENGINE ---
+    // Delay helper for rate-limit circuit breaker
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    /* ==========================================================================
+       C. THREE.JS 3D SPATIAL ENGINE
+       ========================================================================== */
     const SPATIAL = {
-      scene: null, camera: null, renderer: null, controls: null,
+      scene: null,
+      camera: null,
+      renderer: null,
+      controls: null,
+
       init() {
         const container = document.getElementById('webgl-container');
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0xfdfdfd, 0.05);
+        this.scene.fog = new THREE.FogExp2(0xfafafc, 0.05);
 
         this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
         this.camera.position.set(0, 0.6, 7.5);
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.setClearColor(0xfdfdfd, 1);
+        this.renderer.setClearColor(0xfafafc, 1);
         container.appendChild(this.renderer.domElement);
 
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.06;
+        this.controls.minDistance = 3.5;
+        this.controls.maxDistance = 14;
 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-        this.scene.add(ambient);
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+        this.scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 1.0, 20);
+        const pointLight = new THREE.PointLight(0xffffff, 1.1, 24);
         pointLight.position.set(0, 4, 4);
         this.scene.add(pointLight);
 
-        this.buildDots();
+        this.buildCubbyEnvironment();
+        this.buildAgentNodes();
+
         window.addEventListener('resize', () => this.onResize());
         this.animate();
       },
 
-      buildDots() {
-        Object.values(STATE.dots).forEach(dot => {
+      buildCubbyEnvironment() {
+        // Floor grid
+        const grid = new THREE.GridHelper(12, 16, 0xe2e8f0, 0xf1f5f9);
+        grid.position.y = -2.4;
+        this.scene.add(grid);
+      },
+
+      buildAgentNodes() {
+        Object.values(STATE.dots).forEach((dot) => {
           const group = new THREE.Group();
           group.position.copy(dot.position);
 
-          const geo = new THREE.SphereGeometry(0.52, 24, 24);
+          // Chubby Sphere Bot
+          const geo = new THREE.SphereGeometry(0.54, 28, 28);
           const mat = new THREE.MeshStandardMaterial({
             color: dot.colorHex,
-            roughness: 0.3,
-            metalness: 0.1
+            roughness: 0.25,
+            metalness: 0.15
           });
           const mesh = new THREE.Mesh(geo, mat);
           group.add(mesh);
@@ -776,15 +1068,17 @@
       },
 
       updateLabels() {
-        Object.values(STATE.dots).forEach(dot => {
+        Object.values(STATE.dots).forEach((dot) => {
           const el = document.getElementById(`label-${dot.id}`);
           if (!el || !dot.mesh) return;
+
           const pos = dot.mesh.position.clone();
-          pos.y += 0.85;
+          pos.y += 0.88;
           pos.project(this.camera);
 
           const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
           const y = (-(pos.y * 0.5) + 0.5) * window.innerHeight;
+
           el.style.left = `${x}px`;
           el.style.top = `${y}px`;
         });
@@ -793,31 +1087,37 @@
       animate() {
         requestAnimationFrame(() => this.animate());
         const t = Date.now() * 0.002;
+
         Object.values(STATE.dots).forEach((dot, idx) => {
           if (!dot.mesh) return;
-          dot.mesh.position.y = dot.position.y + Math.sin(t + idx) * 0.12;
+          dot.mesh.position.y = dot.position.y + Math.sin(t + idx * 1.5) * 0.12;
+          dot.mesh.rotation.y += 0.008;
         });
+
         this.controls.update();
         this.updateLabels();
         this.renderer.render(this.scene, this.camera);
       }
     };
 
-    // --- API & LLM ENGINE ---
+    /* ==========================================================================
+       D. MULTI-AGENT EXECUTION & SWARM PIPELINE (API ENGINE)
+       ========================================================================== */
     const ENGINE = {
       async callLLM(systemPrompt, userText, img64 = null, mime = null) {
         const gKey = (STATE.keys.gemini || '').trim();
-
         if (!gKey) {
           UI.toggleSettings(true);
           throw new Error("Add your Gemini API Key in Settings (⚙️).");
         }
 
-        const [provider, model] = STATE.selectedModel.split(':');
+        const [, model] = STATE.selectedModel.split(':');
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(gKey)}`;
         const parts = [{ text: `SYSTEM:\n${systemPrompt}\n\nUSER:\n${userText}` }];
 
-        if (img64 && mime) parts.push({ inlineData: { mimeType: mime, data: img64 } });
+        if (img64 && mime) {
+          parts.push({ inlineData: { mimeType: mime, data: img64 } });
+        }
 
         const res = await fetch(endpoint, {
           method: 'POST',
@@ -826,22 +1126,28 @@
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error?.message || `API HTTP ${res.status}`);
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
+        if (!res.ok) {
+          throw new Error(data.error?.message || `API HTTP ${res.status}`);
+        }
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response returned from model.';
       },
 
       async enhancePrompt() {
         const input = document.getElementById('prompt-input');
         const raw = input.value.trim();
         if (!raw) return alert("Enter a brief prompt first.");
+
+        UI.showTicker("✨ JARVIS is enhancing technical specification...", "#8b5cf6");
         try {
           const upgraded = await this.callLLM(
-            "You are JARVIS. Rewrite the user's brief prompt into a high-precision technical specification. Return ONLY the enhanced prompt.",
+            "You are JARVIS. Rewrite the user's brief prompt into a high-precision, technical specification for a multi-agent AI team. Output ONLY the upgraded prompt text.",
             raw
           );
           input.value = upgraded;
         } catch (e) {
           alert("Enhance failed: " + e.message);
+        } finally {
+          UI.hideTicker();
         }
       },
 
@@ -857,51 +1163,89 @@
         input.value = '';
         UI.clearAttachment();
         STATE.isProcessing = true;
-        const btn = document.getElementById('send-btn');
-        btn.disabled = true;
+        document.getElementById('send-btn').disabled = true;
 
         try {
           if (STATE.activeDot === 'swarm') {
             UI.appendUserMessage(text);
-            
+            UI.logTerminal(`[user] Directive issued to Swarm: "${text.substring(0, 30)}..."`);
+
+            // Phase 1: Scout
+            UI.showTicker("🟢 Scout Dot is scanning & researching...", "var(--scout-green)");
+            UI.logTerminal("[scout] Formulating research parameters...");
             const research = await this.callLLM(STATE.dots.scout.prompt, text, img64, mime);
             UI.appendMessage('scout', research);
+            UI.logTerminal("[scout] Research matrix dispatched.");
 
-            const arch = await this.callLLM(STATE.dots.nexus.prompt, `Research context:\n${research}\n\nTask: ${text}`);
+            // Cooldown Circuit Breaker 1
+            UI.showTicker("⏱️ Resting 4s to bypass Google rate limits...", "var(--text-muted)");
+            await delay(4000);
+
+            // Phase 2: Nexus
+            UI.showTicker("🟠 Nexus Dot is architecting logic...", "var(--nexus-amber)");
+            UI.logTerminal("[nexus] Synthesizing structural blueprint...");
+            const arch = await this.callLLM(STATE.dots.nexus.prompt, `User Task: ${text}\n\nScout Research:\n${research}`);
             UI.appendMessage('nexus', arch);
+            UI.logTerminal("[nexus] Architectural specification finalized.");
 
-            const written = await this.callLLM(STATE.dots.quill.prompt, `Architecture:\n${arch}\n\nDraft final output.`);
+            // Cooldown Circuit Breaker 2
+            UI.showTicker("⏱️ Resting 4s to bypass Google rate limits...", "var(--text-muted)");
+            await delay(4000);
+
+            // Phase 3: Quill
+            UI.showTicker("🟣 Quill Dot is writing codebase/output...", "var(--quill-purple)");
+            UI.logTerminal("[quill] Compiling final deliverable...");
+            const written = await this.callLLM(STATE.dots.quill.prompt, `User Task: ${text}\n\nNexus Architecture:\n${arch}\n\nDraft final code and document.`);
             UI.appendMessage('quill', written);
+            UI.logTerminal("[quill] Consensus reached. All outputs compiled.");
+
           } else {
+            // Single Dot Execution
             const dot = STATE.dots[STATE.activeDot];
             UI.appendUserMessage(text);
+            UI.showTicker(`${dot.name} is processing...`, dot.cssColor);
+            UI.logTerminal(`[${dot.id}] Direct task received: "${text.substring(0, 30)}..."`);
+
             const reply = await this.callLLM(dot.prompt, text, img64, mime);
             UI.appendMessage(dot.id, reply);
+            UI.logTerminal(`[${dot.id}] Execution completed.`);
           }
         } catch (e) {
-          UI.appendMessage('dot', `Error: ${e.message}`);
+          UI.appendMessage('dot', `⚠️ Pipeline Error: ${e.message}`);
+          UI.logTerminal(`[error] ${e.message}`);
         } finally {
           STATE.isProcessing = false;
-          btn.disabled = false;
+          UI.hideTicker();
+          document.getElementById('send-btn').disabled = false;
         }
       }
     };
 
-    // --- UI & MARKDOWN / FIREBASE ORCHESTRATION ---
+    /* ==========================================================================
+       E. UI CONTROLS, CLOUD FIRESTORE SYNC, & FORMATTER
+       ========================================================================== */
     const UI = {
       init() {
         const m = localStorage.getItem('od_model');
         const g = localStorage.getItem('od_gemini');
-        if (m) { STATE.selectedModel = m; document.getElementById('model-selector').value = m; }
-        if (g) { STATE.keys.gemini = g; document.getElementById('key-gemini').value = g; }
+        if (m) {
+          STATE.selectedModel = m;
+          document.getElementById('model-selector').value = m;
+        }
+        if (g) {
+          STATE.keys.gemini = g;
+          document.getElementById('key-gemini').value = g;
+        }
         this.loadHistory();
       },
 
       saveConfig() {
         const m = document.getElementById('model-selector').value;
         const g = document.getElementById('key-gemini').value.trim();
-        STATE.selectedModel = m; STATE.keys.gemini = g;
-        localStorage.setItem('od_model', m); localStorage.setItem('od_gemini', g);
+        STATE.selectedModel = m;
+        STATE.keys.gemini = g;
+        localStorage.setItem('od_model', m);
+        localStorage.setItem('od_gemini', g);
       },
 
       toggleSettings(open) {
@@ -917,14 +1261,21 @@
 
       switchSpace(space) {
         STATE.activeSpace = space;
-        ['computer', 'browser', 'files', 'terminal'].forEach(s => {
+        ['computer', 'browser', 'files', 'terminal'].forEach((s) => {
           document.getElementById(`space-${s}`).classList.toggle('active', s === space);
+          const overlay = document.getElementById(`overlay-${s}`);
+          if (overlay) overlay.classList.remove('active');
         });
+
+        if (space !== 'computer') {
+          const targetOverlay = document.getElementById(`overlay-${space}`);
+          if (targetOverlay) targetOverlay.classList.add('active');
+        }
       },
 
       selectDot(dot) {
         STATE.activeDot = dot;
-        ['swarm', 'dot', 'scout', 'quill', 'nexus'].forEach(d => {
+        ['swarm', 'dot', 'scout', 'quill', 'nexus'].forEach((d) => {
           document.getElementById(`dot-${d}`).classList.toggle('active', d === dot);
         });
       },
@@ -932,6 +1283,31 @@
       resetCamera() {
         SPATIAL.camera.position.set(0, 0.6, 7.5);
         SPATIAL.controls.target.set(0, 0, 0);
+        SPATIAL.controls.update();
+      },
+
+      showTicker(text, color) {
+        const ticker = document.getElementById('status-ticker');
+        const label = document.getElementById('ticker-text');
+        ticker.style.display = 'flex';
+        ticker.style.color = color || 'var(--text-main)';
+        ticker.querySelector('.spinner').style.borderColor = color || 'var(--text-main)';
+        ticker.querySelector('.spinner').style.borderTopColor = 'transparent';
+        label.textContent = text;
+      },
+
+      hideTicker() {
+        document.getElementById('status-ticker').style.display = 'none';
+      },
+
+      logTerminal(text) {
+        const term = document.getElementById('sim-terminal-output');
+        if (!term) return;
+        const line = document.createElement('div');
+        line.className = 'sim-terminal-line';
+        line.innerHTML = `<span class="sim-terminal-prefix">[log]</span>${text}`;
+        term.appendChild(line);
+        term.scrollTop = term.scrollHeight;
       },
 
       async clearHistory() {
@@ -939,12 +1315,21 @@
           try {
             const snap = await db.collection('teamdots_history').get();
             const batch = db.batch();
-            snap.docs.forEach(doc => batch.delete(doc.ref));
+            snap.docs.forEach((doc) => batch.delete(doc.ref));
             await batch.commit();
-          } catch(e) {}
+          } catch (e) {
+            console.warn("Firestore clear failed:", e);
+          }
         }
         localStorage.removeItem('od_local_history');
-        document.getElementById('chat-stream').innerHTML = '';
+        document.getElementById('chat-stream').innerHTML = `
+          <div class="msg-card">
+            <div class="msg-card-header">
+              <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● Cloud Session Cleared</span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-muted);">All chat documents have been purged from memory.</p>
+          </div>
+        `;
       },
 
       handleFileAttach(e) {
@@ -974,9 +1359,10 @@
               timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
             return;
-          } catch(e) { console.warn('Firebase save failed, falling back to local'); }
+          } catch (e) {
+            console.warn('Firebase save failed, falling back to local:', e);
+          }
         }
-        // Fallback localStorage
         let local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
         local.push(item);
         if (local.length > 50) local.shift();
@@ -989,26 +1375,22 @@
           try {
             const snap = await db.collection('teamdots_history').orderBy('timestamp', 'asc').get();
             if (!snap.empty) {
-              // Only clear placeholder if we have history
-              if (stream.children.length === 1 && stream.children[0].textContent.includes('Always-On')) {
-                 stream.innerHTML = '';
-              }
-              snap.docs.forEach(doc => {
+              stream.innerHTML = '';
+              snap.docs.forEach((doc) => {
                 const data = doc.data();
                 if (data.type === 'user') this.renderUserBubble(data.text);
                 else this.renderAgentCard(data.dotId, data.text);
               });
               return;
             }
-          } catch(e) { console.warn('Firebase load failed'); }
+          } catch (e) {
+            console.warn('Firebase load failed, falling back to local:', e);
+          }
         }
-        // Fallback load
         let local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
         if (local.length > 0) {
-          if (stream.children.length === 1 && stream.children[0].textContent.includes('Always-On')) {
-             stream.innerHTML = '';
-          }
-          local.forEach(item => {
+          stream.innerHTML = '';
+          local.forEach((item) => {
             if (item.type === 'user') this.renderUserBubble(item.text);
             else this.renderAgentCard(item.dotId, item.text);
           });
@@ -1022,9 +1404,9 @@
 
       renderUserBubble(text) {
         const stream = document.getElementById('chat-stream');
-        // Remove placeholder if present
-        if (stream.children.length === 1 && stream.children[0].textContent.includes('Always-On')) {
-           stream.innerHTML = '';
+        // Clear intro placeholder if still present
+        if (stream.children.length === 1 && stream.children[0].textContent.includes('Master Engine')) {
+          stream.innerHTML = '';
         }
         const bubble = document.createElement('div');
         bubble.className = 'user-bubble';
@@ -1044,17 +1426,15 @@
 
         const card = document.createElement('div');
         card.className = 'msg-card';
-
         const header = document.createElement('div');
         header.className = 'msg-card-header';
         header.innerHTML = `
           <span style="font-size:11px; font-weight:700; color:${dot.cssColor}">● ${dot.name} // ${dot.role.toUpperCase()}</span>
+          <span style="font-size:10px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
         `;
         card.appendChild(header);
-        
-        // Use the advanced code block formatter
+
         card.appendChild(this.formatCodeBlocks(raw));
-        
         stream.appendChild(card);
         stream.scrollTop = stream.scrollHeight;
       },
@@ -1084,7 +1464,6 @@
 
           const lang = match[1] || 'code';
           const codeText = match[2];
-
           const codeBox = document.createElement('div');
           codeBox.className = 'code-box';
 
@@ -1127,6 +1506,9 @@
       }
     };
 
+    /* ==========================================================================
+       F. BOOTSTRAP INITIALIZATION
+       ========================================================================== */
     window.addEventListener('DOMContentLoaded', () => {
       UI.init();
       SPATIAL.init();
