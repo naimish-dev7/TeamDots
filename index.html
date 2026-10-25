@@ -10,6 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Firebase SDK CDNs (Firestore Cloud Sync) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <style>
     /* ==========================================================================
        1. WHITE THEME COLOR SYSTEM
@@ -200,9 +204,8 @@
       pointer-events: none;
       animation: spinRing 9s linear infinite;
     }
-    @keyframes spinRing {
-      to { transform: rotateX(68deg) rotateZ(375deg); }
-    }
+    @keyframes spinRing { to { transform: rotateX(68deg) rotateZ(375deg); } }
+
     .bot-visor {
       width: 44px;
       height: 22px;
@@ -289,6 +292,16 @@
       color: var(--accent-dot);
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
+    }
+    .cloud-badge {
+      font-size: 9.5px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--scout-green);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
     }
 
     .hud-controls {
@@ -1048,7 +1061,8 @@
     <div class="top-bar">
       <div class="brand-title">
         <span>● OpenDots</span>
-        <span class="brand-badge">v12.2 Clean</span>
+        <span class="brand-badge">v12.2</span>
+        <span class="cloud-badge" id="cloud-indicator">☁️ Sync Active</span>
       </div>
       <div class="hud-controls">
         <button onclick="UI.toggleTheme()" class="hud-btn" title="Toggle Theme">🌓</button>
@@ -1125,11 +1139,11 @@
       <div id="chat-stream">
         <div class="msg-card">
           <div class="msg-card-header">
-            <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots OS Clean Edition</span>
-            <span style="font-size: 10px; color: var(--text-muted);">White UI + Pure CSS 3D + Connectors</span>
+            <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots Cloud Engine Online</span>
+            <span style="font-size: 10px; color: var(--text-muted);">Firebase teamdots-d57a8 Connected</span>
           </div>
           <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            Parser bug permanently fixed. 3D Chubby Bots and all overlays are operating cleanly. Ready for your directive!
+            Your Firebase Firestore persistence is active. All chat history, virtual files, and generated code blocks sync in real-time.
           </p>
         </div>
       </div>
@@ -1210,16 +1224,44 @@
     </div>
   </div>
 
-  <div class="watermark-fixed">opendots // clean v12.2</div>
+  <div class="watermark-fixed">opendots // firebase cloud v12.3</div>
 
   <!-- 6. MASTER ENGINE SCRIPT -->
   <script>
-    // Universal Clean Entities - All tags safely constructed
-    const TAG_START = '\x3c';
-    const TAG_END = '\x3e';
-    const SCRIPT_CLOSE = '\x3c/script\x3e';
+    // Universal Safe Tags - No HTML tokens inside script
+    var TAG_START = '\x3c';
+    var TAG_END = '\x3e';
+    var SCRIPT_CLOSE = '\x3c/script\x3e';
 
-    const STATE = {
+    /* ==========================================================================
+       A. YOUR FIREBASE CLOUD PERSISTENCE
+       ========================================================================== */
+    var firebaseConfig = {
+      apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA",
+      authDomain: "teamdots-d57a8.firebaseapp.com",
+      projectId: "teamdots-d57a8",
+      storageBucket: "teamdots-d57a8.firebasestorage.app",
+      messagingSenderId: "141410499215",
+      appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa",
+      measurementId: "G-1X58JCFSB2"
+    };
+
+    var db = null;
+    try {
+      if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+      }
+    } catch (e) {
+      console.warn("Firestore running in offline/localStorage mode:", e);
+    }
+
+    /* ==========================================================================
+       B. MASTER STATE OBJECT
+       ========================================================================== */
+    var STATE = {
       activeDot: 'swarm',
       activeSpace: 'computer',
       chatCollapsed: false,
@@ -1262,14 +1304,14 @@
       }
     };
 
-    const delay = function(ms) {
+    var delay = function(ms) {
       return new Promise(function(resolve) { setTimeout(resolve, ms); });
     };
 
     /* ==========================================================================
-       A. OPENDOTS CONNECTORS
+       C. OPENDOTS CONNECTORS
        ========================================================================== */
-    const CONNECTORS = {
+    var CONNECTORS = {
       list: [
         {
           id: 'gemini_grounding',
@@ -1337,7 +1379,6 @@
         var activeCount = this.list.filter(function(c) { return c.enabled; }).length;
         document.getElementById('tab-conn-count').textContent = activeCount;
 
-        var self = this;
         this.list.forEach(function(c) {
           var div = document.createElement('div');
           div.className = 'connector-card ' + (c.enabled ? 'active-conn' : '');
@@ -1356,9 +1397,9 @@
     };
 
     /* ==========================================================================
-       B. SKILLS REGISTRY
+       D. SKILLS REGISTRY
        ========================================================================== */
-    const SKILLS = {
+    var SKILLS = {
       list: [
         {
           id: 'web_research',
@@ -1479,9 +1520,9 @@
     };
 
     /* ==========================================================================
-       C. PURE CSS 3D SPATIAL VISUALS
+       E. PURE CSS 3D SPATIAL VISUALS
        ========================================================================== */
-    const SPATIAL = {
+    var SPATIAL = {
       updateCables: function() {
         var getCenter = function(id) {
           var el = document.getElementById(id);
@@ -1554,9 +1595,9 @@
     };
 
     /* ==========================================================================
-       D. VIRTUAL FILESYSTEM (VFS)
+       F. VIRTUAL FILESYSTEM (VFS)
        ========================================================================== */
-    const VFS = {
+    var VFS = {
       files: {
         'index.html': [
           TAG_START + '!DOCTYPE html' + TAG_END,
@@ -1577,7 +1618,7 @@
           TAG_START + '/body' + TAG_END,
           TAG_START + '/html' + TAG_END
         ].join('\n'),
-        'README.md': '# OpenDots OS v12.2 Clean Edition\n\n- White Theme UI\n- Gemini Search Grounding & Connectors\n- Zero WebGL Crashes'
+        'README.md': '# OpenDots OS v12.3 Clean Edition\n\n- White Theme UI\n- Firebase Cloud Sync (`teamdots-d57a8`)\n- Gemini Search Grounding & Connectors\n- Zero WebGL Crashes'
       },
       activeFile: 'index.html',
 
@@ -1672,9 +1713,9 @@
     };
 
     /* ==========================================================================
-       E. MULTI-PROVIDER AI ENGINE
+       G. MULTI-PROVIDER AI ENGINE
        ========================================================================== */
-    const ENGINE = {
+    var ENGINE = {
       callLLM: function(dotId, basePrompt, userText, img64, mime) {
         var skillDirective = SKILLS.getPromptFor(dotId);
         var connectorDirective = CONNECTORS.getActivePrompt();
@@ -1758,7 +1799,6 @@
           return '### 🟠 Nexus System Blueprint\n```\n+--------------------------------------------------+\n|                  UI / CLIENT                     |\n|      [Reactive State] <---> [DOM Renderer]       |\n+------------------------+-------------------------+\n                         |\n                         v\n+--------------------------------------------------+\n|               CORE LOGIC ENGINE                  |\n|    [Event Pipeline] <---> [Sanitizer / Cache]    |\n+--------------------------------------------------+\n```\n1. Pure modular architecture.\n2. Built for instant browser execution.';
         }
 
-        // Quill writes clean code without unescaped script tokens
         var cleanApp = [
           TAG_START + '!DOCTYPE html' + TAG_END,
           TAG_START + 'html lang="en"' + TAG_END,
@@ -1916,9 +1956,9 @@
     };
 
     /* ==========================================================================
-       F. TERMINAL CLI
+       H. TERMINAL CLI
        ========================================================================== */
-    const CLI = {
+    var CLI = {
       execute: function(raw) {
         var input = document.getElementById('terminal-cli-input');
         input.value = '';
@@ -1937,6 +1977,7 @@
             UI.logTerminal("  cat <filename> - View virtual file contents");
             UI.logTerminal("  skills         - List enabled agent skills");
             UI.logTerminal("  connectors     - List external connectors");
+            UI.logTerminal("  cloud          - Check Firebase status");
             UI.logTerminal("  swarm <task>   - Run autonomous swarm pipeline");
             UI.logTerminal("  clear          - Clear terminal");
             break;
@@ -1953,6 +1994,9 @@
           case 'connectors':
             CONNECTORS.list.forEach(function(c) { UI.logTerminal("  [" + (c.enabled ? 'ON' : 'OFF') + "] " + c.name + " (" + c.badge + ")"); });
             break;
+          case 'cloud':
+            UI.logTerminal(db ? "Firebase Connected (teamdots-d57a8) [ONLINE]" : "Firebase in offline localStorage fallback mode.");
+            break;
           case 'swarm':
             if (!argText) UI.logTerminal("Usage: swarm <directive>");
             else { UI.selectDot('swarm'); ENGINE.executeWorkflow(argText); }
@@ -1967,9 +2011,9 @@
     };
 
     /* ==========================================================================
-       G. VOICE INPUT & SPEECH
+       I. VOICE INPUT & SPEECH
        ========================================================================== */
-    const VOICE = {
+    var VOICE = {
       rec: null,
       isListening: false,
       toggleMic: function() {
@@ -2004,9 +2048,9 @@
     };
 
     /* ==========================================================================
-       H. UI INTERACTIONS & ADAPTIVE LAYOUT
+       J. UI INTERACTIONS & CLOUD PERSISTENCE
        ========================================================================== */
-    const UI = {
+    var UI = {
       init: function() {
         var prov = localStorage.getItem('od_prov') || 'sim';
         var key = localStorage.getItem('od_key') || '';
@@ -2039,6 +2083,8 @@
 
         window.addEventListener('resize', function() { SPATIAL.updateCables(); });
         setTimeout(function() { SPATIAL.updateCables(); }, 120);
+
+        this.loadHistory();
       },
 
       toggleTheme: function() {
@@ -2146,11 +2192,81 @@
         a.click();
       },
 
+      /* Firebase + LocalStorage Sync */
+      saveHistory: function(item) {
+        var local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
+        local.push(item);
+        if (local.length > 50) local.shift();
+        localStorage.setItem('od_local_history', JSON.stringify(local));
+
+        if (db) {
+          try {
+            db.collection('teamdots_history').add({
+              type: item.type,
+              dotId: item.dotId || null,
+              text: item.text,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          } catch (e) {
+            console.warn("Firestore save fallback:", e);
+          }
+        }
+      },
+
+      loadHistory: function() {
+        var stream = document.getElementById('chat-stream');
+        var self = this;
+
+        if (db) {
+          db.collection('teamdots_history').orderBy('timestamp', 'asc').limit(40).get()
+            .then(function(snap) {
+              if (!snap.empty) {
+                stream.innerHTML = '';
+                snap.docs.forEach(function(doc) {
+                  var data = doc.data();
+                  if (data.type === 'user') self.renderUserBubble(data.text);
+                  else self.renderAgentCard(data.dotId, data.text);
+                });
+                return;
+              }
+              self.loadLocalHistory();
+            })
+            .catch(function(err) {
+              console.warn("Firestore load fallback to local:", err);
+              self.loadLocalHistory();
+            });
+        } else {
+          this.loadLocalHistory();
+        }
+      },
+
+      loadLocalHistory: function() {
+        var stream = document.getElementById('chat-stream');
+        var local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
+        var self = this;
+        if (local.length > 0) {
+          stream.innerHTML = '';
+          local.forEach(function(item) {
+            if (item.type === 'user') self.renderUserBubble(item.text);
+            else self.renderAgentCard(item.dotId, item.text);
+          });
+        }
+      },
+
       clearHistory: function() {
+        if (db) {
+          db.collection('teamdots_history').get().then(function(snap) {
+            var batch = db.batch();
+            snap.docs.forEach(function(doc) { batch.delete(doc.ref); });
+            return batch.commit();
+          }).catch(function(e) { console.warn("Firestore batch clear failed:", e); });
+        }
+
+        localStorage.removeItem('od_local_history');
         document.getElementById('chat-stream').innerHTML = 
           '<div class="msg-card">' +
-            '<span style="font-size:11px; font-weight:700; color:var(--accent-dot);">● Chat Memory Cleared</span>' +
-            '<p style="font-size:12px; color:var(--text-muted);">Ready for your next directive.</p>' +
+            '<span style="font-size:11px; font-weight:700; color:var(--accent-dot);">● Cloud Session Cleared</span>' +
+            '<p style="font-size:12px; color:var(--text-muted);">Purged from Firebase Firestore and local memory.</p>' +
           '</div>';
       },
 
@@ -2174,6 +2290,11 @@
       },
 
       appendUserMessage: function(text) {
+        this.renderUserBubble(text);
+        this.saveHistory({ type: 'user', text: text });
+      },
+
+      renderUserBubble: function(text) {
         var s = document.getElementById('chat-stream');
         var b = document.createElement('div');
         b.className = 'user-bubble';
@@ -2183,6 +2304,11 @@
       },
 
       appendMessage: function(dotId, raw) {
+        this.renderAgentCard(dotId, raw);
+        this.saveHistory({ type: 'agent', dotId: dotId, text: raw });
+      },
+
+      renderAgentCard: function(dotId, raw) {
         var s = document.getElementById('chat-stream');
         var dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', color: '#2563eb' };
 
@@ -2278,7 +2404,7 @@
     };
 
     /* ==========================================================================
-       I. STARTUP
+       K. STARTUP
        ========================================================================== */
     window.addEventListener('DOMContentLoaded', function() {
       CONNECTORS.init();
