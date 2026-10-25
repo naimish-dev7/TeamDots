@@ -1,54 +1,60 @@
- <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>teamdots // open-source AI coworkers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>OpenDots // TeamDots OS — Autonomous AI Coworkers</title>
 
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Three.js & OrbitControls CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-  <!-- Firebase SDK CDNs (Firestore Cloud Sync) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     /* ==========================================================================
-       1. ROOT COLOR PALETTE & VARIABLES (OPENDOTS THEME)
+       1. WHITE THEME COLOR SYSTEM
        ========================================================================== */
     :root {
-      --bg-white: #ffffff;
-      --surface-light: #f8fafc;
+      --bg-base: #f8fafc;
       --surface-card: #ffffff;
-      --surface-subtle: #f1f5f9;
+      --surface-light: #f1f5f9;
+      --surface-subtle: #e2e8f0;
+      --border-color: #cbd5e1;
       --border-light: #e2e8f0;
-      --border-focus: #cbd5e1;
-      
+
       --text-main: #0f172a;
-      --text-muted: #64748b;
+      --text-muted: #475569;
       --text-dim: #94a3b8;
-      
+
       --accent-dot: #2563eb;
       --scout-green: #10b981;
+      --nexus-amber: #f59e0b;
       --quill-purple: #8b5cf6;
-      --nexus-amber: #d97706;
       --danger: #ef4444;
 
-      --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+      --glass-bg: rgba(255, 255, 255, 0.94);
+      --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
       --modal-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-      --glass-panel: rgba(255, 255, 255, 0.85);
+      --bot-shadow: 0 14px 28px -4px rgba(15, 23, 42, 0.12);
       --blur-val: 18px;
     }
 
-    /* ==========================================================================
-       2. RESET & BASE STYLES
-       ========================================================================== */
+    [data-theme="dark"] {
+      --bg-base: #090d16;
+      --surface-card: #111827;
+      --surface-light: #1f2937;
+      --surface-subtle: #374151;
+      --border-color: #374151;
+      --border-light: #1f2937;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --glass-bg: rgba(17, 24, 39, 0.94);
+      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      --bot-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.6);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -60,12 +66,11 @@
       width: 100%;
       height: 100dvh;
       overflow: hidden;
-      background-color: var(--bg-white);
+      background-color: var(--bg-base);
       color: var(--text-main);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       user-select: none;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
@@ -76,217 +81,267 @@
     }
 
     /* ==========================================================================
-       3. 3D WEBGL CONTAINER & BACKGROUND VIEWPORT
+       2. PURE CSS 3D SPATIAL CANVAS
        ========================================================================== */
-    #webgl-container {
+    #spatial-stage {
       position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       z-index: 1;
-      touch-action: none;
-      background: #fafafc;
-    }
-
-    /* ==========================================================================
-       4. SIMULATION WORKSPACE VIEWS (BROWSER / FILES / TERMINAL)
-       ========================================================================== */
-    .workspace-overlay {
-      position: fixed;
-      top: 108px;
-      left: 14px;
-      right: 14px;
-      bottom: 240px;
-      z-index: 10;
-      display: none;
-      border-radius: 16px;
       overflow: hidden;
-      pointer-events: auto;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(var(--blur-val));
-      -webkit-backdrop-filter: blur(var(--blur-val));
-      border: 1px solid var(--border-light);
-      box-shadow: var(--card-shadow);
-      flex-direction: column;
-    }
-    .workspace-overlay.active {
-      display: flex;
-    }
-
-    .sim-header {
-      padding: 10px 16px;
-      background: var(--surface-light);
-      border-bottom: 1px solid var(--border-light);
+      perspective: 900px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
+      justify-content: center;
+      background: radial-gradient(circle at 50% 35%, rgba(37,99,235,0.06) 0%, transparent 65%);
     }
 
-    .sim-body {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--text-main);
-      user-select: text;
-      -webkit-user-select: text;
-    }
-
-    .sim-terminal-line {
-      line-height: 1.6;
-      margin-bottom: 6px;
-    }
-    .sim-terminal-prefix {
-      color: var(--scout-green);
-      font-weight: 700;
-      margin-right: 6px;
-    }
-
-    .file-tree-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    .file-tree-item:hover {
-      background: var(--surface-subtle);
-    }
-
-    /* ==========================================================================
-       5. FLOATING 3D NODE LABELS
-       ========================================================================== */
-    .node-label {
-      position: fixed;
-      transform: translate(-50%, -50%);
+    .grid-floor {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      bottom: -40%;
+      left: -50%;
+      background-image: 
+        linear-gradient(to right, var(--border-light) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-light) 1px, transparent 1px);
+      background-size: 36px 36px;
+      transform: rotateX(68deg);
+      opacity: 0.6;
       pointer-events: none;
-      z-index: 5;
-      padding: 6px 14px;
-      border-radius: 999px;
+    }
+
+    #neural-cables {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .neural-line {
+      stroke: var(--border-color);
+      stroke-width: 2;
+      stroke-dasharray: 6 6;
+      opacity: 0.65;
+    }
+    .neural-packet {
+      fill: var(--accent-dot);
+      filter: drop-shadow(0 0 6px var(--accent-dot));
+    }
+
+    .bots-3d-cluster {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      height: 360px;
+      transform-style: preserve-3d;
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid var(--border-light);
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      justify-content: center;
+      z-index: 3;
+      transform: translateY(-40px);
+    }
+    @media (max-width: 640px) {
+      .bots-3d-cluster {
+        transform: translateY(-80px) scale(0.85);
+        height: 310px;
+      }
     }
 
-    .dot-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
+    .bot-3d {
+      position: absolute;
+      width: 110px;
+      height: 140px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.25s ease, filter 0.25s ease;
+      transform-style: preserve-3d;
     }
+
+    .bot-3d#node-dot   { top: 10px; left: 6%; animation: floatA 4.2s ease-in-out infinite; }
+    .bot-3d#node-scout { bottom: 20px; left: 20%; animation: floatA 4.8s ease-in-out infinite 0.7s; }
+    .bot-3d#node-quill { bottom: 20px; right: 20%; animation: floatA 4.4s ease-in-out infinite 1.4s; }
+    .bot-3d#node-nexus { top: 10px; right: 6%; animation: floatA 4.6s ease-in-out infinite 2.1s; }
+
+    @keyframes floatA {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-11px); }
+    }
+
+    .bot-3d.active { filter: drop-shadow(0 0 16px rgba(37, 99, 235, 0.45)); }
+    .bot-3d.working { animation: workPulse 0.8s ease-in-out infinite alternate !important; }
+    @keyframes workPulse {
+      from { transform: scale(1.03) translateY(-6px); filter: drop-shadow(0 0 20px var(--accent-dot)); }
+      to { transform: scale(1.12) translateY(-14px); filter: drop-shadow(0 0 35px var(--accent-dot)); }
+    }
+
+    .bot-body {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--bot-shadow);
+      border: 3px solid rgba(255, 255, 255, 0.4);
+    }
+    .bot-orbit-ring {
+      position: absolute;
+      width: 98px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255,255,255,0.6);
+      transform: rotateX(68deg) rotateZ(15deg);
+      pointer-events: none;
+      animation: spinRing 9s linear infinite;
+    }
+    @keyframes spinRing {
+      to { transform: rotateX(68deg) rotateZ(375deg); }
+    }
+    .bot-visor {
+      width: 44px;
+      height: 22px;
+      background: #0f172a;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 7px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .bot-eye {
+      width: 6.5px;
+      height: 6.5px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 6px #ffffff;
+      animation: eyeBlink 3.8s infinite;
+    }
+    @keyframes eyeBlink {
+      0%, 96%, 100% { transform: scaleY(1); }
+      98% { transform: scaleY(0.1); }
+    }
+    .bot-meta-tag {
+      margin-top: 8px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(15,23,42,0.06);
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .bot-status-dot { width: 6px; height: 6px; border-radius: 50%; }
 
     /* ==========================================================================
-       6. TOP HUD: BRAND HEADER & NAVIGATION
+       3. TOP HUD & WORKSPACE TABS
        ========================================================================== */
     .hud-header {
       position: relative;
       z-index: 20;
-      padding: 14px 14px 8px 14px;
+      padding: 10px 12px 4px 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       pointer-events: none;
     }
 
     .top-bar {
       pointer-events: auto;
-      border-radius: 16px;
-      padding: 10px 18px;
+      border-radius: 14px;
+      padding: 8px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--glass-panel);
+      background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val));
       -webkit-backdrop-filter: blur(var(--blur-val));
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
-    }
-
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .brand-title {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
       letter-spacing: -0.02em;
     }
-
-    .os-badge {
-      font-size: 10px;
-      padding: 2px 7px;
+    .brand-badge {
+      font-size: 9.5px;
+      padding: 2px 6px;
       border-radius: 6px;
-      background: var(--surface-subtle);
-      border: 1px solid var(--border-light);
-      color: var(--text-muted);
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      color: var(--accent-dot);
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .hud-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
-
     .hud-btn {
-      background: var(--surface-light);
-      border: 1px solid var(--border-light);
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
       color: var(--text-main);
-      padding: 6px 12px;
-      border-radius: 9px;
+      padding: 5px 10px;
+      border-radius: 8px;
       font-family: inherit;
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      gap: 5px;
+      transition: all 0.15s ease;
     }
     .hud-btn:hover {
-      background: var(--surface-subtle);
-      border-color: var(--border-focus);
+      background: var(--surface-light);
+      border-color: var(--text-muted);
     }
+    .hud-btn:active { transform: scale(0.96); }
 
-    /* Simulation Tabs */
     .workspace-tabs {
       pointer-events: auto;
       display: flex;
-      gap: 6px;
-      padding: 6px 12px;
-      background: var(--glass-panel);
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val));
-      -webkit-backdrop-filter: blur(var(--blur-val));
       border-radius: 12px;
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--border-color);
       overflow-x: auto;
       scrollbar-width: none;
       box-shadow: var(--card-shadow);
     }
-    .workspace-tabs::-webkit-scrollbar {
-      display: none;
-    }
+    .workspace-tabs::-webkit-scrollbar { display: none; }
 
+    .tabs-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
     .space-tab {
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 5px 10px;
+      border-radius: 7px;
       font-size: 11px;
       font-weight: 600;
       border: 1px solid transparent;
@@ -297,25 +352,225 @@
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
     .space-tab:hover {
       color: var(--text-main);
-      background: rgba(0, 0, 0, 0.03);
+      background: var(--surface-light);
     }
     .space-tab.active {
       background: #0f172a;
       color: #ffffff;
-      border-color: #0f172a;
+    }
+    .badge-count {
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.25);
+      font-family: 'JetBrains Mono', monospace;
     }
 
     /* ==========================================================================
-       7. BOTTOM CHAT DRAWER & COWORKER AGENTS INTERFACE
+       4. OVERLAYS (CONNECTORS, SKILLS, BROWSER, FILES, TERMINAL)
+       ========================================================================== */
+    .workspace-overlay {
+      position: fixed;
+      top: 100px;
+      left: 12px;
+      right: 12px;
+      bottom: 245px;
+      z-index: 15;
+      display: none;
+      border-radius: 16px;
+      overflow: hidden;
+      pointer-events: auto;
+      background: var(--glass-bg);
+      backdrop-filter: blur(var(--blur-val));
+      -webkit-backdrop-filter: blur(var(--blur-val));
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+      flex-direction: column;
+    }
+    .workspace-overlay.active { display: flex; }
+    .workspace-overlay.maximized { bottom: 12px; z-index: 26; }
+
+    .sim-header {
+      padding: 9px 14px;
+      background: var(--surface-light);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .sim-body {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      font-size: 12px;
+      user-select: text;
+    }
+
+    .connectors-grid, .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .connector-card, .skill-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .connector-card.active-conn, .skill-card.enabled {
+      border-color: var(--accent-dot);
+    }
+    .conn-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .skill-toggle {
+      width: 32px;
+      height: 18px;
+      background: var(--surface-subtle);
+      border-radius: 99px;
+      cursor: pointer;
+      border: none;
+      position: relative;
+      transition: background 0.2s ease;
+      flex-shrink: 0;
+    }
+    .skill-toggle.on { background: var(--accent-dot); }
+    .skill-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+    .skill-toggle.on::after { transform: translateX(14px); }
+
+    .vfs-layout {
+      display: grid;
+      grid-template-columns: 210px 1fr;
+      height: 100%;
+      overflow: hidden;
+    }
+    @media (max-width: 640px) {
+      .vfs-layout { grid-template-columns: 1fr; grid-template-rows: 120px 1fr; }
+    }
+    .vfs-sidebar {
+      border-right: 1px solid var(--border-color);
+      background: var(--surface-light);
+      padding: 8px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .file-tree-item {
+      padding: 6px 9px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-tree-item:hover { background: var(--surface-subtle); color: var(--text-main); }
+    .file-tree-item.active { background: #0f172a; color: #ffffff; font-weight: 700; }
+
+    .vfs-editor {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: var(--surface-card);
+    }
+    .vfs-editor-bar {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    #vfs-textarea {
+      flex: 1;
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      background: #ffffff;
+      color: #0f172a;
+      resize: none;
+    }
+
+    .terminal-wrap {
+      background: #090d16;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    #sim-terminal-output {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      font-size: 11.5px;
+    }
+    .sim-terminal-line {
+      line-height: 1.55;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    .sim-terminal-prefix {
+      color: var(--scout-green);
+      font-weight: 700;
+      margin-right: 7px;
+    }
+    .terminal-input-row {
+      display: flex;
+      align-items: center;
+      padding: 7px 12px;
+      border-top: 1px solid #1e293b;
+      background: #0f172a;
+      gap: 8px;
+    }
+    #terminal-cli-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    /* ==========================================================================
+       5. CHAT DRAWER
        ========================================================================== */
     #chat-drawer {
       position: relative;
       z-index: 20;
-      margin: 0 14px 24px 14px;
+      margin: 0 12px 12px 12px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -325,224 +580,213 @@
 
     .chat-container {
       pointer-events: auto;
-      border-radius: 20px;
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      max-height: 68dvh;
-      background: var(--glass-panel);
+      max-height: 64dvh;
+      background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val));
       -webkit-backdrop-filter: blur(var(--blur-val));
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
     }
 
-    /* Chubby Dots Selector Bar */
     .dots-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 16px;
+      padding: 8px 12px;
       background: var(--surface-light);
-      border-bottom: 1px solid var(--border-light);
-      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
     }
-    .dots-bar::-webkit-scrollbar {
-      display: none;
-    }
+    .dots-bar::-webkit-scrollbar { display: none; }
 
     .dots-group {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 5px;
     }
-
     .dot-pill {
-      padding: 6px 14px;
+      padding: 5px 11px;
       border-radius: 999px;
-      font-family: inherit;
       font-size: 11px;
       font-weight: 600;
-      border: 1px solid var(--border-light);
-      background: #ffffff;
+      border: 1px solid var(--border-color);
+      background: var(--surface-card);
       color: var(--text-muted);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       white-space: nowrap;
       flex-shrink: 0;
       transition: all 0.15s ease;
     }
-    .dot-pill:hover {
-      border-color: var(--border-focus);
-      color: var(--text-main);
-    }
+    .dot-pill:hover { border-color: var(--text-main); color: var(--text-main); }
     .dot-pill.active {
       background: #0f172a;
       color: #ffffff;
       border-color: #0f172a;
     }
 
-    /* Live Status Ticker (Swarm Protection Feedback) */
+    .quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .quick-chips::-webkit-scrollbar { display: none; }
+    .chip-btn {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--surface-light);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .chip-btn:hover { border-color: var(--accent-dot); color: var(--accent-dot); }
+
     #status-ticker {
       display: none;
-      padding: 8px 18px;
-      background: var(--surface-subtle);
-      border-bottom: 1px solid var(--border-light);
+      padding: 7px 14px;
+      background: #eff6ff;
+      border-bottom: 1px solid #bfdbfe;
       font-size: 11px;
       font-weight: 600;
       color: var(--accent-dot);
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      gap: 8px;
       font-family: 'JetBrains Mono', monospace;
     }
     .spinner {
-      width: 13px;
-      height: 13px;
+      width: 12px;
+      height: 12px;
       border: 2px solid var(--accent-dot);
       border-top-color: transparent;
       border-radius: 50%;
       animation: spinAnim 0.75s linear infinite;
     }
-    @keyframes spinAnim {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
 
-    /* Chat Stream Area */
     #chat-stream {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      max-height: 38dvh;
+      gap: 10px;
+      max-height: 32dvh;
       user-select: text;
-      -webkit-user-select: text;
     }
 
     .msg-card {
-      padding: 14px 16px;
-      border-radius: 14px;
-      background: #ffffff;
-      border: 1px solid var(--border-light);
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.02);
-      line-height: 1.55;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+      line-height: 1.5;
     }
-
     .msg-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--surface-subtle);
-      padding-bottom: 8px;
-      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 5px;
+      margin-bottom: 2px;
     }
 
     .user-bubble {
       margin-left: auto;
-      max-width: 85%;
-      padding: 12px 16px;
-      border-radius: 14px;
+      max-width: 86%;
+      padding: 9px 13px;
+      border-radius: 13px 13px 3px 13px;
       background: #0f172a;
       color: #ffffff;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 500;
       white-space: pre-wrap;
       word-break: break-word;
-      line-height: 1.55;
     }
 
-    /* Code Blocks Inside Chat */
     .code-box {
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
-      border: 1px solid #cbd5e1;
-      background: #0f172a;
-      margin: 8px 0;
+      border: 1px solid var(--border-color);
+      background: #090d16;
+      margin: 6px 0;
     }
-
     .code-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 14px;
-      background: #1e293b;
+      padding: 6px 10px;
+      background: #162032;
       border-bottom: 1px solid #334155;
       font-size: 10px;
       color: #94a3b8;
       font-family: 'JetBrains Mono', monospace;
     }
-
-    .copy-code-btn {
-      padding: 3px 9px;
+    .code-actions { display: flex; gap: 5px; }
+    .copy-code-btn, .run-code-btn {
+      padding: 2px 8px;
       border-radius: 5px;
-      background: #38bdf8;
-      color: #0f172a;
       border: none;
       font-family: inherit;
       font-size: 10px;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.15s ease;
     }
-    .copy-code-btn:hover {
-      background: #7dd3fc;
-    }
-
+    .copy-code-btn { background: #38bdf8; color: #090d16; }
+    .run-code-btn { background: #10b981; color: #090d16; }
     .code-pre {
-      padding: 14px;
+      padding: 10px;
       font-size: 11px;
-      color: #38bdf8;
+      color: #e2e8f0;
       overflow-x: auto;
       font-family: 'JetBrains Mono', monospace;
       white-space: pre;
-      line-height: 1.5;
     }
 
-    /* Attachment Preview Bar */
     #attachment-bar {
       display: none;
-      padding: 8px 18px;
+      padding: 6px 12px;
       background: var(--surface-light);
-      border-top: 1px solid var(--border-light);
+      border-top: 1px solid var(--border-color);
       align-items: center;
       justify-content: space-between;
     }
-    #attachment-bar.active {
-      display: flex;
-    }
-
-    .attachment-meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    #attachment-bar.active { display: flex; }
     #attachment-preview {
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
       object-fit: cover;
-      border: 1px solid var(--border-light);
     }
 
-    /* Command Input Dock */
     .command-dock {
-      padding: 14px;
-      background: #ffffff;
-      border-top: 1px solid var(--border-light);
+      padding: 10px 12px;
+      background: var(--surface-card);
+      border-top: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 7px;
     }
-
     #prompt-input {
       width: 100%;
       background: transparent;
@@ -550,56 +794,42 @@
       outline: none;
       color: var(--text-main);
       font-family: inherit;
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 12.5px;
+      line-height: 1.4;
       resize: none;
       user-select: text;
-      -webkit-user-select: text;
     }
-    #prompt-input::placeholder {
-      color: var(--text-muted);
-    }
+    #prompt-input::placeholder { color: var(--text-dim); }
 
     .command-actions {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 8px;
-      border-top: 1px solid var(--surface-subtle);
+      padding-top: 5px;
+      border-top: 1px solid var(--border-light);
+      flex-wrap: wrap;
+      gap: 6px;
     }
-
-    .tool-buttons {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .tool-buttons { display: flex; align-items: center; gap: 5px; }
 
     .btn-execute {
-      padding: 8px 20px;
-      border-radius: 10px;
+      padding: 7px 16px;
+      border-radius: 8px;
       background: #0f172a;
       color: #ffffff;
       border: none;
       font-family: inherit;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: 0.05em;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 7px;
-      transition: opacity 0.15s ease, transform 0.1s ease;
+      gap: 5px;
     }
-    .btn-execute:active {
-      transform: scale(0.98);
-    }
-    .btn-execute:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+    .btn-execute:disabled { opacity: 0.45; cursor: not-allowed; }
 
     /* ==========================================================================
-       8. MODAL FOR CONFIGURATION & SETTINGS
+       6. SETTINGS MODAL
        ========================================================================== */
     #settings-modal {
       position: fixed;
@@ -608,202 +838,258 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 14px;
       background: rgba(15, 23, 42, 0.45);
       backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
     }
-    #settings-modal.active {
-      display: flex;
-    }
+    #settings-modal.active { display: flex; }
 
     .modal-box {
       width: 100%;
-      max-width: 440px;
-      border-radius: 20px;
-      padding: 24px;
+      max-width: 460px;
+      max-height: 88dvh;
+      overflow-y: auto;
+      border-radius: 16px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
       background: #ffffff;
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--border-color);
       box-shadow: var(--modal-shadow);
     }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
     .field-label {
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
     }
-
     .field-input {
       width: 100%;
       background: var(--surface-light);
-      border: 1px solid var(--border-light);
-      border-radius: 10px;
-      padding: 11px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 9px 11px;
       color: var(--text-main);
       font-family: inherit;
       font-size: 12px;
       outline: none;
-      transition: border-color 0.15s ease;
     }
-    .field-input:focus {
-      border-color: var(--accent-dot);
-    }
-
+    .field-input:focus { border-color: var(--accent-dot); }
     .btn-lock {
       width: 100%;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       background: #0f172a;
       color: #ffffff;
       border: none;
-      font-family: inherit;
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    /* ==========================================================================
-       9. FIXED WATERMARK (NAIMISH)
-       ========================================================================== */
     .watermark-fixed {
       position: fixed;
-      bottom: 8px;
-      right: 16px;
+      bottom: 4px;
+      right: 12px;
       z-index: 30;
       pointer-events: none;
-      font-size: 11px;
+      font-size: 10px;
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      color: rgba(15, 23, 42, 0.35);
+      color: var(--text-dim);
     }
-
-    /* Scrollbars */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
   </style>
 </head>
 <body>
 
-  <!-- 1. THREE.JS 3D VIEWPORT CONTAINER -->
-  <div id="webgl-container"></div>
+  <!-- 1. PURE CSS 3D CANVAS -->
+  <div id="spatial-stage">
+    <div class="grid-floor"></div>
 
-  <!-- 2. FLOATING 3D AGENT LABELS -->
-  <div id="label-dot" class="node-label">
-    <span class="dot-indicator" style="background: var(--accent-dot);"></span>
-    <span style="color: var(--accent-dot);">DOT (Assistant)</span>
-  </div>
-  <div id="label-scout" class="node-label">
-    <span class="dot-indicator" style="background: var(--scout-green);"></span>
-    <span style="color: var(--scout-green);">SCOUT (Researcher)</span>
-  </div>
-  <div id="label-quill" class="node-label">
-    <span class="dot-indicator" style="background: var(--quill-purple);"></span>
-    <span style="color: var(--quill-purple);">QUILL (Writer)</span>
-  </div>
-  <div id="label-nexus" class="node-label">
-    <span class="dot-indicator" style="background: var(--nexus-amber);"></span>
-    <span style="color: var(--nexus-amber);">NEXUS (Architect)</span>
+    <svg id="neural-cables">
+      <line id="line-dot-scout" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line-scout-quill" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line-quill-nexus" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line-nexus-dot" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
+      <line id="line-scout-nexus" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
+      <circle id="live-packet" class="neural-packet" cx="-100" cy="-100" r="5" />
+    </svg>
+
+    <div class="bots-3d-cluster">
+      <div class="bot-3d" id="node-dot" onclick="UI.selectDot('dot')">
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #3b82f6, #1d4ed8);">
+          <div class="bot-orbit-ring" style="border-color: #93c5fd;"></div>
+          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
+        </div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--accent-dot);"></span><span style="color: var(--accent-dot);">DOT // LEAD</span></div>
+      </div>
+
+      <div class="bot-3d" id="node-scout" onclick="UI.selectDot('scout')">
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #34d399, #059669);">
+          <div class="bot-orbit-ring" style="border-color: #a7f3d0;"></div>
+          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
+        </div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--scout-green);"></span><span style="color: var(--scout-green);">SCOUT // RESEARCH</span></div>
+      </div>
+
+      <div class="bot-3d" id="node-quill" onclick="UI.selectDot('quill')">
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #a78bfa, #6d28d9);">
+          <div class="bot-orbit-ring" style="border-color: #ddd6fe;"></div>
+          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
+        </div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--quill-purple);"></span><span style="color: var(--quill-purple);">QUILL // CODE</span></div>
+      </div>
+
+      <div class="bot-3d" id="node-nexus" onclick="UI.selectDot('nexus')">
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #fbbf24, #d97706);">
+          <div class="bot-orbit-ring" style="border-color: #fde68a;"></div>
+          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
+        </div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--nexus-amber);"></span><span style="color: var(--nexus-amber);">NEXUS // ARCH</span></div>
+      </div>
+    </div>
   </div>
 
-  <!-- 3. WORKSPACE OVERLAYS (SIMULATIONS) -->
-  <div id="overlay-browser" class="workspace-overlay">
+  <!-- 2. OVERLAYS -->
+  <div id="overlay-connectors" class="workspace-overlay">
     <div class="sim-header">
-      <span>🌐 Browser Simulation Sandbox</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 6px;">Close</button>
+      <span>🔌 OpenDots External Connectors</span>
+      <div style="display:flex; gap:5px;">
+        <button onclick="UI.toggleMaximize('overlay-connectors')" class="hud-btn" style="padding:2px 7px;">⛶</button>
+        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
+      </div>
     </div>
     <div class="sim-body">
-      <div style="padding: 10px; background: var(--surface-light); border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--border-light);">
-        <span>https://teamdots.internal/session/active</span>
+      <p style="color:var(--text-muted); margin-bottom:12px;">
+        Connect live external APIs directly into your coworker swarm:
+      </p>
+      <div class="connectors-grid" id="connectors-container"></div>
+    </div>
+  </div>
+
+  <div id="overlay-skills" class="workspace-overlay">
+    <div class="sim-header">
+      <span>⚡ Autonomous Skill Registry</span>
+      <div style="display:flex; gap:5px;">
+        <button onclick="SKILLS.promptCustomSkill()" class="hud-btn" style="padding:2px 7px; color:var(--accent-dot);">+ New</button>
+        <button onclick="UI.toggleMaximize('overlay-skills')" class="hud-btn" style="padding:2px 7px;">⛶</button>
+        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
       </div>
-      <p style="color: var(--text-muted);">Browser viewport active. Scout Dot can browse documentation, perform web queries, and pipe summaries directly into Quill Dot.</p>
+    </div>
+    <div class="sim-body">
+      <div class="skills-grid" id="skills-grid-container"></div>
+    </div>
+  </div>
+
+  <div id="overlay-browser" class="workspace-overlay">
+    <div class="sim-header">
+      <span>🌐 Live HTML/JS Artifact Sandbox</span>
+      <div style="display:flex; gap:5px;">
+        <button onclick="VFS.previewActiveHtml()" class="hud-btn" style="padding:2px 8px; color:var(--scout-green);">▶ Re-Render</button>
+        <button onclick="UI.toggleMaximize('overlay-browser')" class="hud-btn" style="padding:2px 7px;">⛶</button>
+        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
+      </div>
+    </div>
+    <div class="sim-body" style="padding:0; display:flex; flex-direction:column;">
+      <iframe id="sandbox-iframe" style="flex:1; width:100%; border:none; background:#ffffff;" sandbox="allow-scripts allow-modals"></iframe>
     </div>
   </div>
 
   <div id="overlay-files" class="workspace-overlay">
     <div class="sim-header">
-      <span>📁 Cloud Virtual Filesystem</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 6px;">Close</button>
+      <span>📁 Virtual Filesystem (Code Auto-Captured from Chat)</span>
+      <div style="display:flex; gap:5px;">
+        <button onclick="VFS.createNewFilePrompt()" class="hud-btn" style="padding:2px 7px;">+ New</button>
+        <button onclick="VFS.downloadCurrentFile()" class="hud-btn" style="padding:2px 7px;">⬇ Save</button>
+        <button onclick="UI.toggleMaximize('overlay-files')" class="hud-btn" style="padding:2px 7px;">⛶</button>
+        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
+      </div>
     </div>
-    <div class="sim-body">
-      <div class="file-tree-item">📄 index.html (TeamDots Master Core)</div>
-      <div class="file-tree-item">📄 firebase-sync.json (Cloud Storage Cache)</div>
-      <div class="file-tree-item">📁 agents/ (Dot, Scout, Quill, Nexus Specs)</div>
-      <div class="file-tree-item">📄 README.md (Architecture Notes)</div>
+    <div class="vfs-layout">
+      <div class="vfs-sidebar" id="vfs-file-list"></div>
+      <div class="vfs-editor">
+        <div class="vfs-editor-bar">
+          <span id="vfs-active-filename" style="font-weight:700; color:var(--accent-dot);">index.html</span>
+          <div style="display:flex; gap:5px;">
+            <button onclick="VFS.saveEditorChanges()" class="hud-btn" style="padding:2px 7px;">💾 Save</button>
+            <button onclick="VFS.runInSandbox()" class="hud-btn" style="padding:2px 7px; color:var(--scout-green);">▶ Preview</button>
+          </div>
+        </div>
+        <textarea id="vfs-textarea" spellcheck="false"></textarea>
+      </div>
     </div>
   </div>
 
   <div id="overlay-terminal" class="workspace-overlay">
     <div class="sim-header">
-      <span>🖥️ Autonomous Agent Terminal</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 6px;">Close</button>
+      <span>🖥️ Autonomous Terminal Shell</span>
+      <div style="display:flex; gap:5px;">
+        <button onclick="document.getElementById('sim-terminal-output').innerHTML=''" class="hud-btn" style="padding:2px 7px;">Clear</button>
+        <button onclick="UI.toggleMaximize('overlay-terminal')" class="hud-btn" style="padding:2px 7px;">⛶</button>
+        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
+      </div>
     </div>
-    <div class="sim-body" id="sim-terminal-output">
-      <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>TeamDots OS v4.5 Master initialized.</div>
-      <div class="sim-terminal-line"><span class="sim-terminal-prefix">[firebase]</span>Connecting to project: teamdots-d57a8... OK</div>
-      <div class="sim-terminal-line"><span class="sim-terminal-prefix">[models]</span>Gemini 3.8 Flash engine standing by.</div>
+    <div class="terminal-wrap">
+      <div id="sim-terminal-output">
+        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>OpenDots OS v12.2 Kernel ready.</div>
+        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[cmd]</span>Type <strong>help</strong> for commands.</div>
+      </div>
+      <div class="terminal-input-row">
+        <span style="color:#10b981; font-weight:700;">opendots@swarm:~$</span>
+        <input type="text" id="terminal-cli-input" placeholder="Type a command (e.g. ls, connectors, swarm build a calc)..." onkeydown="if(event.key==='Enter') CLI.execute(this.value)" />
+      </div>
     </div>
   </div>
 
-  <!-- 4. TOP HUD HEADER & WORKSPACE TABS -->
+  <!-- 3. TOP HUD HEADER -->
   <header class="hud-header">
     <div class="top-bar">
-      <div class="brand-group">
-        <span class="brand-title">OpenDots // TeamDots</span>
-        <span class="os-badge">v4.5 Master</span>
+      <div class="brand-title">
+        <span>● OpenDots</span>
+        <span class="brand-badge">v12.2 Clean</span>
       </div>
       <div class="hud-controls">
-        <button onclick="UI.resetCamera()" class="hud-btn">3D Sync</button>
-        <button onclick="UI.toggleChatPanel()" id="chatToggleBtn" class="hud-btn">Hide UI</button>
-        <button onclick="UI.toggleSettings(true)" class="hud-btn" title="API Settings">⚙️</button>
+        <button onclick="UI.toggleTheme()" class="hud-btn" title="Toggle Theme">🌓</button>
+        <button onclick="UI.toggleChatPanel()" id="chatToggleBtn" class="hud-btn">Hide</button>
+        <button onclick="UI.toggleSettings(true)" class="hud-btn" title="API Settings">⚙️ API</button>
       </div>
     </div>
 
     <div class="workspace-tabs">
-      <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">
-        <span>💻</span> Computer
-      </button>
-      <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">
-        <span>🌐</span> Browser
-      </button>
-      <button onclick="UI.switchSpace('files')" id="space-files" class="space-tab">
-        <span>📁</span> Files
-      </button>
-      <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab">
-        <span>🖥️</span> Terminal
-      </button>
+      <div class="tabs-left">
+        <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">
+          <span>🧊</span> 3D Hub
+        </button>
+        <button onclick="UI.switchSpace('connectors')" id="space-connectors" class="space-tab">
+          <span>🔌</span> Connectors <span class="badge-count" id="tab-conn-count">4</span>
+        </button>
+        <button onclick="UI.switchSpace('skills')" id="space-skills" class="space-tab">
+          <span>⚡</span> Skills <span class="badge-count" id="tab-skill-count">6</span>
+        </button>
+        <button onclick="UI.switchSpace('files')" id="space-files" class="space-tab">
+          <span>📁</span> Files <span class="badge-count" id="tab-file-count">2</span>
+        </button>
+        <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">
+          <span>🌐</span> Sandbox
+        </button>
+        <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab">
+          <span>🖥️</span> Shell
+        </button>
+      </div>
+      <button onclick="UI.exportChatMarkdown()" class="hud-btn" style="padding:3px 7px; font-size:10px;">⬇ MD</button>
     </div>
   </header>
 
-  <!-- 5. BOTTOM UNIFIED CHAT INTERFACE -->
+  <!-- 4. BOTTOM CHAT DRAWER -->
   <main id="chat-drawer">
     <div class="chat-container">
 
-      <!-- Coworker Selection Bar -->
       <div class="dots-bar">
         <div class="dots-group">
           <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active">
-            <span>⚡ All AI Team</span>
+            <span>⚡ Full Swarm</span>
           </button>
           <button onclick="UI.selectDot('dot')" id="dot-dot" class="dot-pill">
             <span>🔵 Dot</span>
@@ -811,65 +1097,68 @@
           <button onclick="UI.selectDot('scout')" id="dot-scout" class="dot-pill">
             <span>🟢 Scout</span>
           </button>
-          <button onclick="UI.selectDot('quill')" id="dot-quill" class="dot-pill">
-            <span>🟣 Quill</span>
-          </button>
           <button onclick="UI.selectDot('nexus')" id="dot-nexus" class="dot-pill">
             <span>🟠 Nexus</span>
+          </button>
+          <button onclick="UI.selectDot('quill')" id="dot-quill" class="dot-pill">
+            <span>🟣 Quill</span>
           </button>
         </div>
         <button onclick="UI.clearHistory()" style="background:none; border:none; color:var(--text-muted); font-size:11px; font-weight:600; cursor:pointer;">Clear</button>
       </div>
 
-      <!-- Live Status Ticker (API Circuit-Breaker Visuals) -->
-      <div id="status-ticker">
-        <div class="spinner"></div>
-        <span id="ticker-text">Agent is processing directive...</span>
+      <div class="quick-chips">
+        <button class="chip-btn" onclick="UI.fillPrompt('Build an interactive single-file Pomodoro Timer web app in HTML/CSS/JS with start, pause, and modern glassmorphism UI.')">⏱️ Pomodoro App</button>
+        <button class="chip-btn" onclick="UI.fillPrompt('Design an event-driven microservices architecture using Apache Kafka, Redis, and WebSockets.')">📐 Architecture Plan</button>
+        <button class="chip-btn" onclick="UI.fillPrompt('Create a playable Space Shooter mini-game in HTML5 Canvas and JavaScript.')">👾 Mini Game</button>
+        <button class="chip-btn" onclick="UI.fillPrompt('Write a production-ready JWT authentication middleware with refresh tokens and rate limiting.')">🛡️ Auth Middleware</button>
       </div>
 
-      <!-- Scrollable Message Stream -->
+      <div id="status-ticker">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="spinner"></div>
+          <span id="ticker-text">Agent running...</span>
+        </div>
+        <span id="ticker-step" style="font-size:10px; opacity:0.8;">STEP 1/3</span>
+      </div>
+
       <div id="chat-stream">
         <div class="msg-card">
           <div class="msg-card-header">
-            <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots AI Coworkers Online</span>
-            <span style="font-size: 10px; color: var(--text-muted);">Master Engine + Cloud Sync</span>
+            <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots OS Clean Edition</span>
+            <span style="font-size: 10px; color: var(--text-muted);">White UI + Pure CSS 3D + Connectors</span>
           </div>
           <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            Your autonomous AI team is ready. Swarm Mode features automatic cooldowns to prevent Google rate limits, and all chat history syncs permanently to Firebase.
+            Parser bug permanently fixed. 3D Chubby Bots and all overlays are operating cleanly. Ready for your directive!
           </p>
         </div>
       </div>
 
-      <!-- Image Attachment Bar -->
       <div id="attachment-bar">
-        <div class="attachment-meta">
+        <div style="display:flex; align-items:center; gap:8px;">
           <img id="attachment-preview" src="" alt="preview" />
-          <span id="attachment-name" style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;"></span>
+          <span id="attachment-name" style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;"></span>
         </div>
-        <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:600; cursor:pointer;">REMOVE</button>
+        <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;">REMOVE</button>
       </div>
 
-      <!-- Command Input Bar -->
       <div class="command-dock">
         <textarea
           id="prompt-input"
           rows="2"
-          placeholder="Ask your AI coworkers to research, architect, or write code..."
+          placeholder="Ask your AI coworkers to research, architect, or write code... (Enter to send)"
         ></textarea>
 
         <div class="command-actions">
           <div class="tool-buttons">
             <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="UI.handleFileAttach(event)" />
-            <button onclick="document.getElementById('file-input').click()" class="hud-btn">
-              📷 Attach
-            </button>
-            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);">
-              ✨ Enhance
-            </button>
+            <button onclick="document.getElementById('file-input').click()" class="hud-btn">📷 Vision</button>
+            <button onclick="VOICE.toggleMic()" id="mic-btn" class="hud-btn">🎙️ Voice</button>
+            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);">✨ Enhance</button>
           </div>
 
           <button onclick="ENGINE.executeWorkflow()" id="send-btn" class="btn-execute">
-            <span>Run Task</span>
+            <span>Execute</span>
             <span>→</span>
           </button>
         </div>
@@ -878,640 +1167,1124 @@
     </div>
   </main>
 
-  <!-- 6. SETTINGS MODAL -->
+  <!-- 5. SETTINGS MODAL -->
   <div id="settings-modal">
     <div class="modal-box">
-      <div class="modal-header">
-        <span style="font-size: 14px; font-weight: 700;">⚙️ OpenDots Settings</span>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size: 14px; font-weight: 800;">⚙️ OpenDots Any-API Engine Configuration</span>
         <button onclick="UI.toggleSettings(false)" style="background:none; border:none; color:var(--text-muted); font-size:16px; cursor:pointer;">✕</button>
       </div>
 
       <div class="field-group">
-        <label class="field-label">Active Model Provider</label>
-        <select id="model-selector" onchange="UI.saveConfig()" class="field-input">
-          <optgroup label="Google Gemini API">
-            <option value="gemini:gemini-3.8-flash">Gemini 3.8 Flash (Fastest / Recommended)</option>
-            <option value="gemini:gemini-2.5-flash">Gemini 2.5 Flash</option>
-            <option value="gemini:gemini-2.0-flash">Gemini 2.0 Flash</option>
-          </optgroup>
+        <label class="field-label">Active Provider Mode</label>
+        <select id="model-provider" onchange="UI.onProviderChange()" class="field-input">
+          <option value="sim">Built-in Smart Simulator (No API Key Required)</option>
+          <option value="gemini">Google Gemini (Gemini 2.5 Flash / Pro)</option>
+          <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+          <option value="groq">Groq (Llama 3.3 70B Fast)</option>
+          <option value="custom">Custom API (OpenRouter, DeepSeek, Ollama, etc.)</option>
         </select>
       </div>
 
-      <div class="field-group">
-        <label class="field-label">Google Gemini API Key (AIza...)</label>
-        <input type="password" id="key-gemini" oninput="UI.saveConfig()" placeholder="Paste Gemini API Key..." class="field-input" />
+      <div class="field-group" id="group-api-key">
+        <label class="field-label">API Key (Gemini, OpenAI, Groq, OpenRouter, or DeepSeek)</label>
+        <input type="password" id="api-key-input" oninput="UI.saveConfig()" placeholder="Paste your API key here..." class="field-input" />
       </div>
 
-      <button onclick="UI.toggleSettings(false)" class="btn-lock">Save Configuration</button>
+      <div class="field-group" id="group-custom-url" style="display:none;">
+        <label class="field-label">Custom Base URL (OpenAI-compatible)</label>
+        <input type="text" id="custom-base-url" oninput="UI.saveConfig()" placeholder="https://openrouter.ai/api/v1 or http://localhost:11434/v1" class="field-input" />
+      </div>
+
+      <div class="field-group" id="group-custom-model" style="display:none;">
+        <label class="field-label">Model Name</label>
+        <input type="text" id="custom-model-name" oninput="UI.saveConfig()" placeholder="e.g. deepseek/deepseek-chat or llama3" class="field-input" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Swarm Step Cooldown (ms)</label>
+        <input type="number" id="swarm-cooldown" value="1200" min="0" max="6000" step="300" onchange="UI.saveConfig()" class="field-input" />
+      </div>
+
+      <button onclick="UI.toggleSettings(false)" class="btn-lock">Save & Apply Configuration</button>
     </div>
   </div>
 
-  <!-- 7. FIXED BRAND WATERMARK -->
-  <div class="watermark-fixed">
-    created by naimish
-  </div>
+  <div class="watermark-fixed">opendots // clean v12.2</div>
 
-  <!-- 8. MASTER JAVASCRIPT SYSTEM ENGINE -->
+  <!-- 6. MASTER ENGINE SCRIPT -->
   <script>
-    /* ==========================================================================
-       A. FIREBASE CLOUD PERSISTENCE INITIALIZATION
-       ========================================================================== */
-    const firebaseConfig = {
-      apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA",
-      authDomain: "teamdots-d57a8.firebaseapp.com",
-      projectId: "teamdots-d57a8",
-      storageBucket: "teamdots-d57a8.firebasestorage.app",
-      messagingSenderId: "141410499215",
-      appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa",
-      measurementId: "G-1X58JCFSB2"
-    };
+    // Universal Clean Entities - All tags safely constructed
+    const TAG_START = '\x3c';
+    const TAG_END = '\x3e';
+    const SCRIPT_CLOSE = '\x3c/script\x3e';
 
-    let db = null;
-    try {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.firestore();
-    } catch(err) {
-      console.warn("Firebase offline or unavailable, falling back to local storage:", err);
-    }
-
-    /* ==========================================================================
-       B. MASTER STATE OBJECT
-       ========================================================================== */
     const STATE = {
       activeDot: 'swarm',
       activeSpace: 'computer',
       chatCollapsed: false,
       isProcessing: false,
-      selectedModel: 'gemini:gemini-3.8-flash',
-      keys: { gemini: '' },
+      provider: 'sim',
+      apiKey: '',
+      customUrl: 'https://openrouter.ai/api/v1',
+      customModel: 'deepseek/deepseek-chat',
+      cooldown: 1200,
       attachment: { base64: null, mimeType: null, name: null },
       dots: {
         dot: {
           id: 'dot',
           name: 'Dot',
-          role: 'Assistant',
-          colorHex: 0x2563eb,
-          cssColor: '#2563eb',
-          position: new THREE.Vector3(-2.2, 1.2, 0),
-          prompt: "You are Dot, the primary AI assistant. Be direct, crisp, and orchestrate the team."
+          role: 'Lead',
+          color: '#2563eb',
+          prompt: 'You are Dot, the Lead Orchestrator. Deliver crisp, executive technical directions, coordinate tasks, and provide production-ready solutions.'
         },
         scout: {
           id: 'scout',
           name: 'Scout',
           role: 'Researcher',
-          colorHex: 0x10b981,
-          cssColor: '#10b981',
-          position: new THREE.Vector3(-0.8, -1.0, 1.2),
-          prompt: "You are Scout, the researcher. Scan requirements, formulate facts, and outline essential context."
-        },
-        quill: {
-          id: 'quill',
-          name: 'Quill',
-          role: 'Writer',
-          colorHex: 0x8b5cf6,
-          cssColor: '#8b5cf6',
-          position: new THREE.Vector3(0.8, -1.0, 1.2),
-          prompt: "You are Quill, the technical writer. Draft clean markdown reports, complete codebases, and instructions."
+          color: '#10b981',
+          prompt: 'You are Scout, the Research Coworker. Analyze requirements, scan for edge cases, identify technical constraints, and provide a structured briefing.'
         },
         nexus: {
           id: 'nexus',
           name: 'Nexus',
           role: 'Architect',
-          colorHex: 0xd97706,
-          cssColor: '#d97706',
-          position: new THREE.Vector3(2.2, 1.2, 0),
-          prompt: "You are Nexus, the system architect. Design robust data structures, logic pipelines, and system architectures."
+          color: '#f59e0b',
+          prompt: 'You are Nexus, the Principal System Architect. Design system workflows, component hierarchies, data structures, and ASCII diagrams.'
+        },
+        quill: {
+          id: 'quill',
+          name: 'Quill',
+          role: 'Engineer',
+          color: '#8b5cf6',
+          prompt: 'You are Quill, the Lead Code Engineer. Write complete, working code blocks (especially self-contained HTML/CSS/JS files) with zero placeholders.'
         }
       }
     };
 
-    // Delay helper for rate-limit circuit breaker
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const delay = function(ms) {
+      return new Promise(function(resolve) { setTimeout(resolve, ms); });
+    };
 
     /* ==========================================================================
-       C. THREE.JS 3D SPATIAL ENGINE
+       A. OPENDOTS CONNECTORS
+       ========================================================================== */
+    const CONNECTORS = {
+      list: [
+        {
+          id: 'gemini_grounding',
+          name: '🌐 Gemini Google Search Grounding',
+          desc: 'Enables live Google Search retrieval augmentation for real-time factual research.',
+          enabled: true,
+          badge: 'GEMINI TOOL'
+        },
+        {
+          id: 'github_rest',
+          name: '🐙 GitHub Workspace Connector',
+          desc: 'Allows agents to inspect repositories, issue tickets, and pull requests.',
+          enabled: true,
+          badge: 'REST API'
+        },
+        {
+          id: 'web_fetcher',
+          name: '📄 Web Scraper & Documentation Reader',
+          desc: 'Fetches documentation and extracts markdown context via public proxies.',
+          enabled: true,
+          badge: 'HTTP CRAWLER'
+        },
+        {
+          id: 'mcp_bridge',
+          name: '⚡ MCP (Model Context Protocol) Bridge',
+          desc: 'Connects OpenDots to local or remote Model Context Protocol server tools.',
+          enabled: false,
+          badge: 'MCP PROTOCOL'
+        }
+      ],
+
+      init: function() {
+        var saved = localStorage.getItem('od_conn_v12');
+        if (saved) {
+          try { this.list = JSON.parse(saved); } catch (e) {}
+        }
+        this.render();
+      },
+
+      save: function() {
+        localStorage.setItem('od_conn_v12', JSON.stringify(this.list));
+        this.render();
+      },
+
+      toggle: function(id) {
+        var item = this.list.find(function(c) { return c.id === id; });
+        if (item) {
+          item.enabled = !item.enabled;
+          this.save();
+          UI.logTerminal('[connector] Toggled "' + item.name + '" -> ' + (item.enabled ? 'ACTIVE' : 'OFF'));
+        }
+      },
+
+      getActivePrompt: function() {
+        return this.list
+          .filter(function(c) { return c.enabled; })
+          .map(function(c) { return 'CONNECTOR [' + c.name + ']: Enabled. Access: ' + c.desc; })
+          .join('\n');
+      },
+
+      render: function() {
+        var container = document.getElementById('connectors-container');
+        if (!container) return;
+        container.innerHTML = '';
+        var activeCount = this.list.filter(function(c) { return c.enabled; }).length;
+        document.getElementById('tab-conn-count').textContent = activeCount;
+
+        var self = this;
+        this.list.forEach(function(c) {
+          var div = document.createElement('div');
+          div.className = 'connector-card ' + (c.enabled ? 'active-conn' : '');
+          div.innerHTML = 
+            '<div class="conn-header">' +
+              '<div>' +
+                '<strong style="font-size:12px; color:var(--text-main);">' + c.name + '</strong>' +
+                '<div style="font-size:9.5px; color:var(--accent-dot); font-family:monospace; font-weight:700;">' + c.badge + '</div>' +
+              '</div>' +
+              '<button class="skill-toggle ' + (c.enabled ? 'on' : '') + '" onclick="CONNECTORS.toggle(\'' + c.id + '\')"></button>' +
+            '</div>' +
+            '<p style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">' + c.desc + '</p>';
+          container.appendChild(div);
+        });
+      }
+    };
+
+    /* ==========================================================================
+       B. SKILLS REGISTRY
+       ========================================================================== */
+    const SKILLS = {
+      list: [
+        {
+          id: 'web_research',
+          name: '🌐 Deep Technical Synthesis',
+          agent: 'scout',
+          enabled: true,
+          desc: 'Formulates concise edge cases, technical constraints, and best practices.',
+          instruction: 'SKILL [Deep Synthesis]: Formulate concise edge cases, technical constraints, and best practices.'
+        },
+        {
+          id: 'live_app_builder',
+          name: '🚀 Single-File Runnable Apps',
+          agent: 'quill',
+          enabled: true,
+          desc: 'Forces Quill to write complete, standalone HTML5/CSS/JS files ready for the sandbox.',
+          instruction: 'SKILL [Single-File App]: Output a complete, runnable ```html file with internal CSS and JS so it renders immediately.'
+        },
+        {
+          id: 'auto_vfs',
+          name: '📁 Auto-VFS Code Extractor',
+          agent: 'all',
+          enabled: true,
+          desc: 'Automatically parses code blocks from chat and saves them to the Virtual Filesystem.',
+          instruction: 'SKILL [VFS Sync]: Always label code blocks with their language (e.g. ```html, ```javascript, ```css).'
+        },
+        {
+          id: 'ascii_arch',
+          name: '📐 ASCII Architecture Blueprints',
+          agent: 'nexus',
+          enabled: true,
+          desc: 'Equips Nexus to create visual ASCII system diagrams and component trees.',
+          instruction: 'SKILL [ASCII Architecture]: Include a clean ASCII data-flow or system component diagram.'
+        },
+        {
+          id: 'owasp_security',
+          name: '🛡️ Security & Input Hardening',
+          agent: 'nexus',
+          enabled: true,
+          desc: 'Applies input sanitization, error boundaries, and security validation.',
+          instruction: 'SKILL [Security Hardening]: Include input validation and error handling in all designs.'
+        },
+        {
+          id: 'zero_todos',
+          name: '🧪 Zero-Placeholder Clean Code',
+          agent: 'quill',
+          enabled: true,
+          desc: 'Forbids "// TODO" and truncated code blocks for 100% complete logic.',
+          instruction: 'SKILL [Zero Placeholders]: Never write "// TODO" or truncate code. Provide complete working code.'
+        }
+      ],
+
+      init: function() {
+        var saved = localStorage.getItem('od_skills_v12');
+        if (saved) {
+          try { this.list = JSON.parse(saved); } catch (e) {}
+        }
+        this.render();
+      },
+
+      save: function() {
+        localStorage.setItem('od_skills_v12', JSON.stringify(this.list));
+        this.render();
+      },
+
+      toggle: function(id) {
+        var item = this.list.find(function(s) { return s.id === id; });
+        if (item) {
+          item.enabled = !item.enabled;
+          this.save();
+        }
+      },
+
+      promptCustomSkill: function() {
+        var name = prompt("Enter Custom Skill Name:");
+        if (!name) return;
+        var desc = prompt("Short description:") || "Custom skill.";
+        var instruction = prompt("AI System Directive:") || ("Apply " + name + " best practices.");
+        this.list.push({
+          id: 'skill_' + Date.now(),
+          name: name,
+          agent: 'all',
+          enabled: true,
+          desc: desc,
+          instruction: 'SKILL [' + name + ']: ' + instruction
+        });
+        this.save();
+      },
+
+      getPromptFor: function(dotId) {
+        return this.list
+          .filter(function(s) { return s.enabled && (s.agent === 'all' || s.agent === dotId); })
+          .map(function(s) { return s.instruction; })
+          .join('\n');
+      },
+
+      render: function() {
+        var c = document.getElementById('skills-grid-container');
+        if (!c) return;
+        c.innerHTML = '';
+        var activeCount = this.list.filter(function(s) { return s.enabled; }).length;
+        document.getElementById('tab-skill-count').textContent = activeCount;
+
+        this.list.forEach(function(s) {
+          var div = document.createElement('div');
+          div.className = 'skill-card ' + (s.enabled ? 'enabled' : '');
+          div.innerHTML = 
+            '<div style="display:flex; justify-content:space-between; align-items:flex-start;">' +
+              '<div>' +
+                '<strong style="font-size:12px; color:var(--text-main);">' + s.name + '</strong>' +
+                '<div style="font-size:9.5px; color:var(--accent-dot); font-family:monospace; font-weight:700;">' + s.agent.toUpperCase() + '</div>' +
+              '</div>' +
+              '<button class="skill-toggle ' + (s.enabled ? 'on' : '') + '" onclick="SKILLS.toggle(\'' + s.id + '\')"></button>' +
+            '</div>' +
+            '<p style="font-size:11px; color:var(--text-muted); line-height:1.4;">' + s.desc + '</p>';
+          c.appendChild(div);
+        });
+      }
+    };
+
+    /* ==========================================================================
+       C. PURE CSS 3D SPATIAL VISUALS
        ========================================================================== */
     const SPATIAL = {
-      scene: null,
-      camera: null,
-      renderer: null,
-      controls: null,
+      updateCables: function() {
+        var getCenter = function(id) {
+          var el = document.getElementById(id);
+          if (!el) return { x: 0, y: 0 };
+          var rect = el.getBoundingClientRect();
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        };
 
-      init() {
-        const container = document.getElementById('webgl-container');
-        this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0xfafafc, 0.05);
+        var dot = getCenter('node-dot');
+        var scout = getCenter('node-scout');
+        var quill = getCenter('node-quill');
+        var nexus = getCenter('node-nexus');
 
-        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(0, 0.6, 7.5);
+        var setLine = function(id, p1, p2) {
+          var l = document.getElementById(id);
+          if (!l) return;
+          l.setAttribute('x1', p1.x);
+          l.setAttribute('y1', p1.y);
+          l.setAttribute('x2', p2.x);
+          l.setAttribute('y2', p2.y);
+        };
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.setClearColor(0xfafafc, 1);
-        container.appendChild(this.renderer.domElement);
-
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.06;
-        this.controls.minDistance = 3.5;
-        this.controls.maxDistance = 14;
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
-        this.scene.add(ambientLight);
-
-        const pointLight = new THREE.PointLight(0xffffff, 1.1, 24);
-        pointLight.position.set(0, 4, 4);
-        this.scene.add(pointLight);
-
-        this.buildCubbyEnvironment();
-        this.buildAgentNodes();
-
-        window.addEventListener('resize', () => this.onResize());
-        this.animate();
+        setLine('line-dot-scout', dot, scout);
+        setLine('line-scout-quill', scout, quill);
+        setLine('line-quill-nexus', quill, nexus);
+        setLine('line-nexus-dot', nexus, dot);
+        setLine('line-scout-nexus', scout, nexus);
       },
 
-      buildCubbyEnvironment() {
-        // Floor grid
-        const grid = new THREE.GridHelper(12, 16, 0xe2e8f0, 0xf1f5f9);
-        grid.position.y = -2.4;
-        this.scene.add(grid);
+      animatePacket: function(fromId, toId, color) {
+        color = color || '#2563eb';
+        var p = document.getElementById('live-packet');
+        var getCenter = function(id) {
+          var el = document.getElementById(id);
+          if (!el) return { x: 0, y: 0 };
+          var rect = el.getBoundingClientRect();
+          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        };
+
+        var start = getCenter(fromId);
+        var end = getCenter(toId);
+        p.setAttribute('fill', color);
+        p.style.filter = 'drop-shadow(0 0 8px ' + color + ')';
+
+        var startTime = null;
+        var duration = 750;
+
+        var step = function(now) {
+          if (!startTime) startTime = now;
+          var progress = Math.min((now - startTime) / duration, 1);
+          var curX = start.x + (end.x - start.x) * progress;
+          var curY = start.y + (end.y - start.y) * progress;
+          p.setAttribute('cx', curX);
+          p.setAttribute('cy', curY);
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            p.setAttribute('cx', -100);
+            p.setAttribute('cy', -100);
+          }
+        };
+        requestAnimationFrame(step);
       },
 
-      buildAgentNodes() {
-        Object.values(STATE.dots).forEach((dot) => {
-          const group = new THREE.Group();
-          group.position.copy(dot.position);
-
-          // Chubby Sphere Bot
-          const geo = new THREE.SphereGeometry(0.54, 28, 28);
-          const mat = new THREE.MeshStandardMaterial({
-            color: dot.colorHex,
-            roughness: 0.25,
-            metalness: 0.15
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          group.add(mesh);
-
-          this.scene.add(group);
-          dot.mesh = group;
-        });
-      },
-
-      onResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-      },
-
-      updateLabels() {
-        Object.values(STATE.dots).forEach((dot) => {
-          const el = document.getElementById(`label-${dot.id}`);
-          if (!el || !dot.mesh) return;
-
-          const pos = dot.mesh.position.clone();
-          pos.y += 0.88;
-          pos.project(this.camera);
-
-          const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-          const y = (-(pos.y * 0.5) + 0.5) * window.innerHeight;
-
-          el.style.left = `${x}px`;
-          el.style.top = `${y}px`;
-        });
-      },
-
-      animate() {
-        requestAnimationFrame(() => this.animate());
-        const t = Date.now() * 0.002;
-
-        Object.values(STATE.dots).forEach((dot, idx) => {
-          if (!dot.mesh) return;
-          dot.mesh.position.y = dot.position.y + Math.sin(t + idx * 1.5) * 0.12;
-          dot.mesh.rotation.y += 0.008;
-        });
-
-        this.controls.update();
-        this.updateLabels();
-        this.renderer.render(this.scene, this.camera);
+      setWorking: function(dotId, isWorking) {
+        var el = document.getElementById('node-' + dotId);
+        if (el) el.classList.toggle('working', isWorking);
       }
     };
 
     /* ==========================================================================
-       D. MULTI-AGENT EXECUTION & SWARM PIPELINE (API ENGINE)
+       D. VIRTUAL FILESYSTEM (VFS)
+       ========================================================================== */
+    const VFS = {
+      files: {
+        'index.html': [
+          TAG_START + '!DOCTYPE html' + TAG_END,
+          TAG_START + 'html' + TAG_END,
+          TAG_START + 'head' + TAG_END,
+          TAG_START + 'style' + TAG_END,
+          '  body { font-family: system-ui, sans-serif; background: #ffffff; color: #0f172a; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }',
+          '  .card { background: #f8fafc; padding: 24px; border-radius: 14px; text-align:center; max-width: 360px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }',
+          '  button { background: #0f172a; color: #fff; border:none; padding: 9px 18px; border-radius: 7px; font-weight:700; cursor:pointer; margin-top:12px; }',
+          TAG_START + '/style' + TAG_END,
+          TAG_START + '/head' + TAG_END,
+          TAG_START + 'body' + TAG_END,
+          '  ' + TAG_START + 'div class="card"' + TAG_END,
+          '    ' + TAG_START + 'h3' + TAG_END + '⚡ Live OpenDots Sandbox' + TAG_START + '/h3' + TAG_END,
+          '    ' + TAG_START + 'p style="color:#64748b; font-size:13px;"' + TAG_END + 'Code generated by Quill renders live here.' + TAG_START + '/p' + TAG_END,
+          '    ' + TAG_START + 'button onclick="var el=document.getElementById(\'c\'); el.textContent=parseInt(el.textContent)+1"' + TAG_END + 'Clicks: ' + TAG_START + 'span id="c"' + TAG_END + '0' + TAG_START + '/span' + TAG_END + TAG_START + '/button' + TAG_END,
+          '  ' + TAG_START + '/div' + TAG_END,
+          TAG_START + '/body' + TAG_END,
+          TAG_START + '/html' + TAG_END
+        ].join('\n'),
+        'README.md': '# OpenDots OS v12.2 Clean Edition\n\n- White Theme UI\n- Gemini Search Grounding & Connectors\n- Zero WebGL Crashes'
+      },
+      activeFile: 'index.html',
+
+      init: function() {
+        var saved = localStorage.getItem('od_vfs_v12');
+        if (saved) {
+          try { this.files = JSON.parse(saved); } catch (e) {}
+        }
+        this.renderTree();
+        this.openFile(this.activeFile);
+        this.previewActiveHtml();
+      },
+
+      save: function() {
+        localStorage.setItem('od_vfs_v12', JSON.stringify(this.files));
+        document.getElementById('tab-file-count').textContent = Object.keys(this.files).length;
+      },
+
+      renderTree: function() {
+        var list = document.getElementById('vfs-file-list');
+        if (!list) return;
+        list.innerHTML = '';
+        var self = this;
+        var names = Object.keys(this.files);
+        for (var i = 0; i < names.length; i++) {
+          (function(fname) {
+            var item = document.createElement('div');
+            item.className = 'file-tree-item ' + (fname === self.activeFile ? 'active' : '');
+            item.textContent = (fname.indexOf('.html') !== -1 ? '🌐 ' : '📄 ') + fname;
+            item.onclick = function() { self.openFile(fname); };
+            list.appendChild(item);
+          })(names[i]);
+        }
+        document.getElementById('tab-file-count').textContent = names.length;
+      },
+
+      openFile: function(fname) {
+        if (!this.files[fname]) return;
+        this.activeFile = fname;
+        document.getElementById('vfs-active-filename').textContent = fname;
+        document.getElementById('vfs-textarea').value = this.files[fname];
+        this.renderTree();
+      },
+
+      saveEditorChanges: function() {
+        this.files[this.activeFile] = document.getElementById('vfs-textarea').value;
+        this.save();
+        UI.logTerminal('[vfs] Saved ' + this.activeFile);
+      },
+
+      addFile: function(lang, code) {
+        lang = (lang || 'txt').toLowerCase();
+        var ext = lang === 'html' ? 'html' : (lang === 'javascript' ? 'js' : 'txt');
+        var name = ext === 'html' ? 'index.html' : ('code-' + Date.now().toString().slice(-4) + '.' + ext);
+        this.files[name] = code;
+        if (ext === 'html') this.previewActiveHtml();
+        this.save();
+        this.openFile(name);
+        return name;
+      },
+
+      createNewFilePrompt: function() {
+        var name = prompt("Enter file name (e.g. app.html, style.css):");
+        if (!name) return;
+        this.files[name] = "/* " + name + " */\n";
+        this.save();
+        this.openFile(name);
+      },
+
+      downloadCurrentFile: function() {
+        this.saveEditorChanges();
+        var blob = new Blob([this.files[this.activeFile]], { type: 'text/plain' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = this.activeFile;
+        a.click();
+      },
+
+      runInSandbox: function() {
+        this.saveEditorChanges();
+        var iframe = document.getElementById('sandbox-iframe');
+        iframe.srcdoc = this.files[this.activeFile];
+        UI.switchSpace('browser');
+      },
+
+      previewActiveHtml: function() {
+        var iframe = document.getElementById('sandbox-iframe');
+        if (iframe && this.files['index.html']) {
+          iframe.srcdoc = this.files['index.html'];
+        }
+      }
+    };
+
+    /* ==========================================================================
+       E. MULTI-PROVIDER AI ENGINE
        ========================================================================== */
     const ENGINE = {
-      async callLLM(systemPrompt, userText, img64 = null, mime = null) {
-        const gKey = (STATE.keys.gemini || '').trim();
-        if (!gKey) {
-          UI.toggleSettings(true);
-          throw new Error("Add your Gemini API Key in Settings (⚙️).");
+      callLLM: function(dotId, basePrompt, userText, img64, mime) {
+        var skillDirective = SKILLS.getPromptFor(dotId);
+        var connectorDirective = CONNECTORS.getActivePrompt();
+        var fullPrompt = basePrompt + '\n\nACTIVE CONNECTORS:\n' + connectorDirective + '\n\nACTIVE SKILLS:\n' + skillDirective;
+        var provider = STATE.provider;
+        var key = STATE.apiKey.trim();
+
+        if (provider === 'sim' || (!key && provider !== 'custom')) {
+          return delay(800).then(function() {
+            return ENGINE.simulateAgent(dotId, userText);
+          });
         }
 
-        const [, model] = STATE.selectedModel.split(':');
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(gKey)}`;
-        const parts = [{ text: `SYSTEM:\n${systemPrompt}\n\nUSER:\n${userText}` }];
+        // 1. GOOGLE GEMINI
+        if (provider === 'gemini') {
+          var model = 'gemini-2.5-flash';
+          var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
+          var parts = [{ text: 'SYSTEM:\n' + fullPrompt + '\n\nUSER DIRECTIVE:\n' + userText }];
+          if (img64 && mime) parts.push({ inlineData: { mimeType: mime, data: img64 } });
 
-        if (img64 && mime) {
-          parts.push({ inlineData: { mimeType: mime, data: img64 } });
+          var reqBody = { contents: [{ role: 'user', parts: parts }] };
+          var hasGrounding = CONNECTORS.list.find(function(c) { return c.id === 'gemini_grounding'; });
+          if (hasGrounding && hasGrounding.enabled) {
+            reqBody.tools = [{ googleSearch: {} }];
+          }
+
+          return fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reqBody)
+          }).then(function(res) {
+            return res.json().then(function(data) {
+              if (!res.ok) throw new Error((data.error && data.error.message) || ('Gemini HTTP ' + res.status));
+              return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || 'No response returned.';
+            });
+          });
         }
 
-        const res = await fetch(endpoint, {
+        // 2. OPENAI / GROQ / CUSTOM
+        var endpoint = '';
+        var model = '';
+
+        if (provider === 'openai') {
+          endpoint = 'https://api.openai.com/v1/chat/completions';
+          model = 'gpt-4o-mini';
+        } else if (provider === 'groq') {
+          endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+          model = 'llama-3.3-70b-versatile';
+        } else if (provider === 'custom') {
+          endpoint = STATE.customUrl.replace(/\/+$/, '') + '/chat/completions';
+          model = STATE.customModel;
+        }
+
+        return fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ role: 'user', parts }] })
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + key
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: 'system', content: fullPrompt },
+              { role: 'user', content: userText }
+            ]
+          })
+        }).then(function(res) {
+          return res.json().then(function(data) {
+            if (!res.ok) throw new Error((data.error && data.error.message) || ('API HTTP ' + res.status));
+            return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response returned.';
+          });
         });
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error?.message || `API HTTP ${res.status}`);
-        }
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response returned from model.';
       },
 
-      async enhancePrompt() {
-        const input = document.getElementById('prompt-input');
-        const raw = input.value.trim();
-        if (!raw) return alert("Enter a brief prompt first.");
-
-        UI.showTicker("✨ JARVIS is enhancing technical specification...", "#8b5cf6");
-        try {
-          const upgraded = await this.callLLM(
-            "You are JARVIS. Rewrite the user's brief prompt into a high-precision, technical specification for a multi-agent AI team. Output ONLY the upgraded prompt text.",
-            raw
-          );
-          input.value = upgraded;
-        } catch (e) {
-          alert("Enhance failed: " + e.message);
-        } finally {
-          UI.hideTicker();
+      simulateAgent: function(dotId, text) {
+        var task = text.split('\n')[0].slice(0, 80);
+        if (dotId === 'scout') {
+          return '### 🟢 Scout Technical Research: "' + task + '"\n- **Target Objective:** Standalone, zero-dependency responsive architecture.\n- **Constraints & Edge Cases:** Input sanitization, cross-device layout resilience, and high frame rates.\n- **Implementation Strategy:** Single-file component bundling with state reactivity.';
         }
+        if (dotId === 'nexus') {
+          return '### 🟠 Nexus System Blueprint\n```\n+--------------------------------------------------+\n|                  UI / CLIENT                     |\n|      [Reactive State] <---> [DOM Renderer]       |\n+------------------------+-------------------------+\n                         |\n                         v\n+--------------------------------------------------+\n|               CORE LOGIC ENGINE                  |\n|    [Event Pipeline] <---> [Sanitizer / Cache]    |\n+--------------------------------------------------+\n```\n1. Pure modular architecture.\n2. Built for instant browser execution.';
+        }
+
+        // Quill writes clean code without unescaped script tokens
+        var cleanApp = [
+          TAG_START + '!DOCTYPE html' + TAG_END,
+          TAG_START + 'html lang="en"' + TAG_END,
+          TAG_START + 'head' + TAG_END,
+          '  ' + TAG_START + 'meta charset="UTF-8" /' + TAG_END,
+          '  ' + TAG_START + 'meta name="viewport" content="width=device-width, initial-scale=1.0" /' + TAG_END,
+          '  ' + TAG_START + 'style' + TAG_END,
+          '    * { box-sizing: border-box; font-family: system-ui, sans-serif; margin: 0; padding: 0; }',
+          '    body { background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }',
+          '    .app-box { width: 100%; max-width: 420px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); text-align: center; }',
+          '    .badge { font-size: 10px; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 3px 8px; border-radius: 99px; display: inline-block; margin-bottom: 10px; }',
+          '    h2 { font-size: 18px; margin-bottom: 8px; }',
+          '    p { font-size: 12px; color: #64748b; margin-bottom: 16px; }',
+          '    .display { font-size: 38px; font-weight: 800; color: #10b981; font-family: monospace; margin: 14px 0; }',
+          '    .btn-grid { display: flex; gap: 8px; }',
+          '    button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }',
+          '    .btn-act { background: #0f172a; color: #fff; }',
+          '    .btn-rst { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }',
+          '  ' + TAG_START + '/style' + TAG_END,
+          TAG_START + '/head' + TAG_END,
+          TAG_START + 'body' + TAG_END,
+          '  ' + TAG_START + 'div class="app-box"' + TAG_END,
+          '    ' + TAG_START + 'span class="badge"' + TAG_END + '⚡ OPENDOTS RUNNABLE ARTIFACT' + TAG_START + '/span' + TAG_END,
+          '    ' + TAG_START + 'h2' + TAG_END + task.replace(/[<>"']/g, '') + TAG_START + '/h2' + TAG_END,
+          '    ' + TAG_START + 'p' + TAG_END + 'Synthesized by your AI Coworker Swarm.' + TAG_START + '/p' + TAG_END,
+          '    ' + TAG_START + 'div class="display" id="val"' + TAG_END + '00:00' + TAG_START + '/div' + TAG_END,
+          '    ' + TAG_START + 'div class="btn-grid"' + TAG_END,
+          '      ' + TAG_START + 'button class="btn-act" onclick="toggleTimer()" id="btnT"' + TAG_END + '▶ Start' + TAG_START + '/button' + TAG_END,
+          '      ' + TAG_START + 'button class="btn-rst" onclick="resetTimer()"' + TAG_END + '↺ Reset' + TAG_START + '/button' + TAG_END,
+          '    ' + TAG_START + '/div' + TAG_END,
+          '  ' + TAG_START + '/div' + TAG_END,
+          '  ' + TAG_START + 'script' + TAG_END,
+          '    var s = 0, timer = null;',
+          '    function toggleTimer() {',
+          '      var btn = document.getElementById("btnT");',
+          '      if (timer) { clearInterval(timer); timer = null; btn.textContent = "▶ Start"; }',
+          '      else {',
+          '        timer = setInterval(function() { s++; var m = String(Math.floor(s/60)).padStart(2,"0"); var sec = String(s%60).padStart(2,"0"); document.getElementById("val").textContent = m + ":" + sec; }, 1000);',
+          '        btn.textContent = "⏸ Pause";',
+          '      }',
+          '    }',
+          '    function resetTimer() { clearInterval(timer); timer = null; s = 0; document.getElementById("val").textContent = "00:00"; document.getElementById("btnT").textContent = "▶ Start"; }',
+          '  ' + SCRIPT_CLOSE,
+          TAG_START + '/body' + TAG_END,
+          TAG_START + '/html' + TAG_END
+        ].join('\n');
+
+        return '### 🟣 Quill Production Artifact (Saved to 📁 index.html)\nHere is the runnable code for **"' + task + '"**. Click **▶ Run in Sandbox** to test it!\n\n```html\n' + cleanApp + '\n```';
       },
 
-      async executeWorkflow() {
+      enhancePrompt: function() {
+        var input = document.getElementById('prompt-input');
+        var text = input.value.trim();
+        if (!text) return alert("Type a short prompt first.");
+        UI.showTicker("✨ Upgrading prompt specifications...", "#8b5cf6", "ENHANCE");
+        ENGINE.callLLM('dot', "Rewrite the user's prompt into a detailed, high-precision technical specification for a multi-agent AI team. Output ONLY the upgraded prompt text.", text)
+          .then(function(upgraded) {
+            input.value = upgraded;
+          })
+          .catch(function(e) {
+            alert("Enhance failed: " + e.message);
+          })
+          .finally(function() {
+            UI.hideTicker();
+          });
+      },
+
+      executeWorkflow: function(customText) {
         if (STATE.isProcessing) return;
-        const input = document.getElementById('prompt-input');
-        const text = input.value.trim();
+        var input = document.getElementById('prompt-input');
+        var text = (customText !== undefined && customText !== null ? customText : input.value).trim();
         if (!text && !STATE.attachment.base64) return;
 
-        const img64 = STATE.attachment.base64;
-        const mime = STATE.attachment.mimeType;
+        var img64 = STATE.attachment.base64;
+        var mime = STATE.attachment.mimeType;
 
-        input.value = '';
+        if (customText === undefined || customText === null) input.value = '';
         UI.clearAttachment();
         STATE.isProcessing = true;
         document.getElementById('send-btn').disabled = true;
 
-        try {
-          if (STATE.activeDot === 'swarm') {
-            UI.appendUserMessage(text);
-            UI.logTerminal(`[user] Directive issued to Swarm: "${text.substring(0, 30)}..."`);
+        if (STATE.activeDot === 'swarm') {
+          UI.appendUserMessage(text);
+          UI.logTerminal('[swarm] Directing task: "' + text.slice(0, 40) + '..."');
 
-            // Phase 1: Scout
-            UI.showTicker("🟢 Scout Dot is scanning & researching...", "var(--scout-green)");
-            UI.logTerminal("[scout] Formulating research parameters...");
-            const research = await this.callLLM(STATE.dots.scout.prompt, text, img64, mime);
-            UI.appendMessage('scout', research);
-            UI.logTerminal("[scout] Research matrix dispatched.");
+          // Phase 1: Scout
+          SPATIAL.setWorking('scout', true);
+          SPATIAL.animatePacket('node-dot', 'node-scout', '#10b981');
+          UI.showTicker("🟢 Scout Dot is scanning requirements & edge cases...", "var(--scout-green)", "STEP 1/3");
 
-            // Cooldown Circuit Breaker 1
-            UI.showTicker("⏱️ Resting 4s to bypass Google rate limits...", "var(--text-muted)");
-            await delay(4000);
+          ENGINE.callLLM('scout', STATE.dots.scout.prompt, text, img64, mime)
+            .then(function(research) {
+              UI.appendMessage('scout', research);
+              SPATIAL.setWorking('scout', false);
+              return delay(STATE.cooldown).then(function() { return research; });
+            })
+            .then(function(research) {
+              // Phase 2: Nexus
+              SPATIAL.setWorking('nexus', true);
+              SPATIAL.animatePacket('node-scout', 'node-nexus', '#f59e0b');
+              UI.showTicker("🟠 Nexus Dot is architecting blueprints...", "var(--nexus-amber)", "STEP 2/3");
+              return ENGINE.callLLM('nexus', STATE.dots.nexus.prompt, 'Task: ' + text + '\n\nScout Research:\n' + research)
+                .then(function(arch) {
+                  UI.appendMessage('nexus', arch);
+                  SPATIAL.setWorking('nexus', false);
+                  return delay(STATE.cooldown).then(function() { return arch; });
+                });
+            })
+            .then(function(arch) {
+              // Phase 3: Quill
+              SPATIAL.setWorking('quill', true);
+              SPATIAL.animatePacket('node-nexus', 'node-quill', '#8b5cf6');
+              UI.showTicker("🟣 Quill Dot is writing code & documentation...", "var(--quill-purple)", "STEP 3/3");
+              return ENGINE.callLLM('quill', STATE.dots.quill.prompt, 'Task: ' + text + '\n\nNexus Architecture:\n' + arch + '\n\nWrite full code.')
+                .then(function(code) {
+                  UI.appendMessage('quill', code);
+                  SPATIAL.setWorking('quill', false);
+                  SPATIAL.animatePacket('node-quill', 'node-dot', '#2563eb');
+                });
+            })
+            .catch(function(e) {
+              UI.appendMessage('dot', '⚠️ Alert: ' + e.message);
+              UI.logTerminal('[error] ' + e.message);
+              ['dot', 'scout', 'nexus', 'quill'].forEach(function(k) { SPATIAL.setWorking(k, false); });
+            })
+            .finally(function() {
+              STATE.isProcessing = false;
+              UI.hideTicker();
+              document.getElementById('send-btn').disabled = false;
+            });
 
-            // Phase 2: Nexus
-            UI.showTicker("🟠 Nexus Dot is architecting logic...", "var(--nexus-amber)");
-            UI.logTerminal("[nexus] Synthesizing structural blueprint...");
-            const arch = await this.callLLM(STATE.dots.nexus.prompt, `User Task: ${text}\n\nScout Research:\n${research}`);
-            UI.appendMessage('nexus', arch);
-            UI.logTerminal("[nexus] Architectural specification finalized.");
+        } else {
+          var dot = STATE.dots[STATE.activeDot];
+          UI.appendUserMessage(text);
+          SPATIAL.setWorking(dot.id, true);
+          UI.showTicker(dot.name + " is running...", dot.color, "DIRECT");
 
-            // Cooldown Circuit Breaker 2
-            UI.showTicker("⏱️ Resting 4s to bypass Google rate limits...", "var(--text-muted)");
-            await delay(4000);
-
-            // Phase 3: Quill
-            UI.showTicker("🟣 Quill Dot is writing codebase/output...", "var(--quill-purple)");
-            UI.logTerminal("[quill] Compiling final deliverable...");
-            const written = await this.callLLM(STATE.dots.quill.prompt, `User Task: ${text}\n\nNexus Architecture:\n${arch}\n\nDraft final code and document.`);
-            UI.appendMessage('quill', written);
-            UI.logTerminal("[quill] Consensus reached. All outputs compiled.");
-
-          } else {
-            // Single Dot Execution
-            const dot = STATE.dots[STATE.activeDot];
-            UI.appendUserMessage(text);
-            UI.showTicker(`${dot.name} is processing...`, dot.cssColor);
-            UI.logTerminal(`[${dot.id}] Direct task received: "${text.substring(0, 30)}..."`);
-
-            const reply = await this.callLLM(dot.prompt, text, img64, mime);
-            UI.appendMessage(dot.id, reply);
-            UI.logTerminal(`[${dot.id}] Execution completed.`);
-          }
-        } catch (e) {
-          UI.appendMessage('dot', `⚠️ Pipeline Error: ${e.message}`);
-          UI.logTerminal(`[error] ${e.message}`);
-        } finally {
-          STATE.isProcessing = false;
-          UI.hideTicker();
-          document.getElementById('send-btn').disabled = false;
+          ENGINE.callLLM(dot.id, dot.prompt, text, img64, mime)
+            .then(function(reply) {
+              UI.appendMessage(dot.id, reply);
+              SPATIAL.setWorking(dot.id, false);
+            })
+            .catch(function(e) {
+              UI.appendMessage('dot', '⚠️ Alert: ' + e.message);
+              UI.logTerminal('[error] ' + e.message);
+              SPATIAL.setWorking(dot.id, false);
+            })
+            .finally(function() {
+              STATE.isProcessing = false;
+              UI.hideTicker();
+              document.getElementById('send-btn').disabled = false;
+            });
         }
       }
     };
 
     /* ==========================================================================
-       E. UI CONTROLS, CLOUD FIRESTORE SYNC, & FORMATTER
+       F. TERMINAL CLI
+       ========================================================================== */
+    const CLI = {
+      execute: function(raw) {
+        var input = document.getElementById('terminal-cli-input');
+        input.value = '';
+        var line = (raw || '').trim();
+        if (!line) return;
+
+        UI.logTerminal('$ ' + line);
+        var parts = line.split(' ');
+        var cmd = parts[0].toLowerCase();
+        var argText = parts.slice(1).join(' ');
+
+        switch (cmd) {
+          case 'help':
+            UI.logTerminal("OpenDots Terminal Commands:");
+            UI.logTerminal("  ls             - List all virtual files");
+            UI.logTerminal("  cat <filename> - View virtual file contents");
+            UI.logTerminal("  skills         - List enabled agent skills");
+            UI.logTerminal("  connectors     - List external connectors");
+            UI.logTerminal("  swarm <task>   - Run autonomous swarm pipeline");
+            UI.logTerminal("  clear          - Clear terminal");
+            break;
+          case 'ls':
+            UI.logTerminal("Virtual Files: " + Object.keys(VFS.files).join('  '));
+            break;
+          case 'cat':
+            if (VFS.files[argText]) UI.logTerminal(VFS.files[argText].slice(0, 350));
+            else UI.logTerminal("File not found: " + argText);
+            break;
+          case 'skills':
+            SKILLS.list.forEach(function(s) { UI.logTerminal("  [" + (s.enabled ? 'ON' : 'OFF') + "] " + s.name); });
+            break;
+          case 'connectors':
+            CONNECTORS.list.forEach(function(c) { UI.logTerminal("  [" + (c.enabled ? 'ON' : 'OFF') + "] " + c.name + " (" + c.badge + ")"); });
+            break;
+          case 'swarm':
+            if (!argText) UI.logTerminal("Usage: swarm <directive>");
+            else { UI.selectDot('swarm'); ENGINE.executeWorkflow(argText); }
+            break;
+          case 'clear':
+            document.getElementById('sim-terminal-output').innerHTML = '';
+            break;
+          default:
+            UI.logTerminal("Unknown command: " + cmd + ". Type 'help'.");
+        }
+      }
+    };
+
+    /* ==========================================================================
+       G. VOICE INPUT & SPEECH
+       ========================================================================== */
+    const VOICE = {
+      rec: null,
+      isListening: false,
+      toggleMic: function() {
+        var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) return alert("Speech recognition not supported in this browser. Try Chrome.");
+        var self = this;
+        if (!this.rec) {
+          this.rec = new SpeechRec();
+          this.rec.onresult = function(e) {
+            document.getElementById('prompt-input').value = e.results[0][0].transcript;
+          };
+          this.rec.onend = function() {
+            self.isListening = false;
+            document.getElementById('mic-btn').textContent = '🎙️ Voice';
+          };
+        }
+        if (this.isListening) {
+          this.rec.stop();
+        } else {
+          this.isListening = true;
+          document.getElementById('mic-btn').textContent = '🔴 Listening...';
+          this.rec.start();
+        }
+      },
+      speak: function(text) {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        var clean = text.replace(/```[\s\S]*?```/g, 'Code block generated.').replace(/[#*_~`-]/g, '');
+        var u = new SpeechSynthesisUtterance(clean.slice(0, 300));
+        window.speechSynthesis.speak(u);
+      }
+    };
+
+    /* ==========================================================================
+       H. UI INTERACTIONS & ADAPTIVE LAYOUT
        ========================================================================== */
     const UI = {
-      init() {
-        const m = localStorage.getItem('od_model');
-        const g = localStorage.getItem('od_gemini');
-        if (m) {
-          STATE.selectedModel = m;
-          document.getElementById('model-selector').value = m;
-        }
-        if (g) {
-          STATE.keys.gemini = g;
-          document.getElementById('key-gemini').value = g;
-        }
-        this.loadHistory();
+      init: function() {
+        var prov = localStorage.getItem('od_prov') || 'sim';
+        var key = localStorage.getItem('od_key') || '';
+        var curl = localStorage.getItem('od_curl') || 'https://openrouter.ai/api/v1';
+        var cmod = localStorage.getItem('od_cmod') || 'deepseek/deepseek-chat';
+        var cd = localStorage.getItem('od_cd') || '1200';
+        var th = localStorage.getItem('od_th') || 'light';
+
+        STATE.provider = prov;
+        STATE.apiKey = key;
+        STATE.customUrl = curl;
+        STATE.customModel = cmod;
+        STATE.cooldown = parseInt(cd, 10);
+
+        document.getElementById('model-provider').value = prov;
+        document.getElementById('api-key-input').value = key;
+        document.getElementById('custom-base-url').value = curl;
+        document.getElementById('custom-model-name').value = cmod;
+        document.getElementById('swarm-cooldown').value = cd;
+        document.documentElement.setAttribute('data-theme', th);
+
+        this.onProviderChange();
+
+        document.getElementById('prompt-input').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            ENGINE.executeWorkflow();
+          }
+        });
+
+        window.addEventListener('resize', function() { SPATIAL.updateCables(); });
+        setTimeout(function() { SPATIAL.updateCables(); }, 120);
       },
 
-      saveConfig() {
-        const m = document.getElementById('model-selector').value;
-        const g = document.getElementById('key-gemini').value.trim();
-        STATE.selectedModel = m;
-        STATE.keys.gemini = g;
-        localStorage.setItem('od_model', m);
-        localStorage.setItem('od_gemini', g);
+      toggleTheme: function() {
+        var cur = document.documentElement.getAttribute('data-theme');
+        var next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('od_th', next);
       },
 
-      toggleSettings(open) {
+      onProviderChange: function() {
+        var p = document.getElementById('model-provider').value;
+        STATE.provider = p;
+        document.getElementById('group-custom-url').style.display = p === 'custom' ? 'flex' : 'none';
+        document.getElementById('group-custom-model').style.display = p === 'custom' ? 'flex' : 'none';
+        document.getElementById('group-api-key').style.display = p === 'sim' ? 'none' : 'flex';
+        this.saveConfig();
+      },
+
+      saveConfig: function() {
+        STATE.provider = document.getElementById('model-provider').value;
+        STATE.apiKey = document.getElementById('api-key-input').value.trim();
+        STATE.customUrl = document.getElementById('custom-base-url').value.trim();
+        STATE.customModel = document.getElementById('custom-model-name').value.trim();
+        STATE.cooldown = parseInt(document.getElementById('swarm-cooldown').value || '1200', 10);
+
+        localStorage.setItem('od_prov', STATE.provider);
+        localStorage.setItem('od_key', STATE.apiKey);
+        localStorage.setItem('od_curl', STATE.customUrl);
+        localStorage.setItem('od_cmod', STATE.customModel);
+        localStorage.setItem('od_cd', String(STATE.cooldown));
+      },
+
+      toggleSettings: function(open) {
         document.getElementById('settings-modal').classList.toggle('active', open);
       },
 
-      toggleChatPanel() {
-        STATE.chatCollapsed = !STATE.chatCollapsed;
-        const drawer = document.getElementById('chat-drawer');
-        drawer.style.transform = STATE.chatCollapsed ? 'translateY(84%)' : 'translateY(0%)';
-        document.getElementById('chatToggleBtn').textContent = STATE.chatCollapsed ? 'Show UI' : 'Hide UI';
+      toggleMaximize: function(id) {
+        document.getElementById(id).classList.toggle('maximized');
       },
 
-      switchSpace(space) {
-        STATE.activeSpace = space;
-        ['computer', 'browser', 'files', 'terminal'].forEach((s) => {
-          document.getElementById(`space-${s}`).classList.toggle('active', s === space);
-          const overlay = document.getElementById(`overlay-${s}`);
-          if (overlay) overlay.classList.remove('active');
-        });
+      toggleChatPanel: function() {
+        STATE.chatCollapsed = !STATE.chatCollapsed;
+        document.getElementById('chat-drawer').style.transform = STATE.chatCollapsed ? 'translateY(85%)' : 'translateY(0%)';
+        document.getElementById('chatToggleBtn').textContent = STATE.chatCollapsed ? 'Show' : 'Hide';
+      },
 
+      switchSpace: function(space) {
+        STATE.activeSpace = space;
+        ['computer', 'connectors', 'skills', 'browser', 'files', 'terminal'].forEach(function(s) {
+          var tab = document.getElementById('space-' + s);
+          if (tab) tab.classList.toggle('active', s === space);
+          var over = document.getElementById('overlay-' + s);
+          if (over) over.classList.remove('active');
+        });
         if (space !== 'computer') {
-          const targetOverlay = document.getElementById(`overlay-${space}`);
-          if (targetOverlay) targetOverlay.classList.add('active');
+          var over = document.getElementById('overlay-' + space);
+          if (over) over.classList.add('active');
         }
       },
 
-      selectDot(dot) {
+      selectDot: function(dot) {
         STATE.activeDot = dot;
-        ['swarm', 'dot', 'scout', 'quill', 'nexus'].forEach((d) => {
-          document.getElementById(`dot-${d}`).classList.toggle('active', d === dot);
+        ['swarm', 'dot', 'scout', 'quill', 'nexus'].forEach(function(d) {
+          var el = document.getElementById('dot-' + d);
+          if (el) el.classList.toggle('active', d === dot);
+          var node = document.getElementById('node-' + d);
+          if (node) node.classList.toggle('active', d === dot);
         });
       },
 
-      resetCamera() {
-        SPATIAL.camera.position.set(0, 0.6, 7.5);
-        SPATIAL.controls.target.set(0, 0, 0);
-        SPATIAL.controls.update();
+      fillPrompt: function(t) {
+        var input = document.getElementById('prompt-input');
+        input.value = t;
+        input.focus();
       },
 
-      showTicker(text, color) {
-        const ticker = document.getElementById('status-ticker');
-        const label = document.getElementById('ticker-text');
-        ticker.style.display = 'flex';
-        ticker.style.color = color || 'var(--text-main)';
-        ticker.querySelector('.spinner').style.borderColor = color || 'var(--text-main)';
-        ticker.querySelector('.spinner').style.borderTopColor = 'transparent';
-        label.textContent = text;
+      showTicker: function(text, color, step) {
+        var t = document.getElementById('status-ticker');
+        document.getElementById('ticker-text').textContent = text;
+        document.getElementById('ticker-step').textContent = step || '';
+        t.style.display = 'flex';
       },
 
-      hideTicker() {
+      hideTicker: function() {
         document.getElementById('status-ticker').style.display = 'none';
       },
 
-      logTerminal(text) {
-        const term = document.getElementById('sim-terminal-output');
+      logTerminal: function(text) {
+        var term = document.getElementById('sim-terminal-output');
         if (!term) return;
-        const line = document.createElement('div');
+        var line = document.createElement('div');
         line.className = 'sim-terminal-line';
-        line.innerHTML = `<span class="sim-terminal-prefix">[log]</span>${text}`;
+        line.innerHTML = '<span class="sim-terminal-prefix">[log]</span>';
+        line.appendChild(document.createTextNode(text));
         term.appendChild(line);
         term.scrollTop = term.scrollHeight;
       },
 
-      async clearHistory() {
-        if (db) {
-          try {
-            const snap = await db.collection('teamdots_history').get();
-            const batch = db.batch();
-            snap.docs.forEach((doc) => batch.delete(doc.ref));
-            await batch.commit();
-          } catch (e) {
-            console.warn("Firestore clear failed:", e);
-          }
-        }
-        localStorage.removeItem('od_local_history');
-        document.getElementById('chat-stream').innerHTML = `
-          <div class="msg-card">
-            <div class="msg-card-header">
-              <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● Cloud Session Cleared</span>
-            </div>
-            <p style="font-size: 12px; color: var(--text-muted);">All chat documents have been purged from memory.</p>
-          </div>
-        `;
+      exportChatMarkdown: function() {
+        var stream = document.getElementById('chat-stream');
+        var md = '# OpenDots Transcript\n\n' + stream.innerText;
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
+        a.download = 'opendots-' + Date.now() + '.md';
+        a.click();
       },
 
-      handleFileAttach(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          STATE.attachment.base64 = evt.target.result.split(',')[1];
-          STATE.attachment.mimeType = file.type;
-          document.getElementById('attachment-preview').src = evt.target.result;
-          document.getElementById('attachment-name').textContent = file.name;
+      clearHistory: function() {
+        document.getElementById('chat-stream').innerHTML = 
+          '<div class="msg-card">' +
+            '<span style="font-size:11px; font-weight:700; color:var(--accent-dot);">● Chat Memory Cleared</span>' +
+            '<p style="font-size:12px; color:var(--text-muted);">Ready for your next directive.</p>' +
+          '</div>';
+      },
+
+      handleFileAttach: function(e) {
+        var f = e.target.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function(ev) {
+          STATE.attachment.base64 = ev.target.result.split(',')[1];
+          STATE.attachment.mimeType = f.type;
+          document.getElementById('attachment-preview').src = ev.target.result;
+          document.getElementById('attachment-name').textContent = f.name;
           document.getElementById('attachment-bar').classList.add('active');
         };
-        reader.readAsDataURL(file);
+        r.readAsDataURL(f);
       },
 
-      clearAttachment() {
+      clearAttachment: function() {
         STATE.attachment = { base64: null, mimeType: null, name: null };
         document.getElementById('attachment-bar').classList.remove('active');
       },
 
-      async saveHistory(item) {
-        if (db) {
-          try {
-            await db.collection('teamdots_history').add({
-              ...item,
-              timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return;
-          } catch (e) {
-            console.warn('Firebase save failed, falling back to local:', e);
-          }
-        }
-        let local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
-        local.push(item);
-        if (local.length > 50) local.shift();
-        localStorage.setItem('od_local_history', JSON.stringify(local));
+      appendUserMessage: function(text) {
+        var s = document.getElementById('chat-stream');
+        var b = document.createElement('div');
+        b.className = 'user-bubble';
+        b.textContent = text;
+        s.appendChild(b);
+        s.scrollTop = s.scrollHeight;
       },
 
-      async loadHistory() {
-        const stream = document.getElementById('chat-stream');
-        if (db) {
-          try {
-            const snap = await db.collection('teamdots_history').orderBy('timestamp', 'asc').get();
-            if (!snap.empty) {
-              stream.innerHTML = '';
-              snap.docs.forEach((doc) => {
-                const data = doc.data();
-                if (data.type === 'user') this.renderUserBubble(data.text);
-                else this.renderAgentCard(data.dotId, data.text);
-              });
-              return;
-            }
-          } catch (e) {
-            console.warn('Firebase load failed, falling back to local:', e);
-          }
-        }
-        let local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
-        if (local.length > 0) {
-          stream.innerHTML = '';
-          local.forEach((item) => {
-            if (item.type === 'user') this.renderUserBubble(item.text);
-            else this.renderAgentCard(item.dotId, item.text);
-          });
-        }
-      },
+      appendMessage: function(dotId, raw) {
+        var s = document.getElementById('chat-stream');
+        var dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', color: '#2563eb' };
 
-      appendUserMessage(text) {
-        this.renderUserBubble(text);
-        this.saveHistory({ type: 'user', text });
-      },
-
-      renderUserBubble(text) {
-        const stream = document.getElementById('chat-stream');
-        // Clear intro placeholder if still present
-        if (stream.children.length === 1 && stream.children[0].textContent.includes('Master Engine')) {
-          stream.innerHTML = '';
-        }
-        const bubble = document.createElement('div');
-        bubble.className = 'user-bubble';
-        bubble.textContent = text;
-        stream.appendChild(bubble);
-        stream.scrollTop = stream.scrollHeight;
-      },
-
-      appendMessage(dotId, raw) {
-        this.renderAgentCard(dotId, raw);
-        this.saveHistory({ type: 'agent', dotId, text: raw });
-      },
-
-      renderAgentCard(dotId, raw) {
-        const stream = document.getElementById('chat-stream');
-        const dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', cssColor: '#2563eb' };
-
-        const card = document.createElement('div');
+        var card = document.createElement('div');
         card.className = 'msg-card';
-        const header = document.createElement('div');
-        header.className = 'msg-card-header';
-        header.innerHTML = `
-          <span style="font-size:11px; font-weight:700; color:${dot.cssColor}">● ${dot.name} // ${dot.role.toUpperCase()}</span>
-          <span style="font-size:10px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-        `;
-        card.appendChild(header);
-
-        card.appendChild(this.formatCodeBlocks(raw));
-        stream.appendChild(card);
-        stream.scrollTop = stream.scrollHeight;
+        card.innerHTML = 
+          '<div class="msg-card-header">' +
+            '<span style="font-size:11px; font-weight:800; color:' + dot.color + '">● ' + dot.name.toUpperCase() + ' // ' + dot.role + '</span>' +
+            '<button onclick="VOICE.speak(this.closest(\'.msg-card\').innerText)" style="background:none; border:none; cursor:pointer; font-size:11px;">🔊</button>' +
+          '</div>';
+        card.appendChild(this.formatBlocks(raw));
+        s.appendChild(card);
+        s.scrollTop = s.scrollHeight;
       },
 
-      formatCodeBlocks(raw) {
-        const container = document.createElement('div');
-        container.style.display = 'flex';
-        container.style.flexDirection = 'column';
-        container.style.gap = '8px';
-        container.style.fontSize = '12px';
-        container.style.color = '#334155';
-        container.style.lineHeight = '1.5';
+      formatBlocks: function(raw) {
+        var c = document.createElement('div');
+        c.style.display = 'flex';
+        c.style.flexDirection = 'column';
+        c.style.gap = '6px';
+        c.style.fontSize = '12px';
 
-        const regex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
-        let lastIndex = 0;
-        let match;
+        var regex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
+        var last = 0, match;
 
         while ((match = regex.exec(raw)) !== null) {
-          const before = raw.slice(lastIndex, match.index);
-          if (before.trim()) {
-            const p = document.createElement('div');
+          var preText = raw.slice(last, match.index);
+          if (preText.trim()) {
+            var p = document.createElement('div');
             p.style.whiteSpace = 'pre-wrap';
-            p.style.wordBreak = 'break-word';
-            p.textContent = before.trim();
-            container.appendChild(p);
+            p.textContent = preText.trim();
+            c.appendChild(p);
           }
 
-          const lang = match[1] || 'code';
-          const codeText = match[2];
-          const codeBox = document.createElement('div');
-          codeBox.className = 'code-box';
+          var lang = match[1] || 'code';
+          var code = match[2];
+          var savedFile = VFS.addFile(lang, code);
 
-          const topBar = document.createElement('div');
-          topBar.className = 'code-topbar';
-          topBar.innerHTML = `<span>${lang.toUpperCase()}</span>`;
+          var box = document.createElement('div');
+          box.className = 'code-box';
+          
+          var topbar = document.createElement('div');
+          topbar.className = 'code-topbar';
+          topbar.innerHTML = '<span>' + lang.toUpperCase() + ' // Saved to ' + savedFile + '</span>';
 
-          const copyBtn = document.createElement('button');
+          var actions = document.createElement('div');
+          actions.className = 'code-actions';
+
+          if (lang === 'html') {
+            var runBtn = document.createElement('button');
+            runBtn.className = 'run-code-btn';
+            runBtn.textContent = '▶ Run';
+            (function(sf) {
+              runBtn.onclick = function() {
+                VFS.openFile(sf);
+                VFS.runInSandbox();
+              };
+            })(savedFile);
+            actions.appendChild(runBtn);
+          }
+
+          var copyBtn = document.createElement('button');
           copyBtn.className = 'copy-code-btn';
           copyBtn.textContent = 'Copy';
-          copyBtn.onclick = () => {
-            navigator.clipboard.writeText(codeText).then(() => {
-              copyBtn.textContent = 'Copied!';
-              setTimeout(() => (copyBtn.textContent = 'Copy'), 2000);
-            });
-          };
+          (function(cd) {
+            copyBtn.onclick = function() {
+              navigator.clipboard.writeText(cd);
+            };
+          })(code);
+          actions.appendChild(copyBtn);
 
-          topBar.appendChild(copyBtn);
-          codeBox.appendChild(topBar);
+          topbar.appendChild(actions);
+          box.appendChild(topbar);
 
-          const pre = document.createElement('pre');
+          var pre = document.createElement('pre');
           pre.className = 'code-pre';
-          pre.textContent = codeText;
-          codeBox.appendChild(pre);
+          pre.textContent = code;
+          box.appendChild(pre);
 
-          container.appendChild(codeBox);
-          lastIndex = regex.lastIndex;
+          c.appendChild(box);
+          last = regex.lastIndex;
         }
 
-        const rest = raw.slice(lastIndex);
-        if (rest.trim()) {
-          const p = document.createElement('div');
-          p.style.whiteSpace = 'pre-wrap';
-          p.style.wordBreak = 'break-word';
-          p.textContent = rest.trim();
-          container.appendChild(p);
+        var remaining = raw.slice(last);
+        if (remaining.trim()) {
+          var pRem = document.createElement('div');
+          pRem.style.whiteSpace = 'pre-wrap';
+          pRem.textContent = remaining.trim();
+          c.appendChild(pRem);
         }
-
-        return container;
+        return c;
       }
     };
 
     /* ==========================================================================
-       F. BOOTSTRAP INITIALIZATION
+       I. STARTUP
        ========================================================================== */
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', function() {
+      CONNECTORS.init();
+      SKILLS.init();
+      VFS.init();
       UI.init();
-      SPATIAL.init();
     });
   </script>
 </body>
