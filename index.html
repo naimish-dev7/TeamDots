@@ -413,7 +413,7 @@
     }
 
     /* ==========================================================================
-       4. WORKSPACE OVERLAYS
+       4. WORKSPACE OVERLAYS (Terminal, Connectors, Memory)
        ========================================================================== */
     .workspace-overlay {
       position: fixed;
@@ -462,6 +462,21 @@
     /* Memory Vault */
     .memory-vault-box { display: flex; flex-direction: column; gap: 10px; height: 100%; }
     .memory-textarea { flex: 1; width: 100%; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; color: var(--text-main); resize: none; }
+
+    /* Connectors Grid */
+    .connectors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    /* Live Terminal */
+    .terminal-wrap { background: #090d16; color: #e2e8f0; display: flex; flex-direction: column; height: 100%; font-family: 'JetBrains Mono', monospace; }
+    #sim-terminal-output { flex: 1; padding: 12px; overflow-y: auto; font-size: 11.5px; }
+    .sim-terminal-line { line-height: 1.55; margin-bottom: 4px; word-break: break-word; }
+    .sim-terminal-prefix { color: var(--scout-green); font-weight: 700; margin-right: 7px; }
+    .terminal-input-row { display: flex; align-items: center; padding: 7px 12px; border-top: 1px solid #1e293b; background: #0f172a; gap: 8px; flex-shrink: 0; }
+    #terminal-cli-input { flex: 1; background: transparent; border: none; outline: none; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
 
     /* ==========================================================================
        5. CHAT DRAWER & SESSIONS
@@ -665,6 +680,81 @@
       white-space: pre-wrap;
       word-break: break-word;
     }
+    
+    /* Gatekeeper Approvals UI */
+    .approval-card {
+      border: 1px solid var(--accent-dot);
+      background: #eff6ff;
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 4px 0;
+    }
+
+    .approval-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-approve {
+      flex: 1;
+      padding: 7px;
+      border-radius: 7px;
+      background: #10b981;
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-reject {
+      padding: 7px 12px;
+      border-radius: 7px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .code-box {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #090d16;
+      margin: 6px 0;
+    }
+    .code-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: #162032;
+      border-bottom: 1px solid #334155;
+      font-size: 10px;
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .code-pre {
+      padding: 10px;
+      font-size: 11px;
+      color: #e2e8f0;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: pre;
+    }
 
     .command-dock {
       padding: 10px 12px;
@@ -688,10 +778,7 @@
       resize: none;
       user-select: text;
     }
-
-    #prompt-input::placeholder {
-      color: var(--text-dim);
-    }
+    #prompt-input::placeholder { color: var(--text-dim); }
 
     .command-actions {
       display: flex;
@@ -724,13 +811,9 @@
       gap: 5px;
     }
 
-    /* Terminal Overlay */
-    .terminal-wrap { background: #090d16; color: #e2e8f0; display: flex; flex-direction: column; height: 100%; font-family: 'JetBrains Mono', monospace; }
-    #sim-terminal-output { flex: 1; padding: 12px; overflow-y: auto; font-size: 11.5px; }
-    .sim-terminal-line { line-height: 1.55; margin-bottom: 4px; word-break: break-word; }
-    .sim-terminal-prefix { color: var(--scout-green); font-weight: 700; margin-right: 7px; }
-    .terminal-input-row { display: flex; align-items: center; padding: 7px 12px; border-top: 1px solid #1e293b; background: #0f172a; gap: 8px; }
-    #terminal-cli-input { flex: 1; background: transparent; border: none; outline: none; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    /* Voice Control Bar */
+    .voice-control-bar { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--surface-light); border-bottom: 1px solid var(--border-color); }
+    .mic-status-pill { font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--scout-green); display: flex; align-items: center; gap: 4px; }
 
     /* Settings Modal */
     #settings-modal {
@@ -855,35 +938,38 @@
     <div class="sim-body">
       <div class="memory-vault-box">
         <p style="font-size:11.5px; color:var(--text-muted);">These preferences and facts are automatically injected into all coworker system prompts:</p>
-        <textarea id="ai-memory-textarea" class="memory-textarea" placeholder="e.g. My name is Naimish. I am 13. I build mobile-first web apps in single-file HTML/JS using Acode and Vercel."></textarea>
-        <button onclick="MEMORY.save()" class="hud-btn" style="width:100%; justify-content:center; background:#0f172a; color:#fff;"><i data-lucide="save" class="icon-sm"></i> Save Permanent Memory</button>
+        <textarea id="ai-memory-textarea" class="memory-textarea" placeholder="e.g. My name is Naimish. I am 13. I build mobile-first web apps..."></textarea>
+        <button onclick="MEMORY.save()" class="hud-btn" style="width:100%; justify-content:center; background:#0f172a; color:#fff;">
+          <i data-lucide="save" class="icon-sm"></i> Save Permanent Memory
+        </button>
       </div>
     </div>
   </div>
 
   <div id="overlay-terminal" class="workspace-overlay">
     <div class="sim-header">
-      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="terminal" class="icon-md"></i> 🖥️ Autonomous Shell</span>
+      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="terminal" class="icon-md"></i> 🖥️ Working JS Shell</span>
       <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
     </div>
     <div class="terminal-wrap">
       <div id="sim-terminal-output">
-        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>TeamDots OS v15.2 Kernel ready. Type <strong>help</strong>.</div>
+        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>TeamDots OS v17.0 Live Shell. Type <strong>help</strong>.</div>
       </div>
       <div class="terminal-input-row">
-        <span style="color:#10b981; font-weight:700;">opendots:~$</span>
-        <input type="text" id="terminal-cli-input" placeholder="Type command (e.g. ls, cloud, memory)..." onkeydown="if(event.key==='Enter') CLI.execute(this.value)" />
+        <span style="color:#10b981; font-weight:700;">root@os:~$</span>
+        <input type="text" id="terminal-cli-input" placeholder="eval 2+2, ls, memory, clear..." onkeydown="if(event.key==='Enter') CLI.execute(this.value)" />
       </div>
     </div>
   </div>
 
   <div id="overlay-connectors" class="workspace-overlay">
     <div class="sim-header">
-      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="plug" class="icon-md"></i> Action Connectors</span>
+      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="plug" class="icon-md"></i> Action Connectors (10,000+ Apps)</span>
       <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
     </div>
     <div class="sim-body">
-      <div id="connectors-container"></div>
+      <p style="color:var(--text-muted); margin-bottom:12px; font-size:11px;">Configure direct links or Universal Webhooks (Make.com/Zapier) to connect your AI to Canva, GitHub, and 10,000+ other tools.</p>
+      <div class="connectors-grid" id="connectors-container"></div>
     </div>
   </div>
 
@@ -892,7 +978,7 @@
     <div class="top-bar">
       <div class="brand-title">
         <i data-lucide="layers" style="width:16px; height:16px; color:var(--accent-dot);"></i> OpenDots
-        <span class="brand-badge">v15.2 Any-API</span>
+        <span class="brand-badge">v17.0 Master</span>
         <span class="cloud-badge"><i data-lucide="cloud" class="icon-sm"></i> Cloud Sync</span>
       </div>
       <div class="hud-controls">
@@ -924,9 +1010,17 @@
         </div>
       </div>
 
+      <!-- Voice Control Bar -->
+      <div class="voice-control-bar">
+        <button onclick="VOICE.toggleListening()" id="mic-toggle-btn" class="hud-btn" style="padding:3px 8px; font-size:10.5px;">
+          <i data-lucide="mic" class="icon-sm" style="color:var(--scout-green);"></i> <span id="mic-label">Start Voice Control</span>
+        </button>
+        <span class="mic-status-pill" id="mic-status-text">OFFLINE</span>
+      </div>
+
       <div class="dots-bar">
         <div class="dots-group">
-          <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active"><i data-lucide="zap" class="icon-sm"></i> Full Swarm</button>
+          <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active"><i data-lucide="zap" class="icon-sm"></i> Full Swarm (Router)</button>
           <button onclick="UI.selectDot('dot')" id="dot-dot" class="dot-pill"><span class="bot-status-dot" style="background:#2563eb;"></span> Dot</button>
           <button onclick="UI.selectDot('scout')" id="dot-scout" class="dot-pill"><span class="bot-status-dot" style="background:#10b981;"></span> Scout</button>
           <button onclick="UI.selectDot('nexus')" id="dot-nexus" class="dot-pill"><span class="bot-status-dot" style="background:#f59e0b;"></span> Nexus</button>
@@ -936,13 +1030,13 @@
 
       <div id="status-ticker">
         <div class="spinner"></div>
-        <span id="ticker-text">Agent running...</span>
+        <span id="ticker-text">Agent routing...</span>
       </div>
 
       <div id="chat-stream"></div>
 
       <div class="command-dock">
-        <textarea id="prompt-input" rows="2" placeholder="Talk, draft a message, or ask to build an app..."></textarea>
+        <textarea id="prompt-input" rows="2" placeholder="Talk, speak via voice, or instruct your Swarm to use Webhooks..."></textarea>
         <div class="command-actions">
           <div class="tool-buttons">
             <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);"><i data-lucide="wand-2" class="icon-sm"></i> Enhance</button>
@@ -990,23 +1084,32 @@
 
       <div class="field-group">
         <label class="field-label">Swarm Step Cooldown (ms)</label>
-        <input type="number" id="swarm-cooldown" value="2500" min="0" step="500" onchange="UI.saveConfig()" class="field-input" />
+        <input type="number" id="swarm-cooldown" value="2000" min="0" step="500" onchange="UI.saveConfig()" class="field-input" />
       </div>
 
       <button onclick="UI.toggleSettings(false)" class="btn-lock">Save & Apply Configuration</button>
     </div>
   </div>
 
-  <div class="watermark-fixed">created by naimish // opendots v15.2</div>
+  <div class="watermark-fixed">created by naimish // opendots v17.0 Master</div>
 
   <!-- SCRIPT -->
   <script>
     var TAG_START = '\x3c', TAG_END = '\x3e';
 
-    // Firebase
     var firebaseConfig = { apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA", authDomain: "teamdots-d57a8.firebaseapp.com", projectId: "teamdots-d57a8", storageBucket: "teamdots-d57a8.firebasestorage.app", messagingSenderId: "141410499215", appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa", measurementId: "G-1X58JCFSB2" };
     var db = null;
     try { if (typeof firebase !== 'undefined') { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); db = firebase.firestore(); } } catch (e) {}
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch",function(e){});').catch(function(){});
+      });
+    }
+
+    var toolInstruction = "\n\nSYSTEM TOOLS: You are connected to the user's OS. If the user asks to SEND an email, WhatsApp, or trigger a Webhook (to Canva, GitHub, etc.), output ONE of these formats on a new line:\n" +
+                          "[TOOL: GMAIL | body: text]\n[TOOL: WHATSAPP | body: text]\n[TOOL: WEBHOOK | body: {\"action\":\"action_name\", \"data\":\"relevant_data\"}]\n";
 
     var STATE = {
       activeDot: 'swarm', activeSpace: 'computer', isProcessing: false,
@@ -1014,77 +1117,168 @@
       apiKey: localStorage.getItem('od_key') || localStorage.getItem('od_gemini') || '',
       customUrl: localStorage.getItem('od_curl') || 'https://openrouter.ai/api/v1',
       customModel: localStorage.getItem('od_cmod') || 'deepseek/deepseek-chat',
-      cooldown: parseInt(localStorage.getItem('od_cd') || '2500', 10),
+      cooldown: parseInt(localStorage.getItem('od_cd') || '2000', 10),
       activeSessionId: 'session_default', sessions: {},
       dots: {
-        dot: { id: 'dot', name: 'Dot', role: 'Lead', color: '#2563eb', prompt: 'You are Dot, Lead AI. Use memory context.' },
-        scout: { id: 'scout', name: 'Scout', role: 'Researcher', color: '#10b981', prompt: 'You are Scout. Provide concise facts.' },
-        nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', color: '#f59e0b', prompt: 'You are Nexus. Structure plans.' },
-        quill: { id: 'quill', name: 'Quill', role: 'Creator', color: '#8b5cf6', prompt: 'You are Quill. Create deliverables.' }
+        dot: { id: 'dot', name: 'Dot', role: 'Lead Router', color: '#2563eb', prompt: 'You are Dot, Lead OpenDots Router. Orchestrate tasks.' + toolInstruction },
+        scout: { id: 'scout', name: 'Scout', role: 'Researcher', color: '#10b981', prompt: 'You are Scout. Provide concise facts.' + toolInstruction },
+        nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', color: '#f59e0b', prompt: 'You are Nexus. Structure plans.' + toolInstruction },
+        quill: { id: 'quill', name: 'Quill', role: 'Creator', color: '#8b5cf6', prompt: 'You are Quill. Create deliverables.' + toolInstruction }
       }
     };
+
     var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
 
-    /* 🧠 PERSISTENT MEMORY VAULT */
+    /* 🧠 MEMORY VAULT */
     var MEMORY = {
-      get: function() { return localStorage.getItem('od_user_memory') || 'User is Naimish, 13-year-old mobile web developer using Acode and Vercel.'; },
+      get: function() { return localStorage.getItem('od_user_memory') || 'User is Naimish, mobile web developer using Acode and Vercel.'; },
       save: function() {
         var val = document.getElementById('ai-memory-textarea').value;
         localStorage.setItem('od_user_memory', val);
-        if (db) { try { db.collection('teamdots_memory').doc('vault').set({ content: val }); } catch(e){} }
         alert('🧠 Memory Vault saved!');
       },
       init: function() {
-        var mem = this.get();
-        document.getElementById('ai-memory-textarea').value = mem;
+        document.getElementById('ai-memory-textarea').value = this.get();
       }
     };
 
-    /* CONNECTORS */
+    /* 🔌 CONNECTORS (Including 10,000+ App Webhook) */
     var CONNECTORS = {
       list: [
-        { id: 'gmail_app', name: 'Gmail Direct', desc: 'Auto-launches email drafts.', enabled: true, icon: 'mail', configValue: 'naimish.dev7@gmail.com' },
-        { id: 'whatsapp_app', name: 'WhatsApp', desc: 'Auto-launches WhatsApp drafts.', enabled: true, icon: 'message-circle', configValue: '' }
+        { id: 'gmail_app', name: 'Gmail Direct', desc: 'Auto-launches email drafts.', enabled: true, icon: 'mail', configLabel: 'Recipient Email', configValue: 'naimish.dev7@gmail.com' },
+        { id: 'whatsapp_app', name: 'WhatsApp', desc: 'Auto-launches WhatsApp drafts.', enabled: true, icon: 'message-circle', configLabel: 'Default Phone', configValue: '' },
+        { id: 'webhook_app', name: 'Universal Webhook (Zapier/Make)', desc: 'Connects to Canva, GitHub, Notion and 10,000+ apps.', enabled: true, icon: 'webhook', configLabel: 'Webhook URL', configValue: '' }
       ],
-      init: function() { this.render(); },
+      init: function() { var saved = localStorage.getItem('od_conn_17'); if (saved) { try { this.list = JSON.parse(saved); } catch(e){} } this.render(); },
+      save: function() { localStorage.setItem('od_conn_17', JSON.stringify(this.list)); this.render(); },
+      toggle: function(id) { var c = this.list.find(function(x){return x.id===id}); if(c){ c.enabled = !c.enabled; this.save(); } },
+      configure: function(id) { var c = this.list.find(function(x){return x.id===id}); if(!c) return; var val = prompt(c.configLabel+':', c.configValue||''); if(val!==null){ c.configValue=val.trim(); c.enabled=true; this.save(); } },
+      
+      dispatchGmail: function(body) { var to = this.list[0].configValue||''; window.open('mailto:'+encodeURIComponent(to)+'?subject=OpenDots&body='+encodeURIComponent(body), '_blank'); },
+      dispatchWhatsApp: function(body) { var phone = (this.list[1].configValue||'').replace(/[^0-9]/g,''); window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(body), '_blank'); },
+      dispatchWebhook: function(bodyPayload) {
+        var url = this.list[2].configValue;
+        if (!url) return alert('Configure Universal Webhook URL first in Connectors!');
+        try {
+          var payloadObj = JSON.parse(bodyPayload);
+          fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadObj) })
+            .then(function(r) { if(r.ok) alert('✅ Webhook Fired to Zapier/Make.com!'); else alert('⚠️ Webhook returned error.'); });
+        } catch (e) {
+          alert('⚠️ Webhook Payload was not valid JSON.');
+        }
+      },
+      
       render: function() {
         var c = document.getElementById('connectors-container'); if (!c) return; c.innerHTML = '';
         this.list.forEach(function(item) {
           var d = document.createElement('div');
-          d.style.background = 'var(--surface-card)'; d.style.border = '1px solid var(--border-color)'; d.style.padding = '12px'; d.style.borderRadius = '12px';
-          d.innerHTML = '<strong style="font-size:12px; display:flex; align-items:center; gap:6px;"><i data-lucide="'+item.icon+'" class="icon-md"></i>'+item.name+'</strong><p style="font-size:11px; color:var(--text-muted); margin:6px 0;">'+item.desc+'</p>';
+          d.className = 'connector-card ' + (item.enabled ? 'active-conn' : '');
+          d.style.background = 'var(--surface-card)'; d.style.border = '1px solid '+(item.enabled?'var(--accent-dot)':'var(--border-color)'); d.style.padding = '14px'; d.style.borderRadius = '12px';
+          d.innerHTML = 
+            '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+              '<strong style="font-size:12px; display:flex; align-items:center; gap:6px;"><i data-lucide="'+item.icon+'" class="icon-md"></i>'+item.name+'</strong>' +
+              '<button style="background:none; border:none; cursor:pointer;" onclick="CONNECTORS.toggle(\''+item.id+'\')"><i data-lucide="'+(item.enabled?'toggle-right':'toggle-left')+'" style="width:22px; color:'+(item.enabled?'var(--accent-dot)':'var(--text-muted)')+';"></i></button>' +
+            '</div>' +
+            '<p style="font-size:11px; color:var(--text-muted); margin:10px 0;">'+item.desc+'</p>' +
+            '<button onclick="CONNECTORS.configure(\''+item.id+'\')" class="hud-btn" style="font-size:10px; width:100%; justify-content:center;"><i data-lucide="settings" class="icon-sm"></i> Configured URL</button>';
           c.appendChild(d);
         });
         if (window.lucide) lucide.createIcons();
       }
     };
 
-    /* TERMINAL CLI */
+    /* 🖥️ LIVE JAVASCRIPT TERMINAL */
     var CLI = {
       execute: function(raw) {
         var i = document.getElementById('terminal-cli-input'); i.value = '';
         var line = (raw || '').trim(); if (!line) return;
         UI.logTerminal('$ ' + line);
-        if (line === 'help') UI.logTerminal("Commands: ls, cloud, memory, clear");
-        else if (line === 'ls') UI.logTerminal("sessions.json  memory.vault  workspace/");
-        else if (line === 'cloud') UI.logTerminal(db ? "Firebase Connected [ONLINE]" : "Offline fallback mode.");
-        else if (line === 'memory') UI.logTerminal(MEMORY.get());
-        else if (line === 'clear') document.getElementById('sim-terminal-output').innerHTML = '';
-        else UI.logTerminal("Unknown command. Type 'help'.");
+        
+        var parts = line.split(' ');
+        var cmd = parts[0].toLowerCase();
+        var arg = parts.slice(1).join(' ');
+
+        if (cmd === 'help') {
+          UI.logTerminal("Commands:\n  ls       - list fake dirs\n  memory   - show memory vault\n  clear    - clear console\n  eval <js>- execute real JS\n  date     - show date");
+        } else if (cmd === 'ls') {
+          UI.logTerminal("sessions.json  memory.vault  workspace/");
+        } else if (cmd === 'memory') {
+          UI.logTerminal(MEMORY.get());
+        } else if (cmd === 'clear') {
+          document.getElementById('sim-terminal-output').innerHTML = '';
+        } else if (cmd === 'date') {
+          UI.logTerminal(new Date().toString());
+        } else if (cmd === 'eval') {
+          try {
+            var res = eval(arg);
+            UI.logTerminal("=> " + String(res));
+          } catch (e) {
+            UI.logTerminal("EvalError: " + e.message);
+          }
+        } else {
+          UI.logTerminal("Unknown command: " + cmd + ". Type 'help'.");
+        }
       }
     };
 
+    /* 🛡️ GATEKEEPER APPROVALS */
+    var APPROVALS = {
+      renderGatekeeperCard: function(type, payload, onApprove) {
+        var s = document.getElementById('chat-stream'); var c = document.createElement('div'); c.className = 'approval-card';
+        c.innerHTML = 
+          '<div style="font-size:11.5px; font-weight:800; color:var(--accent-dot); display:flex; align-items:center; gap:6px;"><i data-lucide="shield" class="icon-md"></i> HUMAN APPROVAL REQUIRED</div>' +
+          '<p style="font-size:12px; margin:4px 0;">Action requested: Dispatch ' + type.toUpperCase() + '</p>' +
+          '<div class="approval-actions"><button class="btn-approve" id="ok-btn"><i data-lucide="check" class="icon-sm"></i> Approve</button><button class="btn-reject" id="no-btn"><i data-lucide="x" class="icon-sm"></i> Reject</button></div>';
+        c.querySelector('#ok-btn').onclick = function() { c.innerHTML = '<span style="font-size:11px; font-weight:700; color:#10b981;">✅ Executed</span>'; if(onApprove) onApprove(payload); };
+        c.querySelector('#no-btn').onclick = function() { c.innerHTML = '<span style="font-size:11px; font-weight:700; color:#ef4444;">❌ Declined</span>'; };
+        s.appendChild(c); s.scrollTop = s.scrollHeight;
+        if (window.lucide) lucide.createIcons();
+      }
+    };
+
+    /* 🎙️ VOICE CONTROL MODULE */
+    var VOICE = {
+      recognition: null, isListening: false,
+      toggleListening: function() {
+        var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) return alert('Speech recognition not supported in this browser. Try Chrome.');
+        var self = this;
+        if (!this.recognition) {
+          this.recognition = new SpeechRec();
+          this.recognition.continuous = false;
+          this.recognition.interimResults = false;
+          this.recognition.onresult = function(e) {
+            var text = e.results[0][0].transcript;
+            document.getElementById('prompt-input').value = text;
+            ENGINE.executeWorkflow();
+          };
+          this.recognition.onend = function() {
+            self.isListening = false;
+            document.getElementById('mic-toggle-btn').style.borderColor = 'var(--border-color)';
+            document.getElementById('mic-status-text').textContent = 'OFFLINE';
+            document.getElementById('mic-status-text').style.color = 'var(--text-muted)';
+          };
+        }
+        if (this.isListening) {
+          this.recognition.stop();
+        } else {
+          this.isListening = true;
+          document.getElementById('mic-toggle-btn').style.borderColor = 'var(--scout-green)';
+          document.getElementById('mic-status-text').textContent = 'LISTENING...';
+          document.getElementById('mic-status-text').style.color = 'var(--scout-green)';
+          this.recognition.start();
+        }
+      }
+    };
+
+    /* 🧠 AI ENGINE */
     var ENGINE = {
       callLLM: function(dotId, basePrompt, userText) {
         var key = STATE.apiKey.trim();
-        var memContext = 'USER MEMORY VAULT:\n' + MEMORY.get() + '\n\n';
-        if (!key && STATE.provider !== 'custom') {
-          return Promise.resolve("Please configure your working API key in Settings (⚙️).");
-        }
+        var memContext = 'USER MEMORY:\n' + MEMORY.get() + '\n\n';
+        if (!key && STATE.provider !== 'custom') return Promise.resolve("Please configure your API key in Settings (⚙️).");
 
         var prov = STATE.provider;
-
-        // 1. Google Gemini Provider
         if (prov === 'gemini') {
           var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(key);
           return fetch(endpoint, {
@@ -1092,43 +1286,20 @@
             body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: memContext + basePrompt + '\n\nUSER:\n' + userText }] }] })
           }).then(function(res) {
             return res.json().then(function(d) {
-              return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || 'No response returned from Gemini.';
+              return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || 'No response from Gemini.';
             });
           });
         }
 
-        // 2. OpenAI / Groq / OpenRouter / Custom OpenAI-compatible Providers
-        var url = '';
-        var modelName = '';
-
-        if (prov === 'openai') {
-          url = 'https://api.openai.com/v1/chat/completions';
-          modelName = 'gpt-4o-mini';
-        } else if (prov === 'groq') {
-          url = 'https://api.groq.com/openai/v1/chat/completions';
-          modelName = 'llama-3.3-70b-versatile';
-        } else {
-          // Custom Endpoint
-          url = STATE.customUrl.replace(/\/+$/, '') + '/chat/completions';
-          modelName = STATE.customModel;
-        }
+        var url = prov === 'openai' ? 'https://api.openai.com/v1/chat/completions' : (prov === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : STATE.customUrl.replace(/\/+$/, '') + '/chat/completions');
+        var modelName = prov === 'openai' ? 'gpt-4o-mini' : (prov === 'groq' ? 'llama-3.3-70b-versatile' : STATE.customModel);
 
         return fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + key
-          },
-          body: JSON.stringify({
-            model: modelName,
-            messages: [
-              { role: 'system', content: memContext + basePrompt },
-              { role: 'user', content: userText }
-            ]
-          })
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+          body: JSON.stringify({ model: modelName, messages: [{ role: 'system', content: memContext + basePrompt }, { role: 'user', content: userText }] })
         }).then(function(res) {
           return res.json().then(function(data) {
-            return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response returned from API.';
+            return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response from API.';
           });
         });
       },
@@ -1141,6 +1312,7 @@
       executeWorkflow: function() {
         var input = document.getElementById('prompt-input'); var text = input.value.trim(); if (!text) return; input.value = '';
         UI.appendUserMessage(text);
+
         if (STATE.activeDot === 'swarm') {
           UI.showTicker("🟢 Scout researching...");
           ENGINE.callLLM('scout', STATE.dots.scout.prompt, text).then(function(res) {
@@ -1159,7 +1331,7 @@
             });
           }).finally(function() { UI.hideTicker(); });
         } else {
-          UI.showTicker(STATE.dots[STATE.activeDot].name + " is processing...");
+          UI.showTicker(STATE.dots[STATE.activeDot].name + " processing...");
           ENGINE.callLLM(STATE.activeDot, STATE.dots[STATE.activeDot].prompt, text).then(function(r) {
             UI.appendMessage(STATE.activeDot, r);
           }).finally(function() { UI.hideTicker(); });
@@ -1167,14 +1339,13 @@
       }
     };
 
+    /* 🎨 UI CONTROLLER */
     var UI = {
       init: function() {
         var dId = localStorage.getItem('od_active_session') || 'session_' + Date.now();
-        var savedSessions = localStorage.getItem('od_sessions_15');
+        var savedSessions = localStorage.getItem('od_sessions_17');
         if (savedSessions) { try { STATE.sessions = JSON.parse(savedSessions); } catch(e){} }
-        if (!STATE.sessions || Object.keys(STATE.sessions).length === 0) {
-          STATE.sessions[dId] = { id: dId, title: '💬 Main Workspace', messages: [] };
-        }
+        if (!STATE.sessions || Object.keys(STATE.sessions).length === 0) { STATE.sessions[dId] = { id: dId, title: '💬 Main Workspace', messages: [] }; }
         STATE.activeSessionId = dId;
 
         document.getElementById('model-provider').value = STATE.provider;
@@ -1183,15 +1354,11 @@
         document.getElementById('custom-model-name').value = STATE.customModel;
         document.getElementById('swarm-cooldown').value = STATE.cooldown;
         
-        this.onProviderChange();
-        this.renderSessionSelector();
-        CONNECTORS.init();
-        MEMORY.init();
-        this.renderCurrentChat();
+        this.onProviderChange(); this.renderSessionSelector(); MEMORY.init(); CONNECTORS.init(); this.renderCurrentChat();
         if (window.lucide) lucide.createIcons();
       },
       saveSessions: function() {
-        localStorage.setItem('od_sessions_15', JSON.stringify(STATE.sessions));
+        localStorage.setItem('od_sessions_17', JSON.stringify(STATE.sessions));
         localStorage.setItem('od_active_session', STATE.activeSessionId);
       },
       renderSessionSelector: function() {
@@ -1210,9 +1377,7 @@
         var n = prompt("Rename:", STATE.sessions[STATE.activeSessionId].title.replace('💬 ','')); if (!n) return;
         STATE.sessions[STATE.activeSessionId].title = '💬 ' + n; this.saveSessions(); this.renderSessionSelector();
       },
-      clearHistory: function() {
-        document.getElementById('chat-stream').innerHTML = ''; STATE.sessions[STATE.activeSessionId].messages = []; this.saveSessions();
-      },
+      clearHistory: function() { document.getElementById('chat-stream').innerHTML = ''; STATE.sessions[STATE.activeSessionId].messages = []; this.saveSessions(); },
       switchSession: function(id) { STATE.activeSessionId = id; this.saveSessions(); this.renderCurrentChat(); },
       renderCurrentChat: function() {
         var s = document.getElementById('chat-stream'); s.innerHTML = '';
@@ -1228,30 +1393,19 @@
       toggleTheme: function() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); },
       toggleChatPanel: function() { STATE.chatCollapsed = !STATE.chatCollapsed; document.getElementById('chat-drawer').style.transform = STATE.chatCollapsed ? 'translateY(85%)' : 'translateY(0%)'; },
       toggleSettings: function(open) { document.getElementById('settings-modal').classList.toggle('active', open); },
-      
       onProviderChange: function() {
-        var p = document.getElementById('model-provider').value;
-        STATE.provider = p;
+        var p = document.getElementById('model-provider').value; STATE.provider = p;
         document.getElementById('group-custom-url').style.display = (p === 'custom') ? 'flex' : 'none';
         document.getElementById('group-custom-model').style.display = (p === 'custom') ? 'flex' : 'none';
         this.saveConfig();
       },
-
       saveConfig: function() {
-        STATE.provider = document.getElementById('model-provider').value;
-        STATE.apiKey = document.getElementById('api-key-input').value.trim();
-        STATE.customUrl = document.getElementById('custom-base-url').value.trim();
-        STATE.customModel = document.getElementById('custom-model-name').value.trim();
-        STATE.cooldown = parseInt(document.getElementById('swarm-cooldown').value || '2500', 10);
-        
-        localStorage.setItem('od_prov', STATE.provider);
-        localStorage.setItem('od_key', STATE.apiKey);
-        localStorage.setItem('od_gemini', STATE.apiKey);
-        localStorage.setItem('od_curl', STATE.customUrl);
-        localStorage.setItem('od_cmod', STATE.customModel);
-        localStorage.setItem('od_cd', STATE.cooldown);
+        STATE.provider = document.getElementById('model-provider').value; STATE.apiKey = document.getElementById('api-key-input').value.trim();
+        STATE.customUrl = document.getElementById('custom-base-url').value.trim(); STATE.customModel = document.getElementById('custom-model-name').value.trim();
+        STATE.cooldown = parseInt(document.getElementById('swarm-cooldown').value || '2000', 10);
+        localStorage.setItem('od_prov', STATE.provider); localStorage.setItem('od_key', STATE.apiKey); localStorage.setItem('od_gemini', STATE.apiKey);
+        localStorage.setItem('od_curl', STATE.customUrl); localStorage.setItem('od_cmod', STATE.customModel); localStorage.setItem('od_cd', STATE.cooldown);
       },
-
       switchSpace: function(sp) {
         ['computer','memory','terminal','connectors'].forEach(function(s) {
           var t = document.getElementById('space-' + s); if (t) t.classList.toggle('active', s === sp);
@@ -1277,16 +1431,38 @@
         var s = document.getElementById('chat-stream'); var b = document.createElement('div'); b.className = 'user-bubble'; b.textContent = txt; s.appendChild(b); s.scrollTop = s.scrollHeight;
         if (save) { STATE.sessions[STATE.activeSessionId].messages.push({ type: 'user', text: txt }); this.saveSessions(); }
       },
-      appendMessage: function(dotId, raw) { this.renderAgentCard(dotId, raw, true); },
-      renderAgentCard: function(dotId, raw, save) {
+      
+      appendMessage: function(dotId, raw) {
+        var toolRegex = /\[TOOL:\s*(GMAIL|WHATSAPP|WEBHOOK)\s*\|\s*body:\s*([\s\S]*?)\]/i;
+        var toolMatch = raw.match(toolRegex);
+        var finalRaw = raw;
+        var actionTool = null, actionBody = null;
+
+        if (toolMatch) {
+          actionTool = toolMatch[1].toUpperCase();
+          actionBody = toolMatch[2].trim();
+          finalRaw = raw.replace(toolMatch[0], '\n\n*(⚡ Action Requested: ' + actionTool + ')*');
+        }
+
         var s = document.getElementById('chat-stream');
         var dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', color: '#2563eb' };
         var c = document.createElement('div'); c.className = 'msg-card';
         c.innerHTML = '<div class="msg-card-header"><span style="font-size:11px; font-weight:800; color:' + dot.color + '; display:flex; align-items:center; gap:6px;"><i data-lucide="cpu" class="icon-sm"></i> ' + dot.name.toUpperCase() + '</span></div>';
-        var body = document.createElement('div'); body.style.fontSize = '12px'; body.style.whiteSpace = 'pre-wrap'; body.textContent = raw;
+        var body = document.createElement('div'); body.style.fontSize = '12px'; body.style.whiteSpace = 'pre-wrap'; body.innerHTML = finalRaw;
         c.appendChild(body); s.appendChild(c); s.scrollTop = s.scrollHeight;
+
         if (window.lucide) lucide.createIcons();
-        if (save) { STATE.sessions[STATE.activeSessionId].messages.push({ type: 'agent', dotId: dotId, text: raw }); this.saveSessions(); }
+        STATE.sessions[STATE.activeSessionId].messages.push({ type: 'agent', dotId: dotId, text: finalRaw }); this.saveSessions();
+
+        if (actionTool) {
+          setTimeout(function() {
+            APPROVALS.renderGatekeeperCard(actionTool, actionBody, function(payload) {
+              if (actionTool === 'GMAIL') CONNECTORS.dispatchGmail(payload);
+              if (actionTool === 'WHATSAPP') CONNECTORS.dispatchWhatsApp(payload);
+              if (actionTool === 'WEBHOOK') CONNECTORS.dispatchWebhook(payload);
+            });
+          }, 600);
+        }
       }
     };
 
