@@ -5,10 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>OpenDots // TeamDots OS — Autonomous AI Coworkers</title>
 
+  <!-- PWA & Mobile Web App Config -->
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="data:application/manifest+json,{
+    'name': 'TeamDots OS',
+    'short_name': 'TeamDots',
+    'start_url': '/',
+    'display': 'standalone',
+    'background_color': '#ffffff',
+    'theme_color': '#0f172a',
+    'icons': [{
+      'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22%23ffffff%22/></svg>',
+      'sizes': '512x512',
+      'type': 'image/svg+xml'
+    }]
+  }">
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Premium Vector Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Firebase SDK CDNs (Firestore Cloud Sync) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -16,7 +37,7 @@
 
   <style>
     /* ==========================================================================
-       1. WHITE THEME COLOR SYSTEM
+       1. THEME VARIABLES & ROOT STYLES
        ========================================================================== */
     :root {
       --bg-base: #f8fafc;
@@ -54,9 +75,6 @@
       --text-muted: #94a3b8;
       --text-dim: #64748b;
       --glass-bg: rgba(17, 24, 39, 0.94);
-      --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-      --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-      --bot-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.6);
     }
 
     * {
@@ -84,8 +102,13 @@
       justify-content: space-between;
     }
 
+    /* Icon Utilities */
+    .icon-sm { width: 12px; height: 12px; stroke-width: 2.5; flex-shrink: 0; }
+    .icon-md { width: 14px; height: 14px; stroke-width: 2.5; flex-shrink: 0; }
+    .icon-lg { width: 18px; height: 18px; stroke-width: 2.5; flex-shrink: 0; }
+
     /* ==========================================================================
-       2. PURE CSS 3D SPATIAL CANVAS
+       2. 3D SPATIAL STAGE (PURE CSS)
        ========================================================================== */
     #spatial-stage {
       position: fixed;
@@ -124,12 +147,14 @@
       pointer-events: none;
       z-index: 2;
     }
+
     .neural-line {
       stroke: var(--border-color);
       stroke-width: 2;
       stroke-dasharray: 6 6;
       opacity: 0.65;
     }
+
     .neural-packet {
       fill: var(--accent-dot);
       filter: drop-shadow(0 0 6px var(--accent-dot));
@@ -145,12 +170,13 @@
       align-items: center;
       justify-content: center;
       z-index: 3;
-      transform: translateY(-40px);
+      transform: translateY(-45px);
     }
+
     @media (max-width: 640px) {
       .bots-3d-cluster {
-        transform: translateY(-80px) scale(0.85);
-        height: 310px;
+        transform: translateY(-90px) scale(0.84);
+        height: 300px;
       }
     }
 
@@ -177,12 +203,7 @@
     }
 
     .bot-3d.active { filter: drop-shadow(0 0 16px rgba(37, 99, 235, 0.45)); }
-    .bot-3d.working { animation: workPulse 0.8s ease-in-out infinite alternate !important; }
-    @keyframes workPulse {
-      from { transform: scale(1.03) translateY(-6px); filter: drop-shadow(0 0 20px var(--accent-dot)); }
-      to { transform: scale(1.12) translateY(-14px); filter: drop-shadow(0 0 35px var(--accent-dot)); }
-    }
-
+    
     .bot-body {
       width: 78px;
       height: 78px;
@@ -194,6 +215,7 @@
       box-shadow: var(--bot-shadow);
       border: 3px solid rgba(255, 255, 255, 0.4);
     }
+
     .bot-orbit-ring {
       position: absolute;
       width: 98px;
@@ -218,6 +240,7 @@
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.6);
       border: 1px solid rgba(255,255,255,0.2);
     }
+
     .bot-eye {
       width: 6.5px;
       height: 6.5px;
@@ -230,6 +253,7 @@
       0%, 96%, 100% { transform: scaleY(1); }
       98% { transform: scaleY(0.1); }
     }
+
     .bot-meta-tag {
       margin-top: 8px;
       padding: 3px 9px;
@@ -268,7 +292,6 @@
       justify-content: space-between;
       background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val));
-      -webkit-backdrop-filter: blur(var(--blur-val));
       border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
       gap: 8px;
@@ -283,6 +306,7 @@
       gap: 6px;
       letter-spacing: -0.02em;
     }
+
     .brand-badge {
       font-size: 9.5px;
       padding: 2px 6px;
@@ -293,6 +317,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-weight: 700;
     }
+
     .cloud-badge {
       font-size: 9.5px;
       padding: 2px 6px;
@@ -302,13 +327,17 @@
       color: var(--scout-green);
       font-family: 'JetBrains Mono', monospace;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-
+    
     .hud-controls {
       display: flex;
       align-items: center;
       gap: 6px;
     }
+
     .hud-btn {
       background: var(--surface-card);
       border: 1px solid var(--border-color);
@@ -324,11 +353,14 @@
       gap: 5px;
       transition: all 0.15s ease;
     }
+
     .hud-btn:hover {
       background: var(--surface-light);
       border-color: var(--text-muted);
     }
-    .hud-btn:active { transform: scale(0.96); }
+    .hud-btn:active {
+      transform: scale(0.96);
+    }
 
     .workspace-tabs {
       pointer-events: auto;
@@ -345,6 +377,7 @@
       scrollbar-width: none;
       box-shadow: var(--card-shadow);
     }
+    
     .workspace-tabs::-webkit-scrollbar { display: none; }
 
     .tabs-left {
@@ -352,6 +385,7 @@
       align-items: center;
       gap: 4px;
     }
+
     .space-tab {
       padding: 5px 10px;
       border-radius: 7px;
@@ -365,33 +399,28 @@
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
+
     .space-tab:hover {
       color: var(--text-main);
       background: var(--surface-light);
     }
+
     .space-tab.active {
       background: #0f172a;
       color: #ffffff;
     }
-    .badge-count {
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 99px;
-      background: rgba(255,255,255,0.25);
-      font-family: 'JetBrains Mono', monospace;
-    }
 
     /* ==========================================================================
-       4. OVERLAYS (CONNECTORS, SKILLS, BROWSER, FILES, TERMINAL)
+       4. WORKSPACE OVERLAYS
        ========================================================================== */
     .workspace-overlay {
       position: fixed;
       top: 100px;
       left: 12px;
       right: 12px;
-      bottom: 245px;
+      bottom: 265px;
       z-index: 15;
       display: none;
       border-radius: 16px;
@@ -399,13 +428,14 @@
       pointer-events: auto;
       background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val));
-      -webkit-backdrop-filter: blur(var(--blur-val));
       border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
       flex-direction: column;
     }
-    .workspace-overlay.active { display: flex; }
-    .workspace-overlay.maximized { bottom: 12px; z-index: 26; }
+
+    .workspace-overlay.active {
+      display: flex;
+    }
 
     .sim-header {
       padding: 9px 14px;
@@ -417,168 +447,24 @@
       font-size: 11.5px;
       font-weight: 700;
       color: var(--text-main);
+      flex-shrink: 0;
     }
+
     .sim-body {
       flex: 1;
       padding: 14px;
       overflow-y: auto;
+      min-height: 0;
       font-size: 12px;
       user-select: text;
     }
 
-    .connectors-grid, .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 12px;
-    }
-    .connector-card, .skill-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .connector-card.active-conn, .skill-card.enabled {
-      border-color: var(--accent-dot);
-    }
-    .conn-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .skill-toggle {
-      width: 32px;
-      height: 18px;
-      background: var(--surface-subtle);
-      border-radius: 99px;
-      cursor: pointer;
-      border: none;
-      position: relative;
-      transition: background 0.2s ease;
-      flex-shrink: 0;
-    }
-    .skill-toggle.on { background: var(--accent-dot); }
-    .skill-toggle::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 14px;
-      height: 14px;
-      background: #ffffff;
-      border-radius: 50%;
-      transition: transform 0.2s ease;
-    }
-    .skill-toggle.on::after { transform: translateX(14px); }
-
-    .vfs-layout {
-      display: grid;
-      grid-template-columns: 210px 1fr;
-      height: 100%;
-      overflow: hidden;
-    }
-    @media (max-width: 640px) {
-      .vfs-layout { grid-template-columns: 1fr; grid-template-rows: 120px 1fr; }
-    }
-    .vfs-sidebar {
-      border-right: 1px solid var(--border-color);
-      background: var(--surface-light);
-      padding: 8px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .file-tree-item {
-      padding: 6px 9px;
-      border-radius: 7px;
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      cursor: pointer;
-      color: var(--text-muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .file-tree-item:hover { background: var(--surface-subtle); color: var(--text-main); }
-    .file-tree-item.active { background: #0f172a; color: #ffffff; font-weight: 700; }
-
-    .vfs-editor {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: var(--surface-card);
-    }
-    .vfs-editor-bar {
-      padding: 7px 12px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-    }
-    #vfs-textarea {
-      flex: 1;
-      width: 100%;
-      border: none;
-      outline: none;
-      padding: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      line-height: 1.5;
-      background: #ffffff;
-      color: #0f172a;
-      resize: none;
-    }
-
-    .terminal-wrap {
-      background: #090d16;
-      color: #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    #sim-terminal-output {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      font-size: 11.5px;
-    }
-    .sim-terminal-line {
-      line-height: 1.55;
-      margin-bottom: 4px;
-      word-break: break-word;
-    }
-    .sim-terminal-prefix {
-      color: var(--scout-green);
-      font-weight: 700;
-      margin-right: 7px;
-    }
-    .terminal-input-row {
-      display: flex;
-      align-items: center;
-      padding: 7px 12px;
-      border-top: 1px solid #1e293b;
-      background: #0f172a;
-      gap: 8px;
-    }
-    #terminal-cli-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #38bdf8;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-    }
+    /* Memory Vault */
+    .memory-vault-box { display: flex; flex-direction: column; gap: 10px; height: 100%; }
+    .memory-textarea { flex: 1; width: 100%; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; color: var(--text-main); resize: none; }
 
     /* ==========================================================================
-       5. CHAT DRAWER
+       5. CHAT DRAWER & SESSIONS
        ========================================================================== */
     #chat-drawer {
       position: relative;
@@ -597,32 +483,90 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      max-height: 64dvh;
+      max-height: 68dvh;
       background: var(--glass-bg);
       backdrop-filter: blur(var(--blur-val));
-      -webkit-backdrop-filter: blur(var(--blur-val));
       border: 1px solid var(--border-color);
       box-shadow: var(--card-shadow);
+    }
+
+    .sessions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--border-color);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .session-select {
+      flex: 1;
+      max-width: 220px;
+      background: var(--surface-light);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 4px 8px;
+      border-radius: 7px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .session-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .session-btn {
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--surface-light);
+      color: var(--text-main);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .session-btn:hover {
+      border-color: var(--accent-dot);
+      color: var(--accent-dot);
+    }
+
+    .session-btn.danger:hover {
+      border-color: var(--danger);
+      color: var(--danger);
     }
 
     .dots-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
+      padding: 7px 12px;
       background: var(--surface-light);
       border-bottom: 1px solid var(--border-color);
       gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
+      flex-shrink: 0;
     }
-    .dots-bar::-webkit-scrollbar { display: none; }
 
     .dots-group {
       display: flex;
       align-items: center;
       gap: 5px;
     }
+
     .dot-pill {
       padding: 5px 11px;
       border-radius: 999px;
@@ -639,50 +583,32 @@
       flex-shrink: 0;
       transition: all 0.15s ease;
     }
-    .dot-pill:hover { border-color: var(--text-main); color: var(--text-main); }
+
+    .dot-pill:hover {
+      border-color: var(--text-main);
+      color: var(--text-main);
+    }
+
     .dot-pill.active {
       background: #0f172a;
       color: #ffffff;
       border-color: #0f172a;
     }
 
-    .quick-chips {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      background: var(--surface-card);
-      border-bottom: 1px solid var(--border-color);
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .quick-chips::-webkit-scrollbar { display: none; }
-    .chip-btn {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      border: 1px solid var(--border-color);
-      background: var(--surface-light);
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 500;
-    }
-    .chip-btn:hover { border-color: var(--accent-dot); color: var(--accent-dot); }
-
     #status-ticker {
       display: none;
       padding: 7px 14px;
       background: #eff6ff;
-      border-bottom: 1px solid #bfdbfe;
       font-size: 11px;
       font-weight: 600;
       color: var(--accent-dot);
+      font-family: monospace;
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
-      font-family: 'JetBrains Mono', monospace;
+      border-bottom: 1px solid #bfdbfe;
+      flex-shrink: 0;
     }
+
     .spinner {
       width: 12px;
       height: 12px;
@@ -691,16 +617,18 @@
       border-radius: 50%;
       animation: spinAnim 0.75s linear infinite;
     }
-    @keyframes spinAnim { to { transform: rotate(360deg); } }
+    @keyframes spinAnim {
+      to { transform: rotate(360deg); }
+    }
 
     #chat-stream {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
       padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 32dvh;
       user-select: text;
     }
 
@@ -715,6 +643,7 @@
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
       line-height: 1.5;
     }
+
     .msg-card-header {
       display: flex;
       align-items: center;
@@ -737,61 +666,6 @@
       word-break: break-word;
     }
 
-    .code-box {
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-      background: #090d16;
-      margin: 6px 0;
-    }
-    .code-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 10px;
-      background: #162032;
-      border-bottom: 1px solid #334155;
-      font-size: 10px;
-      color: #94a3b8;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .code-actions { display: flex; gap: 5px; }
-    .copy-code-btn, .run-code-btn {
-      padding: 2px 8px;
-      border-radius: 5px;
-      border: none;
-      font-family: inherit;
-      font-size: 10px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .copy-code-btn { background: #38bdf8; color: #090d16; }
-    .run-code-btn { background: #10b981; color: #090d16; }
-    .code-pre {
-      padding: 10px;
-      font-size: 11px;
-      color: #e2e8f0;
-      overflow-x: auto;
-      font-family: 'JetBrains Mono', monospace;
-      white-space: pre;
-    }
-
-    #attachment-bar {
-      display: none;
-      padding: 6px 12px;
-      background: var(--surface-light);
-      border-top: 1px solid var(--border-color);
-      align-items: center;
-      justify-content: space-between;
-    }
-    #attachment-bar.active { display: flex; }
-    #attachment-preview {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      object-fit: cover;
-    }
-
     .command-dock {
       padding: 10px 12px;
       background: var(--surface-card);
@@ -799,7 +673,9 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
+      flex-shrink: 0;
     }
+
     #prompt-input {
       width: 100%;
       background: transparent;
@@ -812,7 +688,10 @@
       resize: none;
       user-select: text;
     }
-    #prompt-input::placeholder { color: var(--text-dim); }
+
+    #prompt-input::placeholder {
+      color: var(--text-dim);
+    }
 
     .command-actions {
       display: flex;
@@ -823,7 +702,12 @@
       flex-wrap: wrap;
       gap: 6px;
     }
-    .tool-buttons { display: flex; align-items: center; gap: 5px; }
+
+    .tool-buttons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
 
     .btn-execute {
       padding: 7px 16px;
@@ -839,11 +723,16 @@
       align-items: center;
       gap: 5px;
     }
-    .btn-execute:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    /* ==========================================================================
-       6. SETTINGS MODAL
-       ========================================================================== */
+    /* Terminal Overlay */
+    .terminal-wrap { background: #090d16; color: #e2e8f0; display: flex; flex-direction: column; height: 100%; font-family: 'JetBrains Mono', monospace; }
+    #sim-terminal-output { flex: 1; padding: 12px; overflow-y: auto; font-size: 11.5px; }
+    .sim-terminal-line { line-height: 1.55; margin-bottom: 4px; word-break: break-word; }
+    .sim-terminal-prefix { color: var(--scout-green); font-weight: 700; margin-right: 7px; }
+    .terminal-input-row { display: flex; align-items: center; padding: 7px 12px; border-top: 1px solid #1e293b; background: #0f172a; gap: 8px; }
+    #terminal-cli-input { flex: 1; background: transparent; border: none; outline: none; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+    /* Settings Modal */
     #settings-modal {
       position: fixed;
       inset: 0;
@@ -855,30 +744,39 @@
       background: rgba(15, 23, 42, 0.45);
       backdrop-filter: blur(8px);
     }
-    #settings-modal.active { display: flex; }
+
+    #settings-modal.active {
+      display: flex;
+    }
 
     .modal-box {
       width: 100%;
       max-width: 460px;
-      max-height: 88dvh;
+      max-height: 85dvh;
       overflow-y: auto;
       border-radius: 16px;
       padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      background: #ffffff;
+      background: var(--surface-card);
       border: 1px solid var(--border-color);
       box-shadow: var(--modal-shadow);
     }
-    .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
     .field-label {
       font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
       color: var(--text-muted);
       font-weight: 700;
     }
+
     .field-input {
       width: 100%;
       background: var(--surface-light);
@@ -890,7 +788,7 @@
       font-size: 12px;
       outline: none;
     }
-    .field-input:focus { border-color: var(--accent-dot); }
+
     .btn-lock {
       width: 100%;
       padding: 10px;
@@ -901,6 +799,7 @@
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
+      margin-top: 4px;
     }
 
     .watermark-fixed {
@@ -917,1189 +816,424 @@
 </head>
 <body>
 
-  <!-- 1. PURE CSS 3D CANVAS -->
+  <!-- 3D STAGE -->
   <div id="spatial-stage">
     <div class="grid-floor"></div>
-
     <svg id="neural-cables">
       <line id="line-dot-scout" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
       <line id="line-scout-quill" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
       <line id="line-quill-nexus" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
       <line id="line-nexus-dot" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
-      <line id="line-scout-nexus" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
       <circle id="live-packet" class="neural-packet" cx="-100" cy="-100" r="5" />
     </svg>
-
     <div class="bots-3d-cluster">
       <div class="bot-3d" id="node-dot" onclick="UI.selectDot('dot')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #3b82f6, #1d4ed8);">
-          <div class="bot-orbit-ring" style="border-color: #93c5fd;"></div>
-          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
-        </div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--accent-dot);"></span><span style="color: var(--accent-dot);">DOT // LEAD</span></div>
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #3b82f6, #1d4ed8);"><div class="bot-orbit-ring" style="border-color:#93c5fd;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--accent-dot);"></span><span style="color:var(--accent-dot);">DOT</span></div>
       </div>
-
       <div class="bot-3d" id="node-scout" onclick="UI.selectDot('scout')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #34d399, #059669);">
-          <div class="bot-orbit-ring" style="border-color: #a7f3d0;"></div>
-          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
-        </div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--scout-green);"></span><span style="color: var(--scout-green);">SCOUT // RESEARCH</span></div>
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #34d399, #059669);"><div class="bot-orbit-ring" style="border-color:#a7f3d0;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--scout-green);"></span><span style="color:var(--scout-green);">SCOUT</span></div>
       </div>
-
       <div class="bot-3d" id="node-quill" onclick="UI.selectDot('quill')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #a78bfa, #6d28d9);">
-          <div class="bot-orbit-ring" style="border-color: #ddd6fe;"></div>
-          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
-        </div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--quill-purple);"></span><span style="color: var(--quill-purple);">QUILL // CODE</span></div>
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #a78bfa, #6d28d9);"><div class="bot-orbit-ring" style="border-color:#ddd6fe;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--quill-purple);"></span><span style="color:var(--quill-purple);">QUILL</span></div>
       </div>
-
       <div class="bot-3d" id="node-nexus" onclick="UI.selectDot('nexus')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #fbbf24, #d97706);">
-          <div class="bot-orbit-ring" style="border-color: #fde68a;"></div>
-          <div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div>
-        </div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background: var(--nexus-amber);"></span><span style="color: var(--nexus-amber);">NEXUS // ARCH</span></div>
+        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #fbbf24, #d97706);"><div class="bot-orbit-ring" style="border-color:#fde68a;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
+        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--nexus-amber);"></span><span style="color:var(--nexus-amber);">NEXUS</span></div>
       </div>
     </div>
   </div>
 
-  <!-- 2. OVERLAYS -->
-  <div id="overlay-connectors" class="workspace-overlay">
+  <!-- WORKSPACES OVERLAYS -->
+  <div id="overlay-memory" class="workspace-overlay">
     <div class="sim-header">
-      <span>🔌 OpenDots External Connectors</span>
-      <div style="display:flex; gap:5px;">
-        <button onclick="UI.toggleMaximize('overlay-connectors')" class="hud-btn" style="padding:2px 7px;">⛶</button>
-        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
-      </div>
+      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="brain" class="icon-md"></i> 🧠 Persistent AI Memory Vault</span>
+      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
     </div>
     <div class="sim-body">
-      <p style="color:var(--text-muted); margin-bottom:12px;">
-        Connect live external APIs directly into your coworker swarm:
-      </p>
-      <div class="connectors-grid" id="connectors-container"></div>
-    </div>
-  </div>
-
-  <div id="overlay-skills" class="workspace-overlay">
-    <div class="sim-header">
-      <span>⚡ Autonomous Skill Registry</span>
-      <div style="display:flex; gap:5px;">
-        <button onclick="SKILLS.promptCustomSkill()" class="hud-btn" style="padding:2px 7px; color:var(--accent-dot);">+ New</button>
-        <button onclick="UI.toggleMaximize('overlay-skills')" class="hud-btn" style="padding:2px 7px;">⛶</button>
-        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
-      </div>
-    </div>
-    <div class="sim-body">
-      <div class="skills-grid" id="skills-grid-container"></div>
-    </div>
-  </div>
-
-  <div id="overlay-browser" class="workspace-overlay">
-    <div class="sim-header">
-      <span>🌐 Live HTML/JS Artifact Sandbox</span>
-      <div style="display:flex; gap:5px;">
-        <button onclick="VFS.previewActiveHtml()" class="hud-btn" style="padding:2px 8px; color:var(--scout-green);">▶ Re-Render</button>
-        <button onclick="UI.toggleMaximize('overlay-browser')" class="hud-btn" style="padding:2px 7px;">⛶</button>
-        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
-      </div>
-    </div>
-    <div class="sim-body" style="padding:0; display:flex; flex-direction:column;">
-      <iframe id="sandbox-iframe" style="flex:1; width:100%; border:none; background:#ffffff;" sandbox="allow-scripts allow-modals"></iframe>
-    </div>
-  </div>
-
-  <div id="overlay-files" class="workspace-overlay">
-    <div class="sim-header">
-      <span>📁 Virtual Filesystem (Code Auto-Captured from Chat)</span>
-      <div style="display:flex; gap:5px;">
-        <button onclick="VFS.createNewFilePrompt()" class="hud-btn" style="padding:2px 7px;">+ New</button>
-        <button onclick="VFS.downloadCurrentFile()" class="hud-btn" style="padding:2px 7px;">⬇ Save</button>
-        <button onclick="UI.toggleMaximize('overlay-files')" class="hud-btn" style="padding:2px 7px;">⛶</button>
-        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
-      </div>
-    </div>
-    <div class="vfs-layout">
-      <div class="vfs-sidebar" id="vfs-file-list"></div>
-      <div class="vfs-editor">
-        <div class="vfs-editor-bar">
-          <span id="vfs-active-filename" style="font-weight:700; color:var(--accent-dot);">index.html</span>
-          <div style="display:flex; gap:5px;">
-            <button onclick="VFS.saveEditorChanges()" class="hud-btn" style="padding:2px 7px;">💾 Save</button>
-            <button onclick="VFS.runInSandbox()" class="hud-btn" style="padding:2px 7px; color:var(--scout-green);">▶ Preview</button>
-          </div>
-        </div>
-        <textarea id="vfs-textarea" spellcheck="false"></textarea>
+      <div class="memory-vault-box">
+        <p style="font-size:11.5px; color:var(--text-muted);">These preferences and facts are automatically injected into all coworker system prompts:</p>
+        <textarea id="ai-memory-textarea" class="memory-textarea" placeholder="e.g. My name is Naimish. I am 13. I build mobile-first web apps in single-file HTML/JS using Acode and Vercel."></textarea>
+        <button onclick="MEMORY.save()" class="hud-btn" style="width:100%; justify-content:center; background:#0f172a; color:#fff;"><i data-lucide="save" class="icon-sm"></i> Save Permanent Memory</button>
       </div>
     </div>
   </div>
 
   <div id="overlay-terminal" class="workspace-overlay">
     <div class="sim-header">
-      <span>🖥️ Autonomous Terminal Shell</span>
-      <div style="display:flex; gap:5px;">
-        <button onclick="document.getElementById('sim-terminal-output').innerHTML=''" class="hud-btn" style="padding:2px 7px;">Clear</button>
-        <button onclick="UI.toggleMaximize('overlay-terminal')" class="hud-btn" style="padding:2px 7px;">⛶</button>
-        <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;">✕</button>
-      </div>
+      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="terminal" class="icon-md"></i> 🖥️ Autonomous Shell</span>
+      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
     </div>
     <div class="terminal-wrap">
       <div id="sim-terminal-output">
-        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>OpenDots OS v12.2 Kernel ready.</div>
-        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[cmd]</span>Type <strong>help</strong> for commands.</div>
+        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>TeamDots OS v15.2 Kernel ready. Type <strong>help</strong>.</div>
       </div>
       <div class="terminal-input-row">
-        <span style="color:#10b981; font-weight:700;">opendots@swarm:~$</span>
-        <input type="text" id="terminal-cli-input" placeholder="Type a command (e.g. ls, connectors, swarm build a calc)..." onkeydown="if(event.key==='Enter') CLI.execute(this.value)" />
+        <span style="color:#10b981; font-weight:700;">opendots:~$</span>
+        <input type="text" id="terminal-cli-input" placeholder="Type command (e.g. ls, cloud, memory)..." onkeydown="if(event.key==='Enter') CLI.execute(this.value)" />
       </div>
     </div>
   </div>
 
-  <!-- 3. TOP HUD HEADER -->
+  <div id="overlay-connectors" class="workspace-overlay">
+    <div class="sim-header">
+      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="plug" class="icon-md"></i> Action Connectors</span>
+      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
+    </div>
+    <div class="sim-body">
+      <div id="connectors-container"></div>
+    </div>
+  </div>
+
+  <!-- TOP HEADER -->
   <header class="hud-header">
     <div class="top-bar">
       <div class="brand-title">
-        <span>● OpenDots</span>
-        <span class="brand-badge">v12.2</span>
-        <span class="cloud-badge" id="cloud-indicator">☁️ Sync Active</span>
+        <i data-lucide="layers" style="width:16px; height:16px; color:var(--accent-dot);"></i> OpenDots
+        <span class="brand-badge">v15.2 Any-API</span>
+        <span class="cloud-badge"><i data-lucide="cloud" class="icon-sm"></i> Cloud Sync</span>
       </div>
       <div class="hud-controls">
-        <button onclick="UI.toggleTheme()" class="hud-btn" title="Toggle Theme">🌓</button>
-        <button onclick="UI.toggleChatPanel()" id="chatToggleBtn" class="hud-btn">Hide</button>
-        <button onclick="UI.toggleSettings(true)" class="hud-btn" title="API Settings">⚙️ API</button>
+        <button onclick="UI.toggleTheme()" class="hud-btn"><i data-lucide="moon" class="icon-md"></i></button>
+        <button onclick="UI.toggleChatPanel()" id="chatToggleBtn" class="hud-btn"><i data-lucide="chevron-down" class="icon-md"></i></button>
+        <button onclick="UI.toggleSettings(true)" class="hud-btn"><i data-lucide="settings" class="icon-md"></i></button>
       </div>
     </div>
 
     <div class="workspace-tabs">
       <div class="tabs-left">
-        <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active">
-          <span>🧊</span> 3D Hub
-        </button>
-        <button onclick="UI.switchSpace('connectors')" id="space-connectors" class="space-tab">
-          <span>🔌</span> Connectors <span class="badge-count" id="tab-conn-count">4</span>
-        </button>
-        <button onclick="UI.switchSpace('skills')" id="space-skills" class="space-tab">
-          <span>⚡</span> Skills <span class="badge-count" id="tab-skill-count">6</span>
-        </button>
-        <button onclick="UI.switchSpace('files')" id="space-files" class="space-tab">
-          <span>📁</span> Files <span class="badge-count" id="tab-file-count">2</span>
-        </button>
-        <button onclick="UI.switchSpace('browser')" id="space-browser" class="space-tab">
-          <span>🌐</span> Sandbox
-        </button>
-        <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab">
-          <span>🖥️</span> Shell
-        </button>
+        <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active"><i data-lucide="box" class="icon-md"></i> 3D Hub</button>
+        <button onclick="UI.switchSpace('memory')" id="space-memory" class="space-tab"><i data-lucide="brain" class="icon-md"></i> 🧠 Memory</button>
+        <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab"><i data-lucide="terminal" class="icon-md"></i> 🖥️ Shell</button>
+        <button onclick="UI.switchSpace('connectors')" id="space-connectors" class="space-tab"><i data-lucide="plug" class="icon-md"></i> Connectors</button>
       </div>
-      <button onclick="UI.exportChatMarkdown()" class="hud-btn" style="padding:3px 7px; font-size:10px;">⬇ MD</button>
     </div>
   </header>
 
-  <!-- 4. BOTTOM CHAT DRAWER -->
+  <!-- CHAT DRAWER -->
   <main id="chat-drawer">
     <div class="chat-container">
+      <div class="sessions-bar">
+        <select id="session-selector" class="session-select" onchange="UI.switchSession(this.value)"></select>
+        <div class="session-actions">
+          <button onclick="UI.createNewChat()" class="session-btn"><i data-lucide="plus-circle" class="icon-sm"></i> New</button>
+          <button onclick="UI.renameCurrentChat()" class="session-btn"><i data-lucide="edit-2" class="icon-sm"></i> Name</button>
+          <button onclick="UI.clearHistory()" class="session-btn danger"><i data-lucide="trash-2" class="icon-sm"></i> Clear</button>
+        </div>
+      </div>
 
       <div class="dots-bar">
         <div class="dots-group">
-          <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active">
-            <span>⚡ Full Swarm</span>
-          </button>
-          <button onclick="UI.selectDot('dot')" id="dot-dot" class="dot-pill">
-            <span>🔵 Dot</span>
-          </button>
-          <button onclick="UI.selectDot('scout')" id="dot-scout" class="dot-pill">
-            <span>🟢 Scout</span>
-          </button>
-          <button onclick="UI.selectDot('nexus')" id="dot-nexus" class="dot-pill">
-            <span>🟠 Nexus</span>
-          </button>
-          <button onclick="UI.selectDot('quill')" id="dot-quill" class="dot-pill">
-            <span>🟣 Quill</span>
-          </button>
+          <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active"><i data-lucide="zap" class="icon-sm"></i> Full Swarm</button>
+          <button onclick="UI.selectDot('dot')" id="dot-dot" class="dot-pill"><span class="bot-status-dot" style="background:#2563eb;"></span> Dot</button>
+          <button onclick="UI.selectDot('scout')" id="dot-scout" class="dot-pill"><span class="bot-status-dot" style="background:#10b981;"></span> Scout</button>
+          <button onclick="UI.selectDot('nexus')" id="dot-nexus" class="dot-pill"><span class="bot-status-dot" style="background:#f59e0b;"></span> Nexus</button>
+          <button onclick="UI.selectDot('quill')" id="dot-quill" class="dot-pill"><span class="bot-status-dot" style="background:#8b5cf6;"></span> Quill</button>
         </div>
-        <button onclick="UI.clearHistory()" style="background:none; border:none; color:var(--text-muted); font-size:11px; font-weight:600; cursor:pointer;">Clear</button>
-      </div>
-
-      <div class="quick-chips">
-        <button class="chip-btn" onclick="UI.fillPrompt('Build an interactive single-file Pomodoro Timer web app in HTML/CSS/JS with start, pause, and modern glassmorphism UI.')">⏱️ Pomodoro App</button>
-        <button class="chip-btn" onclick="UI.fillPrompt('Design an event-driven microservices architecture using Apache Kafka, Redis, and WebSockets.')">📐 Architecture Plan</button>
-        <button class="chip-btn" onclick="UI.fillPrompt('Create a playable Space Shooter mini-game in HTML5 Canvas and JavaScript.')">👾 Mini Game</button>
-        <button class="chip-btn" onclick="UI.fillPrompt('Write a production-ready JWT authentication middleware with refresh tokens and rate limiting.')">🛡️ Auth Middleware</button>
       </div>
 
       <div id="status-ticker">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <div class="spinner"></div>
-          <span id="ticker-text">Agent running...</span>
-        </div>
-        <span id="ticker-step" style="font-size:10px; opacity:0.8;">STEP 1/3</span>
+        <div class="spinner"></div>
+        <span id="ticker-text">Agent running...</span>
       </div>
 
-      <div id="chat-stream">
-        <div class="msg-card">
-          <div class="msg-card-header">
-            <span style="font-size: 11px; font-weight: 700; color: var(--accent-dot);">● OpenDots Cloud Engine Online</span>
-            <span style="font-size: 10px; color: var(--text-muted);">Firebase teamdots-d57a8 Connected</span>
-          </div>
-          <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            Your Firebase Firestore persistence is active. All chat history, virtual files, and generated code blocks sync in real-time.
-          </p>
-        </div>
-      </div>
-
-      <div id="attachment-bar">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <img id="attachment-preview" src="" alt="preview" />
-          <span id="attachment-name" style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;"></span>
-        </div>
-        <button onclick="UI.clearAttachment()" style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:700; cursor:pointer;">REMOVE</button>
-      </div>
+      <div id="chat-stream"></div>
 
       <div class="command-dock">
-        <textarea
-          id="prompt-input"
-          rows="2"
-          placeholder="Ask your AI coworkers to research, architect, or write code... (Enter to send)"
-        ></textarea>
-
+        <textarea id="prompt-input" rows="2" placeholder="Talk, draft a message, or ask to build an app..."></textarea>
         <div class="command-actions">
           <div class="tool-buttons">
-            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="UI.handleFileAttach(event)" />
-            <button onclick="document.getElementById('file-input').click()" class="hud-btn">📷 Vision</button>
-            <button onclick="VOICE.toggleMic()" id="mic-btn" class="hud-btn">🎙️ Voice</button>
-            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);">✨ Enhance</button>
+            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);"><i data-lucide="wand-2" class="icon-sm"></i> Enhance</button>
           </div>
-
           <button onclick="ENGINE.executeWorkflow()" id="send-btn" class="btn-execute">
-            <span>Execute</span>
-            <span>→</span>
+            <span>Execute</span> <i data-lucide="arrow-right" class="icon-sm"></i>
           </button>
         </div>
       </div>
-
     </div>
   </main>
 
-  <!-- 5. SETTINGS MODAL -->
+  <!-- SETTINGS MODAL -->
   <div id="settings-modal">
     <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size: 14px; font-weight: 800;">⚙️ OpenDots Any-API Engine Configuration</span>
-        <button onclick="UI.toggleSettings(false)" style="background:none; border:none; color:var(--text-muted); font-size:16px; cursor:pointer;">✕</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-light); padding-bottom:8px;">
+        <span style="font-size: 14px; font-weight: 800; display:flex; align-items:center; gap:6px;"><i data-lucide="settings" class="icon-md"></i> Universal API Configuration</span>
+        <button onclick="UI.toggleSettings(false)" style="background:none; border:none; cursor:pointer;"><i data-lucide="x" class="icon-md"></i></button>
       </div>
 
-      <div class="field-group">
-        <label class="field-label">Active Provider Mode</label>
+      <div class="field-group" style="margin-top:8px;">
+        <label class="field-label">AI Provider Mode</label>
         <select id="model-provider" onchange="UI.onProviderChange()" class="field-input">
-          <option value="sim">Built-in Smart Simulator (No API Key Required)</option>
-          <option value="gemini">Google Gemini (Gemini 2.5 Flash / Pro)</option>
+          <option value="gemini">Google Gemini (API Key)</option>
           <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
           <option value="groq">Groq (Llama 3.3 70B Fast)</option>
-          <option value="custom">Custom API (OpenRouter, DeepSeek, Ollama, etc.)</option>
+          <option value="custom">Custom Endpoint (OpenRouter / DeepSeek / Ollama)</option>
         </select>
       </div>
 
-      <div class="field-group" id="group-api-key">
-        <label class="field-label">API Key (Gemini, OpenAI, Groq, OpenRouter, or DeepSeek)</label>
-        <input type="password" id="api-key-input" oninput="UI.saveConfig()" placeholder="Paste your API key here..." class="field-input" />
+      <div class="field-group">
+        <label class="field-label" id="key-label">API Key (Gemini AIza..., OpenAI sk-..., Groq gsk_...)</label>
+        <input type="password" id="api-key-input" oninput="UI.saveConfig()" placeholder="Paste your working API key here..." class="field-input" />
       </div>
 
       <div class="field-group" id="group-custom-url" style="display:none;">
-        <label class="field-label">Custom Base URL (OpenAI-compatible)</label>
+        <label class="field-label">Custom Base URL (OpenAI Compatible)</label>
         <input type="text" id="custom-base-url" oninput="UI.saveConfig()" placeholder="https://openrouter.ai/api/v1 or http://localhost:11434/v1" class="field-input" />
       </div>
 
       <div class="field-group" id="group-custom-model" style="display:none;">
         <label class="field-label">Model Name</label>
-        <input type="text" id="custom-model-name" oninput="UI.saveConfig()" placeholder="e.g. deepseek/deepseek-chat or llama3" class="field-input" />
+        <input type="text" id="custom-model-name" oninput="UI.saveConfig()" placeholder="deepseek/deepseek-chat or llama3" class="field-input" />
       </div>
 
       <div class="field-group">
         <label class="field-label">Swarm Step Cooldown (ms)</label>
-        <input type="number" id="swarm-cooldown" value="1200" min="0" max="6000" step="300" onchange="UI.saveConfig()" class="field-input" />
+        <input type="number" id="swarm-cooldown" value="2500" min="0" step="500" onchange="UI.saveConfig()" class="field-input" />
       </div>
 
       <button onclick="UI.toggleSettings(false)" class="btn-lock">Save & Apply Configuration</button>
     </div>
   </div>
 
-  <div class="watermark-fixed">opendots // firebase cloud v12.3</div>
+  <div class="watermark-fixed">created by naimish // opendots v15.2</div>
 
-  <!-- 6. MASTER ENGINE SCRIPT -->
+  <!-- SCRIPT -->
   <script>
-    // Universal Safe Tags - No HTML tokens inside script
-    var TAG_START = '\x3c';
-    var TAG_END = '\x3e';
-    var SCRIPT_CLOSE = '\x3c/script\x3e';
+    var TAG_START = '\x3c', TAG_END = '\x3e';
 
-    /* ==========================================================================
-       A. YOUR FIREBASE CLOUD PERSISTENCE
-       ========================================================================== */
-    var firebaseConfig = {
-      apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA",
-      authDomain: "teamdots-d57a8.firebaseapp.com",
-      projectId: "teamdots-d57a8",
-      storageBucket: "teamdots-d57a8.firebasestorage.app",
-      messagingSenderId: "141410499215",
-      appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa",
-      measurementId: "G-1X58JCFSB2"
-    };
-
+    // Firebase
+    var firebaseConfig = { apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA", authDomain: "teamdots-d57a8.firebaseapp.com", projectId: "teamdots-d57a8", storageBucket: "teamdots-d57a8.firebasestorage.app", messagingSenderId: "141410499215", appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa", measurementId: "G-1X58JCFSB2" };
     var db = null;
-    try {
-      if (typeof firebase !== 'undefined') {
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-        }
-        db = firebase.firestore();
-      }
-    } catch (e) {
-      console.warn("Firestore running in offline/localStorage mode:", e);
-    }
+    try { if (typeof firebase !== 'undefined') { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); db = firebase.firestore(); } } catch (e) {}
 
-    /* ==========================================================================
-       B. MASTER STATE OBJECT
-       ========================================================================== */
     var STATE = {
-      activeDot: 'swarm',
-      activeSpace: 'computer',
-      chatCollapsed: false,
-      isProcessing: false,
-      provider: 'sim',
-      apiKey: '',
-      customUrl: 'https://openrouter.ai/api/v1',
-      customModel: 'deepseek/deepseek-chat',
-      cooldown: 1200,
-      attachment: { base64: null, mimeType: null, name: null },
+      activeDot: 'swarm', activeSpace: 'computer', isProcessing: false,
+      provider: localStorage.getItem('od_prov') || 'gemini',
+      apiKey: localStorage.getItem('od_key') || localStorage.getItem('od_gemini') || '',
+      customUrl: localStorage.getItem('od_curl') || 'https://openrouter.ai/api/v1',
+      customModel: localStorage.getItem('od_cmod') || 'deepseek/deepseek-chat',
+      cooldown: parseInt(localStorage.getItem('od_cd') || '2500', 10),
+      activeSessionId: 'session_default', sessions: {},
       dots: {
-        dot: {
-          id: 'dot',
-          name: 'Dot',
-          role: 'Lead',
-          color: '#2563eb',
-          prompt: 'You are Dot, the Lead Orchestrator. Deliver crisp, executive technical directions, coordinate tasks, and provide production-ready solutions.'
-        },
-        scout: {
-          id: 'scout',
-          name: 'Scout',
-          role: 'Researcher',
-          color: '#10b981',
-          prompt: 'You are Scout, the Research Coworker. Analyze requirements, scan for edge cases, identify technical constraints, and provide a structured briefing.'
-        },
-        nexus: {
-          id: 'nexus',
-          name: 'Nexus',
-          role: 'Architect',
-          color: '#f59e0b',
-          prompt: 'You are Nexus, the Principal System Architect. Design system workflows, component hierarchies, data structures, and ASCII diagrams.'
-        },
-        quill: {
-          id: 'quill',
-          name: 'Quill',
-          role: 'Engineer',
-          color: '#8b5cf6',
-          prompt: 'You are Quill, the Lead Code Engineer. Write complete, working code blocks (especially self-contained HTML/CSS/JS files) with zero placeholders.'
-        }
+        dot: { id: 'dot', name: 'Dot', role: 'Lead', color: '#2563eb', prompt: 'You are Dot, Lead AI. Use memory context.' },
+        scout: { id: 'scout', name: 'Scout', role: 'Researcher', color: '#10b981', prompt: 'You are Scout. Provide concise facts.' },
+        nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', color: '#f59e0b', prompt: 'You are Nexus. Structure plans.' },
+        quill: { id: 'quill', name: 'Quill', role: 'Creator', color: '#8b5cf6', prompt: 'You are Quill. Create deliverables.' }
+      }
+    };
+    var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
+
+    /* 🧠 PERSISTENT MEMORY VAULT */
+    var MEMORY = {
+      get: function() { return localStorage.getItem('od_user_memory') || 'User is Naimish, 13-year-old mobile web developer using Acode and Vercel.'; },
+      save: function() {
+        var val = document.getElementById('ai-memory-textarea').value;
+        localStorage.setItem('od_user_memory', val);
+        if (db) { try { db.collection('teamdots_memory').doc('vault').set({ content: val }); } catch(e){} }
+        alert('🧠 Memory Vault saved!');
+      },
+      init: function() {
+        var mem = this.get();
+        document.getElementById('ai-memory-textarea').value = mem;
       }
     };
 
-    var delay = function(ms) {
-      return new Promise(function(resolve) { setTimeout(resolve, ms); });
-    };
-
-    /* ==========================================================================
-       C. OPENDOTS CONNECTORS
-       ========================================================================== */
+    /* CONNECTORS */
     var CONNECTORS = {
       list: [
-        {
-          id: 'gemini_grounding',
-          name: '🌐 Gemini Google Search Grounding',
-          desc: 'Enables live Google Search retrieval augmentation for real-time factual research.',
-          enabled: true,
-          badge: 'GEMINI TOOL'
-        },
-        {
-          id: 'github_rest',
-          name: '🐙 GitHub Workspace Connector',
-          desc: 'Allows agents to inspect repositories, issue tickets, and pull requests.',
-          enabled: true,
-          badge: 'REST API'
-        },
-        {
-          id: 'web_fetcher',
-          name: '📄 Web Scraper & Documentation Reader',
-          desc: 'Fetches documentation and extracts markdown context via public proxies.',
-          enabled: true,
-          badge: 'HTTP CRAWLER'
-        },
-        {
-          id: 'mcp_bridge',
-          name: '⚡ MCP (Model Context Protocol) Bridge',
-          desc: 'Connects OpenDots to local or remote Model Context Protocol server tools.',
-          enabled: false,
-          badge: 'MCP PROTOCOL'
-        }
+        { id: 'gmail_app', name: 'Gmail Direct', desc: 'Auto-launches email drafts.', enabled: true, icon: 'mail', configValue: 'naimish.dev7@gmail.com' },
+        { id: 'whatsapp_app', name: 'WhatsApp', desc: 'Auto-launches WhatsApp drafts.', enabled: true, icon: 'message-circle', configValue: '' }
       ],
-
-      init: function() {
-        var saved = localStorage.getItem('od_conn_v12');
-        if (saved) {
-          try { this.list = JSON.parse(saved); } catch (e) {}
-        }
-        this.render();
-      },
-
-      save: function() {
-        localStorage.setItem('od_conn_v12', JSON.stringify(this.list));
-        this.render();
-      },
-
-      toggle: function(id) {
-        var item = this.list.find(function(c) { return c.id === id; });
-        if (item) {
-          item.enabled = !item.enabled;
-          this.save();
-          UI.logTerminal('[connector] Toggled "' + item.name + '" -> ' + (item.enabled ? 'ACTIVE' : 'OFF'));
-        }
-      },
-
-      getActivePrompt: function() {
-        return this.list
-          .filter(function(c) { return c.enabled; })
-          .map(function(c) { return 'CONNECTOR [' + c.name + ']: Enabled. Access: ' + c.desc; })
-          .join('\n');
-      },
-
+      init: function() { this.render(); },
       render: function() {
-        var container = document.getElementById('connectors-container');
-        if (!container) return;
-        container.innerHTML = '';
-        var activeCount = this.list.filter(function(c) { return c.enabled; }).length;
-        document.getElementById('tab-conn-count').textContent = activeCount;
-
-        this.list.forEach(function(c) {
-          var div = document.createElement('div');
-          div.className = 'connector-card ' + (c.enabled ? 'active-conn' : '');
-          div.innerHTML = 
-            '<div class="conn-header">' +
-              '<div>' +
-                '<strong style="font-size:12px; color:var(--text-main);">' + c.name + '</strong>' +
-                '<div style="font-size:9.5px; color:var(--accent-dot); font-family:monospace; font-weight:700;">' + c.badge + '</div>' +
-              '</div>' +
-              '<button class="skill-toggle ' + (c.enabled ? 'on' : '') + '" onclick="CONNECTORS.toggle(\'' + c.id + '\')"></button>' +
-            '</div>' +
-            '<p style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">' + c.desc + '</p>';
-          container.appendChild(div);
+        var c = document.getElementById('connectors-container'); if (!c) return; c.innerHTML = '';
+        this.list.forEach(function(item) {
+          var d = document.createElement('div');
+          d.style.background = 'var(--surface-card)'; d.style.border = '1px solid var(--border-color)'; d.style.padding = '12px'; d.style.borderRadius = '12px';
+          d.innerHTML = '<strong style="font-size:12px; display:flex; align-items:center; gap:6px;"><i data-lucide="'+item.icon+'" class="icon-md"></i>'+item.name+'</strong><p style="font-size:11px; color:var(--text-muted); margin:6px 0;">'+item.desc+'</p>';
+          c.appendChild(d);
         });
+        if (window.lucide) lucide.createIcons();
       }
     };
 
-    /* ==========================================================================
-       D. SKILLS REGISTRY
-       ========================================================================== */
-    var SKILLS = {
-      list: [
-        {
-          id: 'web_research',
-          name: '🌐 Deep Technical Synthesis',
-          agent: 'scout',
-          enabled: true,
-          desc: 'Formulates concise edge cases, technical constraints, and best practices.',
-          instruction: 'SKILL [Deep Synthesis]: Formulate concise edge cases, technical constraints, and best practices.'
-        },
-        {
-          id: 'live_app_builder',
-          name: '🚀 Single-File Runnable Apps',
-          agent: 'quill',
-          enabled: true,
-          desc: 'Forces Quill to write complete, standalone HTML5/CSS/JS files ready for the sandbox.',
-          instruction: 'SKILL [Single-File App]: Output a complete, runnable ```html file with internal CSS and JS so it renders immediately.'
-        },
-        {
-          id: 'auto_vfs',
-          name: '📁 Auto-VFS Code Extractor',
-          agent: 'all',
-          enabled: true,
-          desc: 'Automatically parses code blocks from chat and saves them to the Virtual Filesystem.',
-          instruction: 'SKILL [VFS Sync]: Always label code blocks with their language (e.g. ```html, ```javascript, ```css).'
-        },
-        {
-          id: 'ascii_arch',
-          name: '📐 ASCII Architecture Blueprints',
-          agent: 'nexus',
-          enabled: true,
-          desc: 'Equips Nexus to create visual ASCII system diagrams and component trees.',
-          instruction: 'SKILL [ASCII Architecture]: Include a clean ASCII data-flow or system component diagram.'
-        },
-        {
-          id: 'owasp_security',
-          name: '🛡️ Security & Input Hardening',
-          agent: 'nexus',
-          enabled: true,
-          desc: 'Applies input sanitization, error boundaries, and security validation.',
-          instruction: 'SKILL [Security Hardening]: Include input validation and error handling in all designs.'
-        },
-        {
-          id: 'zero_todos',
-          name: '🧪 Zero-Placeholder Clean Code',
-          agent: 'quill',
-          enabled: true,
-          desc: 'Forbids "// TODO" and truncated code blocks for 100% complete logic.',
-          instruction: 'SKILL [Zero Placeholders]: Never write "// TODO" or truncate code. Provide complete working code.'
-        }
-      ],
-
-      init: function() {
-        var saved = localStorage.getItem('od_skills_v12');
-        if (saved) {
-          try { this.list = JSON.parse(saved); } catch (e) {}
-        }
-        this.render();
-      },
-
-      save: function() {
-        localStorage.setItem('od_skills_v12', JSON.stringify(this.list));
-        this.render();
-      },
-
-      toggle: function(id) {
-        var item = this.list.find(function(s) { return s.id === id; });
-        if (item) {
-          item.enabled = !item.enabled;
-          this.save();
-        }
-      },
-
-      promptCustomSkill: function() {
-        var name = prompt("Enter Custom Skill Name:");
-        if (!name) return;
-        var desc = prompt("Short description:") || "Custom skill.";
-        var instruction = prompt("AI System Directive:") || ("Apply " + name + " best practices.");
-        this.list.push({
-          id: 'skill_' + Date.now(),
-          name: name,
-          agent: 'all',
-          enabled: true,
-          desc: desc,
-          instruction: 'SKILL [' + name + ']: ' + instruction
-        });
-        this.save();
-      },
-
-      getPromptFor: function(dotId) {
-        return this.list
-          .filter(function(s) { return s.enabled && (s.agent === 'all' || s.agent === dotId); })
-          .map(function(s) { return s.instruction; })
-          .join('\n');
-      },
-
-      render: function() {
-        var c = document.getElementById('skills-grid-container');
-        if (!c) return;
-        c.innerHTML = '';
-        var activeCount = this.list.filter(function(s) { return s.enabled; }).length;
-        document.getElementById('tab-skill-count').textContent = activeCount;
-
-        this.list.forEach(function(s) {
-          var div = document.createElement('div');
-          div.className = 'skill-card ' + (s.enabled ? 'enabled' : '');
-          div.innerHTML = 
-            '<div style="display:flex; justify-content:space-between; align-items:flex-start;">' +
-              '<div>' +
-                '<strong style="font-size:12px; color:var(--text-main);">' + s.name + '</strong>' +
-                '<div style="font-size:9.5px; color:var(--accent-dot); font-family:monospace; font-weight:700;">' + s.agent.toUpperCase() + '</div>' +
-              '</div>' +
-              '<button class="skill-toggle ' + (s.enabled ? 'on' : '') + '" onclick="SKILLS.toggle(\'' + s.id + '\')"></button>' +
-            '</div>' +
-            '<p style="font-size:11px; color:var(--text-muted); line-height:1.4;">' + s.desc + '</p>';
-          c.appendChild(div);
-        });
+    /* TERMINAL CLI */
+    var CLI = {
+      execute: function(raw) {
+        var i = document.getElementById('terminal-cli-input'); i.value = '';
+        var line = (raw || '').trim(); if (!line) return;
+        UI.logTerminal('$ ' + line);
+        if (line === 'help') UI.logTerminal("Commands: ls, cloud, memory, clear");
+        else if (line === 'ls') UI.logTerminal("sessions.json  memory.vault  workspace/");
+        else if (line === 'cloud') UI.logTerminal(db ? "Firebase Connected [ONLINE]" : "Offline fallback mode.");
+        else if (line === 'memory') UI.logTerminal(MEMORY.get());
+        else if (line === 'clear') document.getElementById('sim-terminal-output').innerHTML = '';
+        else UI.logTerminal("Unknown command. Type 'help'.");
       }
     };
 
-    /* ==========================================================================
-       E. PURE CSS 3D SPATIAL VISUALS
-       ========================================================================== */
-    var SPATIAL = {
-      updateCables: function() {
-        var getCenter = function(id) {
-          var el = document.getElementById(id);
-          if (!el) return { x: 0, y: 0 };
-          var rect = el.getBoundingClientRect();
-          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-        };
-
-        var dot = getCenter('node-dot');
-        var scout = getCenter('node-scout');
-        var quill = getCenter('node-quill');
-        var nexus = getCenter('node-nexus');
-
-        var setLine = function(id, p1, p2) {
-          var l = document.getElementById(id);
-          if (!l) return;
-          l.setAttribute('x1', p1.x);
-          l.setAttribute('y1', p1.y);
-          l.setAttribute('x2', p2.x);
-          l.setAttribute('y2', p2.y);
-        };
-
-        setLine('line-dot-scout', dot, scout);
-        setLine('line-scout-quill', scout, quill);
-        setLine('line-quill-nexus', quill, nexus);
-        setLine('line-nexus-dot', nexus, dot);
-        setLine('line-scout-nexus', scout, nexus);
-      },
-
-      animatePacket: function(fromId, toId, color) {
-        color = color || '#2563eb';
-        var p = document.getElementById('live-packet');
-        var getCenter = function(id) {
-          var el = document.getElementById(id);
-          if (!el) return { x: 0, y: 0 };
-          var rect = el.getBoundingClientRect();
-          return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-        };
-
-        var start = getCenter(fromId);
-        var end = getCenter(toId);
-        p.setAttribute('fill', color);
-        p.style.filter = 'drop-shadow(0 0 8px ' + color + ')';
-
-        var startTime = null;
-        var duration = 750;
-
-        var step = function(now) {
-          if (!startTime) startTime = now;
-          var progress = Math.min((now - startTime) / duration, 1);
-          var curX = start.x + (end.x - start.x) * progress;
-          var curY = start.y + (end.y - start.y) * progress;
-          p.setAttribute('cx', curX);
-          p.setAttribute('cy', curY);
-
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            p.setAttribute('cx', -100);
-            p.setAttribute('cy', -100);
-          }
-        };
-        requestAnimationFrame(step);
-      },
-
-      setWorking: function(dotId, isWorking) {
-        var el = document.getElementById('node-' + dotId);
-        if (el) el.classList.toggle('working', isWorking);
-      }
-    };
-
-    /* ==========================================================================
-       F. VIRTUAL FILESYSTEM (VFS)
-       ========================================================================== */
-    var VFS = {
-      files: {
-        'index.html': [
-          TAG_START + '!DOCTYPE html' + TAG_END,
-          TAG_START + 'html' + TAG_END,
-          TAG_START + 'head' + TAG_END,
-          TAG_START + 'style' + TAG_END,
-          '  body { font-family: system-ui, sans-serif; background: #ffffff; color: #0f172a; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }',
-          '  .card { background: #f8fafc; padding: 24px; border-radius: 14px; text-align:center; max-width: 360px; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }',
-          '  button { background: #0f172a; color: #fff; border:none; padding: 9px 18px; border-radius: 7px; font-weight:700; cursor:pointer; margin-top:12px; }',
-          TAG_START + '/style' + TAG_END,
-          TAG_START + '/head' + TAG_END,
-          TAG_START + 'body' + TAG_END,
-          '  ' + TAG_START + 'div class="card"' + TAG_END,
-          '    ' + TAG_START + 'h3' + TAG_END + '⚡ Live OpenDots Sandbox' + TAG_START + '/h3' + TAG_END,
-          '    ' + TAG_START + 'p style="color:#64748b; font-size:13px;"' + TAG_END + 'Code generated by Quill renders live here.' + TAG_START + '/p' + TAG_END,
-          '    ' + TAG_START + 'button onclick="var el=document.getElementById(\'c\'); el.textContent=parseInt(el.textContent)+1"' + TAG_END + 'Clicks: ' + TAG_START + 'span id="c"' + TAG_END + '0' + TAG_START + '/span' + TAG_END + TAG_START + '/button' + TAG_END,
-          '  ' + TAG_START + '/div' + TAG_END,
-          TAG_START + '/body' + TAG_END,
-          TAG_START + '/html' + TAG_END
-        ].join('\n'),
-        'README.md': '# OpenDots OS v12.3 Clean Edition\n\n- White Theme UI\n- Firebase Cloud Sync (`teamdots-d57a8`)\n- Gemini Search Grounding & Connectors\n- Zero WebGL Crashes'
-      },
-      activeFile: 'index.html',
-
-      init: function() {
-        var saved = localStorage.getItem('od_vfs_v12');
-        if (saved) {
-          try { this.files = JSON.parse(saved); } catch (e) {}
-        }
-        this.renderTree();
-        this.openFile(this.activeFile);
-        this.previewActiveHtml();
-      },
-
-      save: function() {
-        localStorage.setItem('od_vfs_v12', JSON.stringify(this.files));
-        document.getElementById('tab-file-count').textContent = Object.keys(this.files).length;
-      },
-
-      renderTree: function() {
-        var list = document.getElementById('vfs-file-list');
-        if (!list) return;
-        list.innerHTML = '';
-        var self = this;
-        var names = Object.keys(this.files);
-        for (var i = 0; i < names.length; i++) {
-          (function(fname) {
-            var item = document.createElement('div');
-            item.className = 'file-tree-item ' + (fname === self.activeFile ? 'active' : '');
-            item.textContent = (fname.indexOf('.html') !== -1 ? '🌐 ' : '📄 ') + fname;
-            item.onclick = function() { self.openFile(fname); };
-            list.appendChild(item);
-          })(names[i]);
-        }
-        document.getElementById('tab-file-count').textContent = names.length;
-      },
-
-      openFile: function(fname) {
-        if (!this.files[fname]) return;
-        this.activeFile = fname;
-        document.getElementById('vfs-active-filename').textContent = fname;
-        document.getElementById('vfs-textarea').value = this.files[fname];
-        this.renderTree();
-      },
-
-      saveEditorChanges: function() {
-        this.files[this.activeFile] = document.getElementById('vfs-textarea').value;
-        this.save();
-        UI.logTerminal('[vfs] Saved ' + this.activeFile);
-      },
-
-      addFile: function(lang, code) {
-        lang = (lang || 'txt').toLowerCase();
-        var ext = lang === 'html' ? 'html' : (lang === 'javascript' ? 'js' : 'txt');
-        var name = ext === 'html' ? 'index.html' : ('code-' + Date.now().toString().slice(-4) + '.' + ext);
-        this.files[name] = code;
-        if (ext === 'html') this.previewActiveHtml();
-        this.save();
-        this.openFile(name);
-        return name;
-      },
-
-      createNewFilePrompt: function() {
-        var name = prompt("Enter file name (e.g. app.html, style.css):");
-        if (!name) return;
-        this.files[name] = "/* " + name + " */\n";
-        this.save();
-        this.openFile(name);
-      },
-
-      downloadCurrentFile: function() {
-        this.saveEditorChanges();
-        var blob = new Blob([this.files[this.activeFile]], { type: 'text/plain' });
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = this.activeFile;
-        a.click();
-      },
-
-      runInSandbox: function() {
-        this.saveEditorChanges();
-        var iframe = document.getElementById('sandbox-iframe');
-        iframe.srcdoc = this.files[this.activeFile];
-        UI.switchSpace('browser');
-      },
-
-      previewActiveHtml: function() {
-        var iframe = document.getElementById('sandbox-iframe');
-        if (iframe && this.files['index.html']) {
-          iframe.srcdoc = this.files['index.html'];
-        }
-      }
-    };
-
-    /* ==========================================================================
-       G. MULTI-PROVIDER AI ENGINE
-       ========================================================================== */
     var ENGINE = {
-      callLLM: function(dotId, basePrompt, userText, img64, mime) {
-        var skillDirective = SKILLS.getPromptFor(dotId);
-        var connectorDirective = CONNECTORS.getActivePrompt();
-        var fullPrompt = basePrompt + '\n\nACTIVE CONNECTORS:\n' + connectorDirective + '\n\nACTIVE SKILLS:\n' + skillDirective;
-        var provider = STATE.provider;
+      callLLM: function(dotId, basePrompt, userText) {
         var key = STATE.apiKey.trim();
-
-        if (provider === 'sim' || (!key && provider !== 'custom')) {
-          return delay(800).then(function() {
-            return ENGINE.simulateAgent(dotId, userText);
-          });
+        var memContext = 'USER MEMORY VAULT:\n' + MEMORY.get() + '\n\n';
+        if (!key && STATE.provider !== 'custom') {
+          return Promise.resolve("Please configure your working API key in Settings (⚙️).");
         }
 
-        // 1. GOOGLE GEMINI
-        if (provider === 'gemini') {
-          var model = 'gemini-2.5-flash';
-          var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
-          var parts = [{ text: 'SYSTEM:\n' + fullPrompt + '\n\nUSER DIRECTIVE:\n' + userText }];
-          if (img64 && mime) parts.push({ inlineData: { mimeType: mime, data: img64 } });
+        var prov = STATE.provider;
 
-          var reqBody = { contents: [{ role: 'user', parts: parts }] };
-          var hasGrounding = CONNECTORS.list.find(function(c) { return c.id === 'gemini_grounding'; });
-          if (hasGrounding && hasGrounding.enabled) {
-            reqBody.tools = [{ googleSearch: {} }];
-          }
-
+        // 1. Google Gemini Provider
+        if (prov === 'gemini') {
+          var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(key);
           return fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reqBody)
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: memContext + basePrompt + '\n\nUSER:\n' + userText }] }] })
           }).then(function(res) {
-            return res.json().then(function(data) {
-              if (!res.ok) throw new Error((data.error && data.error.message) || ('Gemini HTTP ' + res.status));
-              return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || 'No response returned.';
+            return res.json().then(function(d) {
+              return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || 'No response returned from Gemini.';
             });
           });
         }
 
-        // 2. OPENAI / GROQ / CUSTOM
-        var endpoint = '';
-        var model = '';
+        // 2. OpenAI / Groq / OpenRouter / Custom OpenAI-compatible Providers
+        var url = '';
+        var modelName = '';
 
-        if (provider === 'openai') {
-          endpoint = 'https://api.openai.com/v1/chat/completions';
-          model = 'gpt-4o-mini';
-        } else if (provider === 'groq') {
-          endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-          model = 'llama-3.3-70b-versatile';
-        } else if (provider === 'custom') {
-          endpoint = STATE.customUrl.replace(/\/+$/, '') + '/chat/completions';
-          model = STATE.customModel;
+        if (prov === 'openai') {
+          url = 'https://api.openai.com/v1/chat/completions';
+          modelName = 'gpt-4o-mini';
+        } else if (prov === 'groq') {
+          url = 'https://api.groq.com/openai/v1/chat/completions';
+          modelName = 'llama-3.3-70b-versatile';
+        } else {
+          // Custom Endpoint
+          url = STATE.customUrl.replace(/\/+$/, '') + '/chat/completions';
+          modelName = STATE.customModel;
         }
 
-        return fetch(endpoint, {
+        return fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + key
           },
           body: JSON.stringify({
-            model: model,
+            model: modelName,
             messages: [
-              { role: 'system', content: fullPrompt },
+              { role: 'system', content: memContext + basePrompt },
               { role: 'user', content: userText }
             ]
           })
         }).then(function(res) {
           return res.json().then(function(data) {
-            if (!res.ok) throw new Error((data.error && data.error.message) || ('API HTTP ' + res.status));
-            return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response returned.';
+            return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response returned from API.';
           });
         });
-      },
-
-      simulateAgent: function(dotId, text) {
-        var task = text.split('\n')[0].slice(0, 80);
-        if (dotId === 'scout') {
-          return '### 🟢 Scout Technical Research: "' + task + '"\n- **Target Objective:** Standalone, zero-dependency responsive architecture.\n- **Constraints & Edge Cases:** Input sanitization, cross-device layout resilience, and high frame rates.\n- **Implementation Strategy:** Single-file component bundling with state reactivity.';
-        }
-        if (dotId === 'nexus') {
-          return '### 🟠 Nexus System Blueprint\n```\n+--------------------------------------------------+\n|                  UI / CLIENT                     |\n|      [Reactive State] <---> [DOM Renderer]       |\n+------------------------+-------------------------+\n                         |\n                         v\n+--------------------------------------------------+\n|               CORE LOGIC ENGINE                  |\n|    [Event Pipeline] <---> [Sanitizer / Cache]    |\n+--------------------------------------------------+\n```\n1. Pure modular architecture.\n2. Built for instant browser execution.';
-        }
-
-        var cleanApp = [
-          TAG_START + '!DOCTYPE html' + TAG_END,
-          TAG_START + 'html lang="en"' + TAG_END,
-          TAG_START + 'head' + TAG_END,
-          '  ' + TAG_START + 'meta charset="UTF-8" /' + TAG_END,
-          '  ' + TAG_START + 'meta name="viewport" content="width=device-width, initial-scale=1.0" /' + TAG_END,
-          '  ' + TAG_START + 'style' + TAG_END,
-          '    * { box-sizing: border-box; font-family: system-ui, sans-serif; margin: 0; padding: 0; }',
-          '    body { background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }',
-          '    .app-box { width: 100%; max-width: 420px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); text-align: center; }',
-          '    .badge { font-size: 10px; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 3px 8px; border-radius: 99px; display: inline-block; margin-bottom: 10px; }',
-          '    h2 { font-size: 18px; margin-bottom: 8px; }',
-          '    p { font-size: 12px; color: #64748b; margin-bottom: 16px; }',
-          '    .display { font-size: 38px; font-weight: 800; color: #10b981; font-family: monospace; margin: 14px 0; }',
-          '    .btn-grid { display: flex; gap: 8px; }',
-          '    button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }',
-          '    .btn-act { background: #0f172a; color: #fff; }',
-          '    .btn-rst { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }',
-          '  ' + TAG_START + '/style' + TAG_END,
-          TAG_START + '/head' + TAG_END,
-          TAG_START + 'body' + TAG_END,
-          '  ' + TAG_START + 'div class="app-box"' + TAG_END,
-          '    ' + TAG_START + 'span class="badge"' + TAG_END + '⚡ OPENDOTS RUNNABLE ARTIFACT' + TAG_START + '/span' + TAG_END,
-          '    ' + TAG_START + 'h2' + TAG_END + task.replace(/[<>"']/g, '') + TAG_START + '/h2' + TAG_END,
-          '    ' + TAG_START + 'p' + TAG_END + 'Synthesized by your AI Coworker Swarm.' + TAG_START + '/p' + TAG_END,
-          '    ' + TAG_START + 'div class="display" id="val"' + TAG_END + '00:00' + TAG_START + '/div' + TAG_END,
-          '    ' + TAG_START + 'div class="btn-grid"' + TAG_END,
-          '      ' + TAG_START + 'button class="btn-act" onclick="toggleTimer()" id="btnT"' + TAG_END + '▶ Start' + TAG_START + '/button' + TAG_END,
-          '      ' + TAG_START + 'button class="btn-rst" onclick="resetTimer()"' + TAG_END + '↺ Reset' + TAG_START + '/button' + TAG_END,
-          '    ' + TAG_START + '/div' + TAG_END,
-          '  ' + TAG_START + '/div' + TAG_END,
-          '  ' + TAG_START + 'script' + TAG_END,
-          '    var s = 0, timer = null;',
-          '    function toggleTimer() {',
-          '      var btn = document.getElementById("btnT");',
-          '      if (timer) { clearInterval(timer); timer = null; btn.textContent = "▶ Start"; }',
-          '      else {',
-          '        timer = setInterval(function() { s++; var m = String(Math.floor(s/60)).padStart(2,"0"); var sec = String(s%60).padStart(2,"0"); document.getElementById("val").textContent = m + ":" + sec; }, 1000);',
-          '        btn.textContent = "⏸ Pause";',
-          '      }',
-          '    }',
-          '    function resetTimer() { clearInterval(timer); timer = null; s = 0; document.getElementById("val").textContent = "00:00"; document.getElementById("btnT").textContent = "▶ Start"; }',
-          '  ' + SCRIPT_CLOSE,
-          TAG_START + '/body' + TAG_END,
-          TAG_START + '/html' + TAG_END
-        ].join('\n');
-
-        return '### 🟣 Quill Production Artifact (Saved to 📁 index.html)\nHere is the runnable code for **"' + task + '"**. Click **▶ Run in Sandbox** to test it!\n\n```html\n' + cleanApp + '\n```';
       },
 
       enhancePrompt: function() {
-        var input = document.getElementById('prompt-input');
-        var text = input.value.trim();
-        if (!text) return alert("Type a short prompt first.");
-        UI.showTicker("✨ Upgrading prompt specifications...", "#8b5cf6", "ENHANCE");
-        ENGINE.callLLM('dot', "Rewrite the user's prompt into a detailed, high-precision technical specification for a multi-agent AI team. Output ONLY the upgraded prompt text.", text)
-          .then(function(upgraded) {
-            input.value = upgraded;
-          })
-          .catch(function(e) {
-            alert("Enhance failed: " + e.message);
-          })
-          .finally(function() {
-            UI.hideTicker();
-          });
+        var i = document.getElementById('prompt-input'); if (!i.value.trim()) return; UI.showTicker("✨ Enhancing...");
+        this.callLLM('dot', "Rewrite perfectly. ONLY output the prompt.", i.value).then(function(r) { i.value = r; }).finally(function() { UI.hideTicker(); });
       },
 
-      executeWorkflow: function(customText) {
-        if (STATE.isProcessing) return;
-        var input = document.getElementById('prompt-input');
-        var text = (customText !== undefined && customText !== null ? customText : input.value).trim();
-        if (!text && !STATE.attachment.base64) return;
-
-        var img64 = STATE.attachment.base64;
-        var mime = STATE.attachment.mimeType;
-
-        if (customText === undefined || customText === null) input.value = '';
-        UI.clearAttachment();
-        STATE.isProcessing = true;
-        document.getElementById('send-btn').disabled = true;
-
+      executeWorkflow: function() {
+        var input = document.getElementById('prompt-input'); var text = input.value.trim(); if (!text) return; input.value = '';
+        UI.appendUserMessage(text);
         if (STATE.activeDot === 'swarm') {
-          UI.appendUserMessage(text);
-          UI.logTerminal('[swarm] Directing task: "' + text.slice(0, 40) + '..."');
-
-          // Phase 1: Scout
-          SPATIAL.setWorking('scout', true);
-          SPATIAL.animatePacket('node-dot', 'node-scout', '#10b981');
-          UI.showTicker("🟢 Scout Dot is scanning requirements & edge cases...", "var(--scout-green)", "STEP 1/3");
-
-          ENGINE.callLLM('scout', STATE.dots.scout.prompt, text, img64, mime)
-            .then(function(research) {
-              UI.appendMessage('scout', research);
-              SPATIAL.setWorking('scout', false);
-              return delay(STATE.cooldown).then(function() { return research; });
-            })
-            .then(function(research) {
-              // Phase 2: Nexus
-              SPATIAL.setWorking('nexus', true);
-              SPATIAL.animatePacket('node-scout', 'node-nexus', '#f59e0b');
-              UI.showTicker("🟠 Nexus Dot is architecting blueprints...", "var(--nexus-amber)", "STEP 2/3");
-              return ENGINE.callLLM('nexus', STATE.dots.nexus.prompt, 'Task: ' + text + '\n\nScout Research:\n' + research)
-                .then(function(arch) {
-                  UI.appendMessage('nexus', arch);
-                  SPATIAL.setWorking('nexus', false);
-                  return delay(STATE.cooldown).then(function() { return arch; });
-                });
-            })
-            .then(function(arch) {
-              // Phase 3: Quill
-              SPATIAL.setWorking('quill', true);
-              SPATIAL.animatePacket('node-nexus', 'node-quill', '#8b5cf6');
-              UI.showTicker("🟣 Quill Dot is writing code & documentation...", "var(--quill-purple)", "STEP 3/3");
-              return ENGINE.callLLM('quill', STATE.dots.quill.prompt, 'Task: ' + text + '\n\nNexus Architecture:\n' + arch + '\n\nWrite full code.')
-                .then(function(code) {
-                  UI.appendMessage('quill', code);
-                  SPATIAL.setWorking('quill', false);
-                  SPATIAL.animatePacket('node-quill', 'node-dot', '#2563eb');
-                });
-            })
-            .catch(function(e) {
-              UI.appendMessage('dot', '⚠️ Alert: ' + e.message);
-              UI.logTerminal('[error] ' + e.message);
-              ['dot', 'scout', 'nexus', 'quill'].forEach(function(k) { SPATIAL.setWorking(k, false); });
-            })
-            .finally(function() {
-              STATE.isProcessing = false;
-              UI.hideTicker();
-              document.getElementById('send-btn').disabled = false;
+          UI.showTicker("🟢 Scout researching...");
+          ENGINE.callLLM('scout', STATE.dots.scout.prompt, text).then(function(res) {
+            UI.appendMessage('scout', res); UI.showTicker("⏱️ Cooldown...");
+            return delay(STATE.cooldown).then(function() { return res; });
+          }).then(function(res) {
+            UI.showTicker("🟠 Nexus planning...");
+            return ENGINE.callLLM('nexus', STATE.dots.nexus.prompt, res).then(function(plan) {
+              UI.appendMessage('nexus', plan); UI.showTicker("⏱️ Cooldown...");
+              return delay(STATE.cooldown).then(function() { return plan; });
             });
-
-        } else {
-          var dot = STATE.dots[STATE.activeDot];
-          UI.appendUserMessage(text);
-          SPATIAL.setWorking(dot.id, true);
-          UI.showTicker(dot.name + " is running...", dot.color, "DIRECT");
-
-          ENGINE.callLLM(dot.id, dot.prompt, text, img64, mime)
-            .then(function(reply) {
-              UI.appendMessage(dot.id, reply);
-              SPATIAL.setWorking(dot.id, false);
-            })
-            .catch(function(e) {
-              UI.appendMessage('dot', '⚠️ Alert: ' + e.message);
-              UI.logTerminal('[error] ' + e.message);
-              SPATIAL.setWorking(dot.id, false);
-            })
-            .finally(function() {
-              STATE.isProcessing = false;
-              UI.hideTicker();
-              document.getElementById('send-btn').disabled = false;
+          }).then(function(plan) {
+            UI.showTicker("🟣 Quill drafting...");
+            return ENGINE.callLLM('quill', STATE.dots.quill.prompt, plan).then(function(fin) {
+              UI.appendMessage('quill', fin);
             });
-        }
-      }
-    };
-
-    /* ==========================================================================
-       H. TERMINAL CLI
-       ========================================================================== */
-    var CLI = {
-      execute: function(raw) {
-        var input = document.getElementById('terminal-cli-input');
-        input.value = '';
-        var line = (raw || '').trim();
-        if (!line) return;
-
-        UI.logTerminal('$ ' + line);
-        var parts = line.split(' ');
-        var cmd = parts[0].toLowerCase();
-        var argText = parts.slice(1).join(' ');
-
-        switch (cmd) {
-          case 'help':
-            UI.logTerminal("OpenDots Terminal Commands:");
-            UI.logTerminal("  ls             - List all virtual files");
-            UI.logTerminal("  cat <filename> - View virtual file contents");
-            UI.logTerminal("  skills         - List enabled agent skills");
-            UI.logTerminal("  connectors     - List external connectors");
-            UI.logTerminal("  cloud          - Check Firebase status");
-            UI.logTerminal("  swarm <task>   - Run autonomous swarm pipeline");
-            UI.logTerminal("  clear          - Clear terminal");
-            break;
-          case 'ls':
-            UI.logTerminal("Virtual Files: " + Object.keys(VFS.files).join('  '));
-            break;
-          case 'cat':
-            if (VFS.files[argText]) UI.logTerminal(VFS.files[argText].slice(0, 350));
-            else UI.logTerminal("File not found: " + argText);
-            break;
-          case 'skills':
-            SKILLS.list.forEach(function(s) { UI.logTerminal("  [" + (s.enabled ? 'ON' : 'OFF') + "] " + s.name); });
-            break;
-          case 'connectors':
-            CONNECTORS.list.forEach(function(c) { UI.logTerminal("  [" + (c.enabled ? 'ON' : 'OFF') + "] " + c.name + " (" + c.badge + ")"); });
-            break;
-          case 'cloud':
-            UI.logTerminal(db ? "Firebase Connected (teamdots-d57a8) [ONLINE]" : "Firebase in offline localStorage fallback mode.");
-            break;
-          case 'swarm':
-            if (!argText) UI.logTerminal("Usage: swarm <directive>");
-            else { UI.selectDot('swarm'); ENGINE.executeWorkflow(argText); }
-            break;
-          case 'clear':
-            document.getElementById('sim-terminal-output').innerHTML = '';
-            break;
-          default:
-            UI.logTerminal("Unknown command: " + cmd + ". Type 'help'.");
-        }
-      }
-    };
-
-    /* ==========================================================================
-       I. VOICE INPUT & SPEECH
-       ========================================================================== */
-    var VOICE = {
-      rec: null,
-      isListening: false,
-      toggleMic: function() {
-        var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRec) return alert("Speech recognition not supported in this browser. Try Chrome.");
-        var self = this;
-        if (!this.rec) {
-          this.rec = new SpeechRec();
-          this.rec.onresult = function(e) {
-            document.getElementById('prompt-input').value = e.results[0][0].transcript;
-          };
-          this.rec.onend = function() {
-            self.isListening = false;
-            document.getElementById('mic-btn').textContent = '🎙️ Voice';
-          };
-        }
-        if (this.isListening) {
-          this.rec.stop();
+          }).finally(function() { UI.hideTicker(); });
         } else {
-          this.isListening = true;
-          document.getElementById('mic-btn').textContent = '🔴 Listening...';
-          this.rec.start();
+          UI.showTicker(STATE.dots[STATE.activeDot].name + " is processing...");
+          ENGINE.callLLM(STATE.activeDot, STATE.dots[STATE.activeDot].prompt, text).then(function(r) {
+            UI.appendMessage(STATE.activeDot, r);
+          }).finally(function() { UI.hideTicker(); });
         }
-      },
-      speak: function(text) {
-        if (!('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-        var clean = text.replace(/```[\s\S]*?```/g, 'Code block generated.').replace(/[#*_~`-]/g, '');
-        var u = new SpeechSynthesisUtterance(clean.slice(0, 300));
-        window.speechSynthesis.speak(u);
       }
     };
 
-    /* ==========================================================================
-       J. UI INTERACTIONS & CLOUD PERSISTENCE
-       ========================================================================== */
     var UI = {
       init: function() {
-        var prov = localStorage.getItem('od_prov') || 'sim';
-        var key = localStorage.getItem('od_key') || '';
-        var curl = localStorage.getItem('od_curl') || 'https://openrouter.ai/api/v1';
-        var cmod = localStorage.getItem('od_cmod') || 'deepseek/deepseek-chat';
-        var cd = localStorage.getItem('od_cd') || '1200';
-        var th = localStorage.getItem('od_th') || 'light';
+        var dId = localStorage.getItem('od_active_session') || 'session_' + Date.now();
+        var savedSessions = localStorage.getItem('od_sessions_15');
+        if (savedSessions) { try { STATE.sessions = JSON.parse(savedSessions); } catch(e){} }
+        if (!STATE.sessions || Object.keys(STATE.sessions).length === 0) {
+          STATE.sessions[dId] = { id: dId, title: '💬 Main Workspace', messages: [] };
+        }
+        STATE.activeSessionId = dId;
 
-        STATE.provider = prov;
-        STATE.apiKey = key;
-        STATE.customUrl = curl;
-        STATE.customModel = cmod;
-        STATE.cooldown = parseInt(cd, 10);
-
-        document.getElementById('model-provider').value = prov;
-        document.getElementById('api-key-input').value = key;
-        document.getElementById('custom-base-url').value = curl;
-        document.getElementById('custom-model-name').value = cmod;
-        document.getElementById('swarm-cooldown').value = cd;
-        document.documentElement.setAttribute('data-theme', th);
-
+        document.getElementById('model-provider').value = STATE.provider;
+        document.getElementById('api-key-input').value = STATE.apiKey;
+        document.getElementById('custom-base-url').value = STATE.customUrl;
+        document.getElementById('custom-model-name').value = STATE.customModel;
+        document.getElementById('swarm-cooldown').value = STATE.cooldown;
+        
         this.onProviderChange();
-
-        document.getElementById('prompt-input').addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            ENGINE.executeWorkflow();
-          }
+        this.renderSessionSelector();
+        CONNECTORS.init();
+        MEMORY.init();
+        this.renderCurrentChat();
+        if (window.lucide) lucide.createIcons();
+      },
+      saveSessions: function() {
+        localStorage.setItem('od_sessions_15', JSON.stringify(STATE.sessions));
+        localStorage.setItem('od_active_session', STATE.activeSessionId);
+      },
+      renderSessionSelector: function() {
+        var s = document.getElementById('session-selector'); s.innerHTML = '';
+        Object.keys(STATE.sessions).forEach(function(id) {
+          var o = document.createElement('option'); o.value = id; o.textContent = STATE.sessions[id].title;
+          if (id === STATE.activeSessionId) o.selected = true; s.appendChild(o);
         });
-
-        window.addEventListener('resize', function() { SPATIAL.updateCables(); });
-        setTimeout(function() { SPATIAL.updateCables(); }, 120);
-
-        this.loadHistory();
       },
-
-      toggleTheme: function() {
-        var cur = document.documentElement.getAttribute('data-theme');
-        var next = cur === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('od_th', next);
+      createNewChat: function() {
+        var n = prompt("Name:", "New Chat"); if (!n) return;
+        var id = 'session_' + Date.now(); STATE.sessions[id] = { id: id, title: '💬 ' + n, messages: [] };
+        STATE.activeSessionId = id; this.saveSessions(); this.renderSessionSelector(); document.getElementById('chat-stream').innerHTML = '';
       },
-
+      renameCurrentChat: function() {
+        var n = prompt("Rename:", STATE.sessions[STATE.activeSessionId].title.replace('💬 ','')); if (!n) return;
+        STATE.sessions[STATE.activeSessionId].title = '💬 ' + n; this.saveSessions(); this.renderSessionSelector();
+      },
+      clearHistory: function() {
+        document.getElementById('chat-stream').innerHTML = ''; STATE.sessions[STATE.activeSessionId].messages = []; this.saveSessions();
+      },
+      switchSession: function(id) { STATE.activeSessionId = id; this.saveSessions(); this.renderCurrentChat(); },
+      renderCurrentChat: function() {
+        var s = document.getElementById('chat-stream'); s.innerHTML = '';
+        var cur = STATE.sessions[STATE.activeSessionId];
+        if (cur && cur.messages) {
+          var self = this;
+          cur.messages.forEach(function(m) {
+            if (m.type === 'user') self.renderUserBubble(m.text, false);
+            else self.renderAgentCard(m.dotId, m.text, false);
+          });
+        }
+      },
+      toggleTheme: function() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); },
+      toggleChatPanel: function() { STATE.chatCollapsed = !STATE.chatCollapsed; document.getElementById('chat-drawer').style.transform = STATE.chatCollapsed ? 'translateY(85%)' : 'translateY(0%)'; },
+      toggleSettings: function(open) { document.getElementById('settings-modal').classList.toggle('active', open); },
+      
       onProviderChange: function() {
         var p = document.getElementById('model-provider').value;
         STATE.provider = p;
-        document.getElementById('group-custom-url').style.display = p === 'custom' ? 'flex' : 'none';
-        document.getElementById('group-custom-model').style.display = p === 'custom' ? 'flex' : 'none';
-        document.getElementById('group-api-key').style.display = p === 'sim' ? 'none' : 'flex';
+        document.getElementById('group-custom-url').style.display = (p === 'custom') ? 'flex' : 'none';
+        document.getElementById('group-custom-model').style.display = (p === 'custom') ? 'flex' : 'none';
         this.saveConfig();
       },
 
@@ -2108,310 +1242,55 @@
         STATE.apiKey = document.getElementById('api-key-input').value.trim();
         STATE.customUrl = document.getElementById('custom-base-url').value.trim();
         STATE.customModel = document.getElementById('custom-model-name').value.trim();
-        STATE.cooldown = parseInt(document.getElementById('swarm-cooldown').value || '1200', 10);
-
+        STATE.cooldown = parseInt(document.getElementById('swarm-cooldown').value || '2500', 10);
+        
         localStorage.setItem('od_prov', STATE.provider);
         localStorage.setItem('od_key', STATE.apiKey);
+        localStorage.setItem('od_gemini', STATE.apiKey);
         localStorage.setItem('od_curl', STATE.customUrl);
         localStorage.setItem('od_cmod', STATE.customModel);
-        localStorage.setItem('od_cd', String(STATE.cooldown));
+        localStorage.setItem('od_cd', STATE.cooldown);
       },
 
-      toggleSettings: function(open) {
-        document.getElementById('settings-modal').classList.toggle('active', open);
-      },
-
-      toggleMaximize: function(id) {
-        document.getElementById(id).classList.toggle('maximized');
-      },
-
-      toggleChatPanel: function() {
-        STATE.chatCollapsed = !STATE.chatCollapsed;
-        document.getElementById('chat-drawer').style.transform = STATE.chatCollapsed ? 'translateY(85%)' : 'translateY(0%)';
-        document.getElementById('chatToggleBtn').textContent = STATE.chatCollapsed ? 'Show' : 'Hide';
-      },
-
-      switchSpace: function(space) {
-        STATE.activeSpace = space;
-        ['computer', 'connectors', 'skills', 'browser', 'files', 'terminal'].forEach(function(s) {
-          var tab = document.getElementById('space-' + s);
-          if (tab) tab.classList.toggle('active', s === space);
-          var over = document.getElementById('overlay-' + s);
-          if (over) over.classList.remove('active');
+      switchSpace: function(sp) {
+        ['computer','memory','terminal','connectors'].forEach(function(s) {
+          var t = document.getElementById('space-' + s); if (t) t.classList.toggle('active', s === sp);
+          var o = document.getElementById('overlay-' + s); if (o) o.classList.remove('active');
         });
-        if (space !== 'computer') {
-          var over = document.getElementById('overlay-' + space);
-          if (over) over.classList.add('active');
-        }
+        if (sp !== 'computer') document.getElementById('overlay-' + sp).classList.add('active');
       },
-
       selectDot: function(dot) {
-        STATE.activeDot = dot;
-        ['swarm', 'dot', 'scout', 'quill', 'nexus'].forEach(function(d) {
-          var el = document.getElementById('dot-' + d);
-          if (el) el.classList.toggle('active', d === dot);
-          var node = document.getElementById('node-' + d);
-          if (node) node.classList.toggle('active', d === dot);
+        STATE.activeDot = dot; ['swarm','dot','scout','quill','nexus'].forEach(function(d) {
+          var e = document.getElementById('dot-' + d); if (e) e.classList.toggle('active', d === dot);
         });
       },
-
-      fillPrompt: function(t) {
-        var input = document.getElementById('prompt-input');
-        input.value = t;
-        input.focus();
-      },
-
-      showTicker: function(text, color, step) {
-        var t = document.getElementById('status-ticker');
-        document.getElementById('ticker-text').textContent = text;
-        document.getElementById('ticker-step').textContent = step || '';
-        t.style.display = 'flex';
-      },
-
-      hideTicker: function() {
-        document.getElementById('status-ticker').style.display = 'none';
-      },
-
+      showTicker: function(t) { document.getElementById('status-ticker').style.display = 'flex'; document.getElementById('ticker-text').textContent = t; },
+      hideTicker: function() { document.getElementById('status-ticker').style.display = 'none'; },
       logTerminal: function(text) {
-        var term = document.getElementById('sim-terminal-output');
-        if (!term) return;
-        var line = document.createElement('div');
-        line.className = 'sim-terminal-line';
-        line.innerHTML = '<span class="sim-terminal-prefix">[log]</span>';
-        line.appendChild(document.createTextNode(text));
-        term.appendChild(line);
-        term.scrollTop = term.scrollHeight;
+        var term = document.getElementById('sim-terminal-output'); if (!term) return;
+        var line = document.createElement('div'); line.className = 'sim-terminal-line';
+        line.innerHTML = '<span class="sim-terminal-prefix">[log]</span>' + text;
+        term.appendChild(line); term.scrollTop = term.scrollHeight;
       },
-
-      exportChatMarkdown: function() {
-        var stream = document.getElementById('chat-stream');
-        var md = '# OpenDots Transcript\n\n' + stream.innerText;
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
-        a.download = 'opendots-' + Date.now() + '.md';
-        a.click();
+      appendUserMessage: function(txt) { this.renderUserBubble(txt, true); },
+      renderUserBubble: function(txt, save) {
+        var s = document.getElementById('chat-stream'); var b = document.createElement('div'); b.className = 'user-bubble'; b.textContent = txt; s.appendChild(b); s.scrollTop = s.scrollHeight;
+        if (save) { STATE.sessions[STATE.activeSessionId].messages.push({ type: 'user', text: txt }); this.saveSessions(); }
       },
-
-      /* Firebase + LocalStorage Sync */
-      saveHistory: function(item) {
-        var local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
-        local.push(item);
-        if (local.length > 50) local.shift();
-        localStorage.setItem('od_local_history', JSON.stringify(local));
-
-        if (db) {
-          try {
-            db.collection('teamdots_history').add({
-              type: item.type,
-              dotId: item.dotId || null,
-              text: item.text,
-              timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          } catch (e) {
-            console.warn("Firestore save fallback:", e);
-          }
-        }
-      },
-
-      loadHistory: function() {
-        var stream = document.getElementById('chat-stream');
-        var self = this;
-
-        if (db) {
-          db.collection('teamdots_history').orderBy('timestamp', 'asc').limit(40).get()
-            .then(function(snap) {
-              if (!snap.empty) {
-                stream.innerHTML = '';
-                snap.docs.forEach(function(doc) {
-                  var data = doc.data();
-                  if (data.type === 'user') self.renderUserBubble(data.text);
-                  else self.renderAgentCard(data.dotId, data.text);
-                });
-                return;
-              }
-              self.loadLocalHistory();
-            })
-            .catch(function(err) {
-              console.warn("Firestore load fallback to local:", err);
-              self.loadLocalHistory();
-            });
-        } else {
-          this.loadLocalHistory();
-        }
-      },
-
-      loadLocalHistory: function() {
-        var stream = document.getElementById('chat-stream');
-        var local = JSON.parse(localStorage.getItem('od_local_history') || '[]');
-        var self = this;
-        if (local.length > 0) {
-          stream.innerHTML = '';
-          local.forEach(function(item) {
-            if (item.type === 'user') self.renderUserBubble(item.text);
-            else self.renderAgentCard(item.dotId, item.text);
-          });
-        }
-      },
-
-      clearHistory: function() {
-        if (db) {
-          db.collection('teamdots_history').get().then(function(snap) {
-            var batch = db.batch();
-            snap.docs.forEach(function(doc) { batch.delete(doc.ref); });
-            return batch.commit();
-          }).catch(function(e) { console.warn("Firestore batch clear failed:", e); });
-        }
-
-        localStorage.removeItem('od_local_history');
-        document.getElementById('chat-stream').innerHTML = 
-          '<div class="msg-card">' +
-            '<span style="font-size:11px; font-weight:700; color:var(--accent-dot);">● Cloud Session Cleared</span>' +
-            '<p style="font-size:12px; color:var(--text-muted);">Purged from Firebase Firestore and local memory.</p>' +
-          '</div>';
-      },
-
-      handleFileAttach: function(e) {
-        var f = e.target.files[0];
-        if (!f) return;
-        var r = new FileReader();
-        r.onload = function(ev) {
-          STATE.attachment.base64 = ev.target.result.split(',')[1];
-          STATE.attachment.mimeType = f.type;
-          document.getElementById('attachment-preview').src = ev.target.result;
-          document.getElementById('attachment-name').textContent = f.name;
-          document.getElementById('attachment-bar').classList.add('active');
-        };
-        r.readAsDataURL(f);
-      },
-
-      clearAttachment: function() {
-        STATE.attachment = { base64: null, mimeType: null, name: null };
-        document.getElementById('attachment-bar').classList.remove('active');
-      },
-
-      appendUserMessage: function(text) {
-        this.renderUserBubble(text);
-        this.saveHistory({ type: 'user', text: text });
-      },
-
-      renderUserBubble: function(text) {
-        var s = document.getElementById('chat-stream');
-        var b = document.createElement('div');
-        b.className = 'user-bubble';
-        b.textContent = text;
-        s.appendChild(b);
-        s.scrollTop = s.scrollHeight;
-      },
-
-      appendMessage: function(dotId, raw) {
-        this.renderAgentCard(dotId, raw);
-        this.saveHistory({ type: 'agent', dotId: dotId, text: raw });
-      },
-
-      renderAgentCard: function(dotId, raw) {
+      appendMessage: function(dotId, raw) { this.renderAgentCard(dotId, raw, true); },
+      renderAgentCard: function(dotId, raw, save) {
         var s = document.getElementById('chat-stream');
         var dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', color: '#2563eb' };
-
-        var card = document.createElement('div');
-        card.className = 'msg-card';
-        card.innerHTML = 
-          '<div class="msg-card-header">' +
-            '<span style="font-size:11px; font-weight:800; color:' + dot.color + '">● ' + dot.name.toUpperCase() + ' // ' + dot.role + '</span>' +
-            '<button onclick="VOICE.speak(this.closest(\'.msg-card\').innerText)" style="background:none; border:none; cursor:pointer; font-size:11px;">🔊</button>' +
-          '</div>';
-        card.appendChild(this.formatBlocks(raw));
-        s.appendChild(card);
-        s.scrollTop = s.scrollHeight;
-      },
-
-      formatBlocks: function(raw) {
-        var c = document.createElement('div');
-        c.style.display = 'flex';
-        c.style.flexDirection = 'column';
-        c.style.gap = '6px';
-        c.style.fontSize = '12px';
-
-        var regex = /```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g;
-        var last = 0, match;
-
-        while ((match = regex.exec(raw)) !== null) {
-          var preText = raw.slice(last, match.index);
-          if (preText.trim()) {
-            var p = document.createElement('div');
-            p.style.whiteSpace = 'pre-wrap';
-            p.textContent = preText.trim();
-            c.appendChild(p);
-          }
-
-          var lang = match[1] || 'code';
-          var code = match[2];
-          var savedFile = VFS.addFile(lang, code);
-
-          var box = document.createElement('div');
-          box.className = 'code-box';
-          
-          var topbar = document.createElement('div');
-          topbar.className = 'code-topbar';
-          topbar.innerHTML = '<span>' + lang.toUpperCase() + ' // Saved to ' + savedFile + '</span>';
-
-          var actions = document.createElement('div');
-          actions.className = 'code-actions';
-
-          if (lang === 'html') {
-            var runBtn = document.createElement('button');
-            runBtn.className = 'run-code-btn';
-            runBtn.textContent = '▶ Run';
-            (function(sf) {
-              runBtn.onclick = function() {
-                VFS.openFile(sf);
-                VFS.runInSandbox();
-              };
-            })(savedFile);
-            actions.appendChild(runBtn);
-          }
-
-          var copyBtn = document.createElement('button');
-          copyBtn.className = 'copy-code-btn';
-          copyBtn.textContent = 'Copy';
-          (function(cd) {
-            copyBtn.onclick = function() {
-              navigator.clipboard.writeText(cd);
-            };
-          })(code);
-          actions.appendChild(copyBtn);
-
-          topbar.appendChild(actions);
-          box.appendChild(topbar);
-
-          var pre = document.createElement('pre');
-          pre.className = 'code-pre';
-          pre.textContent = code;
-          box.appendChild(pre);
-
-          c.appendChild(box);
-          last = regex.lastIndex;
-        }
-
-        var remaining = raw.slice(last);
-        if (remaining.trim()) {
-          var pRem = document.createElement('div');
-          pRem.style.whiteSpace = 'pre-wrap';
-          pRem.textContent = remaining.trim();
-          c.appendChild(pRem);
-        }
-        return c;
+        var c = document.createElement('div'); c.className = 'msg-card';
+        c.innerHTML = '<div class="msg-card-header"><span style="font-size:11px; font-weight:800; color:' + dot.color + '; display:flex; align-items:center; gap:6px;"><i data-lucide="cpu" class="icon-sm"></i> ' + dot.name.toUpperCase() + '</span></div>';
+        var body = document.createElement('div'); body.style.fontSize = '12px'; body.style.whiteSpace = 'pre-wrap'; body.textContent = raw;
+        c.appendChild(body); s.appendChild(c); s.scrollTop = s.scrollHeight;
+        if (window.lucide) lucide.createIcons();
+        if (save) { STATE.sessions[STATE.activeSessionId].messages.push({ type: 'agent', dotId: dotId, text: raw }); this.saveSessions(); }
       }
     };
 
-    /* ==========================================================================
-       K. STARTUP
-       ========================================================================== */
-    window.addEventListener('DOMContentLoaded', function() {
-      CONNECTORS.init();
-      SKILLS.init();
-      VFS.init();
-      UI.init();
-    });
+    window.addEventListener('DOMContentLoaded', function() { UI.init(); });
   </script>
 </body>
 </html>
