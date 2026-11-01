@@ -1,80 +1,34 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>OpenDots // TeamDots OS — Autonomous AI Coworkers</title>
-
-  <!-- PWA & Mobile Web App Config -->
-  <meta name="theme-color" content="#0f172a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="data:application/manifest+json,{
-    'name': 'TeamDots OS',
-    'short_name': 'TeamDots',
-    'start_url': '/',
-    'display': 'standalone',
-    'background_color': '#ffffff',
-    'theme_color': '#0f172a',
-    'icons': [{
-      'src': 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%232563eb%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22%23ffffff%22/></svg>',
-      'sizes': '512x512',
-      'type': 'image/svg+xml'
-    }]
-  }">
+  <meta name="theme-color" content="#09090b" />
+  <title>AEGIS Studio — Awwards Master Edition</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- Lucide Premium Vector Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Firebase SDK CDNs (Firestore Cloud Sync) -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
   <style>
-    /* ==========================================================================
-       1. THEME VARIABLES & ROOT STYLES
-       ========================================================================== */
     :root {
-      --bg-base: #f8fafc;
-      --surface-card: #ffffff;
-      --surface-light: #f1f5f9;
-      --surface-subtle: #e2e8f0;
-      --border-color: #cbd5e1;
-      --border-light: #e2e8f0;
-
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --text-dim: #94a3b8;
-
-      --accent-dot: #2563eb;
-      --scout-green: #10b981;
-      --nexus-amber: #f59e0b;
-      --quill-purple: #8b5cf6;
-      --danger: #ef4444;
-
-      --glass-bg: rgba(255, 255, 255, 0.94);
-      --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
-      --modal-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-      --bot-shadow: 0 14px 28px -4px rgba(15, 23, 42, 0.12);
-      --blur-val: 18px;
-    }
-
-    [data-theme="dark"] {
-      --bg-base: #090d16;
-      --surface-card: #111827;
-      --surface-light: #1f2937;
-      --surface-subtle: #374151;
-      --border-color: #374151;
-      --border-light: #1f2937;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --glass-bg: rgba(17, 24, 39, 0.94);
+      --bg: #09090b;
+      --surface: rgba(24, 24, 27, 0.85);
+      --surface-elevated: rgba(39, 39, 42, 0.92);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.22);
+      --text-main: #fafafa;
+      --text-dim: #a1a1aa;
+      --text-muted: #52525b;
+      --accent: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
 
     * {
@@ -82,1383 +36,507 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     html, body {
-      width: 100%;
+      width: 100vw;
       height: 100dvh;
       overflow: hidden;
-      background-color: var(--bg-base);
+      background-color: var(--bg);
       color: var(--text-main);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      user-select: none;
+      font-family: var(--font-sans);
       -webkit-font-smoothing: antialiased;
     }
 
-    body {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    /* Icon Utilities */
-    .icon-sm { width: 12px; height: 12px; stroke-width: 2.5; flex-shrink: 0; }
-    .icon-md { width: 14px; height: 14px; stroke-width: 2.5; flex-shrink: 0; }
-    .icon-lg { width: 18px; height: 18px; stroke-width: 2.5; flex-shrink: 0; }
-
-    /* ==========================================================================
-       2. 3D SPATIAL STAGE (PURE CSS)
-       ========================================================================== */
-    #spatial-stage {
+    #webgl-viewport {
       position: fixed;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100dvh;
       z-index: 1;
-      overflow: hidden;
-      perspective: 900px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at 50% 35%, rgba(37,99,235,0.06) 0%, transparent 65%);
+      touch-action: none;
     }
 
-    .grid-floor {
-      position: absolute;
-      width: 200%;
-      height: 200%;
-      bottom: -40%;
-      left: -50%;
-      background-image: 
-        linear-gradient(to right, var(--border-light) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--border-light) 1px, transparent 1px);
-      background-size: 36px 36px;
-      transform: rotateX(68deg);
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    #neural-cables {
-      position: absolute;
+    .vignette {
+      position: fixed;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
       z-index: 2;
-    }
-
-    .neural-line {
-      stroke: var(--border-color);
-      stroke-width: 2;
-      stroke-dasharray: 6 6;
-      opacity: 0.65;
-    }
-
-    .neural-packet {
-      fill: var(--accent-dot);
-      filter: drop-shadow(0 0 6px var(--accent-dot));
-    }
-
-    .bots-3d-cluster {
-      position: relative;
-      width: 100%;
-      max-width: 640px;
-      height: 360px;
-      transform-style: preserve-3d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 3;
-      transform: translateY(-45px);
-    }
-
-    @media (max-width: 640px) {
-      .bots-3d-cluster {
-        transform: translateY(-90px) scale(0.84);
-        height: 300px;
-      }
-    }
-
-    .bot-3d {
-      position: absolute;
-      width: 110px;
-      height: 140px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.25s ease, filter 0.25s ease;
-      transform-style: preserve-3d;
-    }
-
-    .bot-3d#node-dot   { top: 10px; left: 6%; animation: floatA 4.2s ease-in-out infinite; }
-    .bot-3d#node-scout { bottom: 20px; left: 20%; animation: floatA 4.8s ease-in-out infinite 0.7s; }
-    .bot-3d#node-quill { bottom: 20px; right: 20%; animation: floatA 4.4s ease-in-out infinite 1.4s; }
-    .bot-3d#node-nexus { top: 10px; right: 6%; animation: floatA 4.6s ease-in-out infinite 2.1s; }
-
-    @keyframes floatA {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-11px); }
-    }
-
-    .bot-3d.active { filter: drop-shadow(0 0 16px rgba(37, 99, 235, 0.45)); }
-    .bot-3d.talking { animation: talkPulse 0.4s ease-in-out infinite alternate !important; }
-    @keyframes talkPulse {
-      from { transform: scale(1.05) translateY(-4px); filter: drop-shadow(0 0 18px var(--scout-green)); }
-      to { transform: scale(1.12) translateY(-10px); filter: drop-shadow(0 0 30px var(--scout-green)); }
-    }
-    
-    .bot-body {
-      width: 78px;
-      height: 78px;
-      border-radius: 50%;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--bot-shadow);
-      border: 3px solid rgba(255, 255, 255, 0.4);
-    }
-
-    .bot-orbit-ring {
-      position: absolute;
-      width: 98px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px dashed rgba(255,255,255,0.6);
-      transform: rotateX(68deg) rotateZ(15deg);
       pointer-events: none;
-      animation: spinRing 9s linear infinite;
-    }
-    @keyframes spinRing { to { transform: rotateX(68deg) rotateZ(375deg); } }
-
-    .bot-visor {
-      width: 44px;
-      height: 22px;
-      background: #0f172a;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      padding: 0 7px;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.6);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(9, 9, 11, 0.95) 100%);
     }
 
-    .bot-eye {
-      width: 6.5px;
-      height: 6.5px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 6px #ffffff;
-      animation: eyeBlink 3.8s infinite;
-    }
-    @keyframes eyeBlink {
-      0%, 96%, 100% { transform: scaleY(1); }
-      98% { transform: scaleY(0.1); }
-    }
-
-    .bot-meta-tag {
-      margin-top: 8px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: var(--surface-card);
-      border: 1px solid var(--border-color);
-      box-shadow: 0 2px 8px rgba(15,23,42,0.06);
-      font-size: 10px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-    }
-    .bot-status-dot { width: 6px; height: 6px; border-radius: 50%; }
-
-    /* ==========================================================================
-       3. TOP HUD & WORKSPACE TABS
-       ========================================================================== */
-    .hud-header {
-      position: relative;
-      z-index: 20;
-      padding: 10px 12px 4px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      pointer-events: none;
-    }
-
-    .top-bar {
-      pointer-events: auto;
-      border-radius: 14px;
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--blur-val));
-      border: 1px solid var(--border-color);
-      box-shadow: var(--card-shadow);
-      gap: 8px;
-    }
-
-    .brand-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      letter-spacing: -0.02em;
-    }
-
-    .brand-badge {
-      font-size: 9.5px;
-      padding: 2px 6px;
-      border-radius: 6px;
-      background: rgba(37, 99, 235, 0.1);
-      border: 1px solid rgba(37, 99, 235, 0.25);
-      color: var(--accent-dot);
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-    }
-
-    .cloud-badge {
-      font-size: 9.5px;
-      padding: 2px 6px;
-      border-radius: 6px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: var(--scout-green);
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
-    .hud-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .hud-btn {
-      background: var(--surface-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
-    }
-
-    .hud-btn:hover {
-      background: var(--surface-light);
-      border-color: var(--text-muted);
-    }
-    .hud-btn:active {
-      transform: scale(0.96);
-    }
-
-    .workspace-tabs {
-      pointer-events: auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-      padding: 4px 8px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--blur-val));
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      overflow-x: auto;
-      scrollbar-width: none;
-      box-shadow: var(--card-shadow);
-    }
-    
-    .workspace-tabs::-webkit-scrollbar { display: none; }
-
-    .tabs-left {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .space-tab {
-      padding: 5px 10px;
-      border-radius: 7px;
-      font-size: 11px;
-      font-weight: 600;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .space-tab:hover {
-      color: var(--text-main);
-      background: var(--surface-light);
-    }
-
-    .space-tab.active {
-      background: #0f172a;
-      color: #ffffff;
-    }
-
-    /* ==========================================================================
-       4. WORKSPACE OVERLAYS
-       ========================================================================== */
-    .workspace-overlay {
-      position: fixed;
-      top: 100px;
-      left: 12px;
-      right: 12px;
-      bottom: 265px;
-      z-index: 15;
-      display: none;
-      border-radius: 16px;
-      overflow: hidden;
-      pointer-events: auto;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--blur-val));
-      border: 1px solid var(--border-color);
-      box-shadow: var(--card-shadow);
-      flex-direction: column;
-    }
-
-    .workspace-overlay.active {
-      display: flex;
-    }
-
-    .sim-header {
-      padding: 9px 14px;
-      background: var(--surface-light);
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11.5px;
-      font-weight: 700;
-      color: var(--text-main);
-      flex-shrink: 0;
-    }
-
-    .sim-body {
-      flex: 1;
-      padding: 14px;
-      overflow-y: auto;
-      min-height: 0;
-      font-size: 12px;
-      user-select: text;
-    }
-
-    /* Memory Vault */
-    .memory-vault-box { display: flex; flex-direction: column; gap: 10px; height: 100%; }
-    .memory-textarea { flex: 1; width: 100%; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; outline: none; color: var(--text-main); resize: none; }
-
-    /* Voice Studio Panel */
-    .voice-studio-box { display: flex; flex-direction: column; gap: 12px; height: 100%; }
-    .voice-chat-feed { flex: 1; background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; }
-
-    /* Connectors Grid */
-    .connectors-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 12px;
-    }
-
-    /* Live Terminal */
-    .terminal-wrap { background: #090d16; color: #e2e8f0; display: flex; flex-direction: column; height: 100%; font-family: 'JetBrains Mono', monospace; }
-    #sim-terminal-output { flex: 1; padding: 12px; overflow-y: auto; font-size: 11.5px; }
-    .sim-terminal-line { line-height: 1.55; margin-bottom: 4px; word-break: break-word; }
-    .sim-terminal-prefix { color: var(--scout-green); font-weight: 700; margin-right: 7px; }
-    .terminal-input-row { display: flex; align-items: center; padding: 7px 12px; border-top: 1px solid #1e293b; background: #0f172a; gap: 8px; flex-shrink: 0; }
-    #terminal-cli-input { flex: 1; background: transparent; border: none; outline: none; color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-
-    /* ==========================================================================
-       5. CHAT DRAWER & SESSIONS
-       ========================================================================== */
-    #chat-drawer {
-      position: relative;
-      z-index: 20;
-      margin: 0 12px 12px 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      pointer-events: none;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .chat-container {
-      pointer-events: auto;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      max-height: 68dvh;
-      background: var(--glass-bg);
-      backdrop-filter: blur(var(--blur-val));
-      border: 1px solid var(--border-color);
-      box-shadow: var(--card-shadow);
-    }
-
-    .sessions-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 12px;
-      background: var(--surface-card);
-      border-bottom: 1px solid var(--border-color);
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .session-select {
-      flex: 1;
-      max-width: 220px;
-      background: var(--surface-light);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 4px 8px;
-      border-radius: 7px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 700;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .session-actions {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .session-btn {
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      background: var(--surface-light);
-      color: var(--text-main);
-      font-size: 10.5px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-    }
-
-    .session-btn:hover {
-      border-color: var(--accent-dot);
-      color: var(--accent-dot);
-    }
-
-    .session-btn.danger:hover {
-      border-color: var(--danger);
-      color: var(--danger);
-    }
-
-    .dots-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 12px;
-      background: var(--surface-light);
-      border-bottom: 1px solid var(--border-color);
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      flex-shrink: 0;
-    }
-
-    .dots-group {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .dot-pill {
-      padding: 5px 11px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 600;
-      border: 1px solid var(--border-color);
-      background: var(--surface-card);
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: all 0.15s ease;
-    }
-
-    .dot-pill:hover {
-      border-color: var(--text-main);
-      color: var(--text-main);
-    }
-
-    .dot-pill.active {
-      background: #0f172a;
-      color: #ffffff;
-      border-color: #0f172a;
-    }
-
-    #status-ticker {
-      display: none;
-      padding: 7px 14px;
-      background: #eff6ff;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--accent-dot);
-      font-family: monospace;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid #bfdbfe;
-      flex-shrink: 0;
-    }
-
-    .spinner {
-      width: 12px;
-      height: 12px;
-      border: 2px solid var(--accent-dot);
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spinAnim 0.75s linear infinite;
-    }
-    @keyframes spinAnim {
-      to { transform: rotate(360deg); }
-    }
-
-    #chat-stream {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      user-select: text;
-    }
-
-    .msg-card {
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: var(--surface-card);
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-      line-height: 1.5;
-    }
-
-    .msg-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-light);
-      padding-bottom: 5px;
-      margin-bottom: 2px;
-    }
-
-    .user-bubble {
-      margin-left: auto;
-      max-width: 86%;
-      padding: 9px 13px;
-      border-radius: 13px 13px 3px 13px;
-      background: #0f172a;
-      color: #ffffff;
-      font-size: 12.5px;
-      font-weight: 500;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    
-    .approval-card {
-      border: 1px solid var(--accent-dot);
-      background: #eff6ff;
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 4px 0;
-    }
-
-    .approval-actions { display: flex; gap: 8px; }
-    .btn-approve { flex: 1; padding: 7px; border-radius: 7px; background: #10b981; color: #fff; border: none; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
-    .btn-reject { padding: 7px 12px; border-radius: 7px; background: #ef4444; color: #fff; border: none; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
-
-    .command-dock {
-      padding: 10px 12px;
-      background: var(--surface-card);
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      flex-shrink: 0;
-    }
-
-    #prompt-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 12.5px;
-      line-height: 1.4;
-      resize: none;
-      user-select: text;
-    }
-    #prompt-input::placeholder { color: var(--text-dim); }
-
-    .command-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 5px;
-      border-top: 1px solid var(--border-light);
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .tool-buttons { display: flex; align-items: center; gap: 5px; }
-    .btn-execute {
-      padding: 7px 16px;
-      border-radius: 8px;
-      background: #0f172a;
-      color: #ffffff;
-      border: none;
-      font-family: inherit;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    /* Voice Control Bar */
-    .voice-control-bar { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--surface-light); border-bottom: 1px solid var(--border-color); }
-    .mic-status-pill { font-size: 10px; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--scout-green); display: flex; align-items: center; gap: 4px; }
-
-    /* Settings Modal */
-    #settings-modal {
+    /* Cinematic Intro Curtain */
+    #intro-curtain {
       position: fixed;
       inset: 0;
-      z-index: 50;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 14px;
-      background: rgba(15, 23, 42, 0.45);
-      backdrop-filter: blur(8px);
-    }
-
-    #settings-modal.active { display: flex; }
-
-    .modal-box {
-      width: 100%;
-      max-width: 460px;
-      max-height: 85dvh;
-      overflow-y: auto;
-      border-radius: 16px;
-      padding: 18px;
+      z-index: 100;
+      background: #09090b;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
       gap: 12px;
-      background: var(--surface-card);
-      border: 1px solid var(--border-color);
-      box-shadow: var(--modal-shadow);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+    }
+    #intro-curtain.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .intro-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+    .intro-bar { width: 120px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+    .intro-bar-fill { width: 0%; height: 100%; background: #10b981; transition: width 0.7s ease; }
+
+    /* Editorial Glass Panels */
+    .glass-editorial {
+      background: var(--surface);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.85);
     }
 
-    .field-group { display: flex; flex-direction: column; gap: 4px; }
-    .field-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
-    .field-input { width: 100%; background: var(--surface-light); border: 1px solid var(--border-color); border-radius: 8px; padding: 9px 11px; color: var(--text-main); font-family: inherit; font-size: 12px; outline: none; }
-    .btn-lock { width: 100%; padding: 10px; border-radius: 8px; background: #0f172a; color: #ffffff; border: none; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+    .btn-editorial {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
 
-    .watermark-fixed { position: fixed; bottom: 4px; right: 12px; z-index: 30; pointer-events: none; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-dim); }
+    .btn-editorial:hover, .btn-editorial.active {
+      color: var(--text-main);
+      border-color: var(--border-hover);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-editorial svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+    .btn-solid {
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 8px;
+      background: var(--text-main);
+      color: var(--bg);
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+    .btn-solid:active { opacity: 0.8; }
+
+    /* TOP NAV */
+    #top-nav {
+      position: fixed;
+      top: env(safe-area-inset-top, 16px);
+      left: 16px;
+      right: 16px;
+      z-index: 30;
+      border-radius: 14px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-title { font-size: 13.5px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-main); }
+    .brand-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+    /* QUICK ORBIT CHIPS BAR */
+    #orbit-chips {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 16px) + 68px);
+      left: 16px; right: 16px; z-index: 25;
+      display: flex; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+    }
+    #orbit-chips::-webkit-scrollbar { display: none; }
+
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px;
+      background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(10px); border: 1px solid var(--border);
+      color: var(--text-dim); font-family: var(--font-mono); font-size: 10px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .chip:hover, .chip.active { color: #fff; border-color: var(--border-hover); background: rgba(39, 39, 42, 0.95); }
+    .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+    /* EDITORIAL WORKBENCH DOCK */
+    #editorial-dock {
+      position: fixed;
+      bottom: env(safe-area-inset-bottom, 16px);
+      left: 16px;
+      right: 16px;
+      max-width: 760px;
+      margin: 0 auto;
+      z-index: 30;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .dock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(15, 15, 18, 0.9);
+      border-bottom: 1px solid var(--border);
+      gap: 6px;
+    }
+
+    .tab-group { display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .tab-group::-webkit-scrollbar { display: none; }
+    
+    .tab-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 8px;
+      background: transparent; border: 1px solid transparent; color: var(--text-dim);
+      font-family: var(--font-sans); font-size: 11px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+    }
+    .tab-btn.active { background: var(--surface-elevated); color: var(--text-main); border-color: var(--border); }
+
+    .dock-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 290px; overflow-y: auto; }
+    .pane { display: none; flex-direction: column; gap: 10px; }
+    .pane.active { display: flex; }
+
+    .row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .lux-input {
+      flex: 1; height: 36px; padding: 0 12px; border-radius: 8px; background: rgba(9, 9, 11, 0.9);
+      border: 1px solid var(--border); color: var(--text-main); font-family: var(--font-mono); font-size: 11.5px; outline: none; user-select: text;
+    }
+    .lux-input:focus { border-color: var(--border-hover); }
+
+    .code-output {
+      width: 100%; background: rgba(9, 9, 11, 0.9); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; font-family: var(--font-mono); font-size: 11px; line-height: 1.5; color: #d4d4d8; max-height: 140px; overflow-y: auto; white-space: pre-wrap; user-select: text;
+    }
+
+    .dock-footer {
+      padding: 8px 14px; background: rgba(9, 9, 11, 0.95); border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+    }
+
+    .alert-pill {
+      display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 99px;
+      background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); color: var(--rose); font-weight: 600;
+    }
+
+    /* VAULT MODAL */
+    #vault-screen {
+      position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    #vault-screen.is-open { display: flex; }
+    .vault-box { width: 100%; max-width: 420px; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .v-field { display: flex; flex-direction: column; gap: 5px; }
+    .v-field label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); font-weight: 600; }
   </style>
 </head>
 <body>
 
-  <!-- 3D STAGE -->
-  <div id="spatial-stage">
-    <div class="grid-floor"></div>
-    <svg id="neural-cables">
-      <line id="line-dot-scout" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
-      <line id="line-scout-quill" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
-      <line id="line-quill-nexus" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
-      <line id="line-nexus-dot" class="neural-line" x1="0" y1="0" x2="0" y2="0" />
-      <circle id="live-packet" class="neural-packet" cx="-100" cy="-100" r="5" />
-    </svg>
-    <div class="bots-3d-cluster">
-      <div class="bot-3d" id="node-dot" onclick="UI.selectDot('dot')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #3b82f6, #1d4ed8);"><div class="bot-orbit-ring" style="border-color:#93c5fd;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--accent-dot);"></span><span style="color:var(--accent-dot);">DOT</span></div>
-      </div>
-      <div class="bot-3d" id="node-scout" onclick="UI.selectDot('scout')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #34d399, #059669);"><div class="bot-orbit-ring" style="border-color:#a7f3d0;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--scout-green);"></span><span style="color:var(--scout-green);">SCOUT</span></div>
-      </div>
-      <div class="bot-3d" id="node-quill" onclick="UI.selectDot('quill')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #a78bfa, #6d28d9);"><div class="bot-orbit-ring" style="border-color:#ddd6fe;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--quill-purple);"></span><span style="color:var(--quill-purple);">QUILL</span></div>
-      </div>
-      <div class="bot-3d" id="node-nexus" onclick="UI.selectDot('nexus')">
-        <div class="bot-body" style="background: radial-gradient(circle at 35% 30%, #fbbf24, #d97706);"><div class="bot-orbit-ring" style="border-color:#fde68a;"></div><div class="bot-visor"><div class="bot-eye"></div><div class="bot-eye"></div></div></div>
-        <div class="bot-meta-tag"><span class="bot-status-dot" style="background:var(--nexus-amber);"></span><span style="color:var(--nexus-amber);">NEXUS</span></div>
-      </div>
-    </div>
+  <!-- Cinematic Intro Curtain -->
+  <div id="intro-curtain">
+    <div class="intro-logo">AEGIS Studio // Awwards Edition</div>
+    <div class="intro-bar"><div class="intro-bar-fill" id="intro-fill"></div></div>
+    <div style="font-family: var(--font-mono); font-size: 10px; color: #52525b;">INITIALIZING SPATIAL TOPOLOGY...</div>
   </div>
 
-  <!-- WORKSPACES OVERLAYS -->
-  <div id="overlay-memory" class="workspace-overlay">
-    <div class="sim-header">
-      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="brain" class="icon-md"></i> 🧠 Persistent AI Memory Vault</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
-    </div>
-    <div class="sim-body">
-      <div class="memory-vault-box">
-        <p style="font-size:11.5px; color:var(--text-muted);">These preferences and facts are automatically injected into all coworker system prompts:</p>
-        <textarea id="ai-memory-textarea" class="memory-textarea" placeholder="e.g. My name is Naimish. I am 13. I build mobile-first web apps..."></textarea>
-        <button onclick="MEMORY.save()" class="hud-btn" style="width:100%; justify-content:center; background:#0f172a; color:#fff;">
-          <i data-lucide="save" class="icon-sm"></i> Save Permanent Memory
-        </button>
-      </div>
-    </div>
-  </div>
+  <div id="webgl-viewport"></div>
+  <div class="vignette"></div>
 
-  <div id="overlay-voicestudio" class="workspace-overlay">
-    <div class="sim-header">
-      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="mic" class="icon-md"></i> 🎙️ Real Voice Agent-to-Agent Studio</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
-    </div>
-    <div class="sim-body">
-      <div class="voice-studio-box">
-        <p style="font-size:11.5px; color:var(--text-muted);">Watch your AI coworkers talk to each other in real speech or pitch instructions directly to them.</p>
-        <div class="voice-chat-feed" id="voice-studio-feed">
-          <div style="color:var(--text-dim); font-style:italic;">Voice Studio ready. Type a topic below or trigger a live debate.</div>
-        </div>
-        <div style="display:flex; gap:6px;">
-          <input type="text" id="voice-topic-input" class="field-input" placeholder="Enter topic for agents to debate aloud..." />
-          <button onclick="VOICE_STUDIO.startDebate()" class="hud-btn" style="background:var(--accent-dot); color:#fff;"><i data-lucide="play" class="icon-sm"></i> Start Debate</button>
-        </div>
+  <!-- TOP NAV -->
+  <header id="top-nav" class="glass-editorial">
+    <div class="brand">
+      <div>
+        <div class="brand-title">AEGIS Studio</div>
+        <div class="brand-sub">naimish.dev • Awwards Master Edition</div>
       </div>
     </div>
-  </div>
-
-  <div id="overlay-terminal" class="workspace-overlay">
-    <div class="sim-header">
-      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="terminal" class="icon-md"></i> 🖥️ Working JS Shell</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
-    </div>
-    <div class="terminal-wrap">
-      <div id="sim-terminal-output">
-        <div class="sim-terminal-line"><span class="sim-terminal-prefix">[sys]</span>TeamDots OS v18.2 Live Shell. Type <strong>help</strong>.</div>
-      </div>
-      <div class="terminal-input-row">
-        <span style="color:#10b981; font-weight:700;">root@os:~$</span>
-        <input type="text" id="terminal-cli-input" placeholder="eval 2+2, ls, memory, clear..." onkeydown="if(event.key==='Enter') CLI.execute(this.value)" />
-      </div>
-    </div>
-  </div>
-
-  <div id="overlay-connectors" class="workspace-overlay">
-    <div class="sim-header">
-      <span style="display:flex; align-items:center; gap:6px;"><i data-lucide="plug" class="icon-md"></i> Action Connectors (10,000+ Apps)</span>
-      <button onclick="UI.switchSpace('computer')" class="hud-btn" style="padding:2px 7px;"><i data-lucide="x" class="icon-sm"></i></button>
-    </div>
-    <div class="sim-body">
-      <p style="color:var(--text-muted); margin-bottom:12px; font-size:11px;">Configure direct links or Universal Webhooks (Make.com/Zapier) to connect your AI to Canva, GitHub, and 10,000+ other tools.</p>
-      <div class="connectors-grid" id="connectors-container"></div>
-    </div>
-  </div>
-
-  <!-- TOP HEADER -->
-  <header class="hud-header">
-    <div class="top-bar">
-      <div class="brand-title">
-        <i data-lucide="layers" style="width:16px; height:16px; color:var(--accent-dot);"></i> OpenDots
-        <span class="brand-badge">v18.2 Master</span>
-        <span class="cloud-badge" id="cloud-sync-status"><i data-lucide="cloud" class="icon-sm"></i> Local + Cloud Sync</span>
-      </div>
-      <div class="hud-controls">
-        <button onclick="UI.toggleTheme()" class="hud-btn"><i data-lucide="moon" class="icon-md"></i></button>
-        <button onclick="UI.toggleChatPanel()" id="chatToggleBtn" class="hud-btn"><i data-lucide="chevron-down" class="icon-md"></i></button>
-        <button onclick="UI.toggleSettings(true)" class="hud-btn"><i data-lucide="settings" class="icon-md"></i></button>
-      </div>
-    </div>
-
-    <div class="workspace-tabs">
-      <div class="tabs-left">
-        <button onclick="UI.switchSpace('computer')" id="space-computer" class="space-tab active"><i data-lucide="box" class="icon-md"></i> 3D Hub</button>
-        <button onclick="UI.switchSpace('memory')" id="space-memory" class="space-tab"><i data-lucide="brain" class="icon-md"></i> 🧠 Memory</button>
-        <button onclick="UI.switchSpace('voicestudio')" id="space-voicestudio" class="space-tab"><i data-lucide="mic" class="icon-md"></i> 🎙️ Voice Studio</button>
-        <button onclick="UI.switchSpace('terminal')" id="space-terminal" class="space-tab"><i data-lucide="terminal" class="icon-md"></i> 🖥️ Shell</button>
-        <button onclick="UI.switchSpace('connectors')" id="space-connectors" class="space-tab"><i data-lucide="plug" class="icon-md"></i> Connectors</button>
-      </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button class="btn-editorial" onclick="openVault()">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09A1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>Vault</span>
+      </button>
     </div>
   </header>
 
-  <!-- CHAT DRAWER -->
-  <main id="chat-drawer">
-    <div class="chat-container">
-      <div class="sessions-bar">
-        <select id="session-selector" class="session-select" onchange="UI.switchSession(this.value)"></select>
-        <div class="session-actions">
-          <button onclick="UI.createNewChat()" class="session-btn"><i data-lucide="plus-circle" class="icon-sm"></i> New</button>
-          <button onclick="UI.renameCurrentChat()" class="session-btn"><i data-lucide="edit-2" class="icon-sm"></i> Name</button>
-          <button onclick="UI.clearHistory()" class="session-btn danger"><i data-lucide="trash-2" class="icon-sm"></i> Clear</button>
+  <!-- QUICK ORBIT CHIPS BAR -->
+  <div id="orbit-chips"></div>
+
+  <!-- WORKBENCH DOCK -->
+  <section id="editorial-dock" class="glass-editorial">
+    <div class="dock-header">
+      <div class="tab-group">
+        <button class="tab-btn active" onclick="switchPane('pane-ai', this)">OpenRouter AI</button>
+        <button class="tab-btn" onclick="switchPane('pane-api', this)">API Workbench</button>
+        <button class="tab-btn" onclick="switchPane('pane-leads', this)">Client Lead Gen</button>
+        <button class="tab-btn" onclick="switchPane('pane-projects', this)">Ecosystem</button>
+      </div>
+    </div>
+
+    <div class="dock-body">
+      <!-- Pane 1: AI -->
+      <div id="pane-ai" class="pane active">
+        <div class="row">
+          <input id="ai-input" type="text" class="lux-input" placeholder="Ask Claude 3.5 Sonnet or GPT-4o..." onkeydown="if(event.key==='Enter') runAiQuery()" />
+          <button class="btn-solid" onclick="runAiQuery()"><span>Send</span></button>
         </div>
+        <pre id="ai-out" class="code-output">// AI Workbench ready. Configure your OpenRouter key in the Vault.</pre>
       </div>
 
-      <!-- Voice Control Bar -->
-      <div class="voice-control-bar">
-        <button onclick="VOICE.toggleListening()" id="mic-toggle-btn" class="hud-btn" style="padding:3px 8px; font-size:10.5px;">
-          <i data-lucide="mic" class="icon-sm" style="color:var(--scout-green);"></i> <span id="mic-label">Voice Prompt</span>
-        </button>
-        <span class="mic-status-pill" id="mic-status-text">OFFLINE</span>
-      </div>
-
-      <div class="dots-bar">
-        <div class="dots-group">
-          <button onclick="UI.selectDot('swarm')" id="dot-swarm" class="dot-pill active"><i data-lucide="zap" class="icon-sm"></i> Full Swarm (Router)</button>
-          <button onclick="UI.selectDot('dot')" id="dot-dot" class="dot-pill"><span class="bot-status-dot" style="background:#2563eb;"></span> Dot</button>
-          <button onclick="UI.selectDot('scout')" id="dot-scout" class="dot-pill"><span class="bot-status-dot" style="background:#10b981;"></span> Scout</button>
-          <button onclick="UI.selectDot('nexus')" id="dot-nexus" class="dot-pill"><span class="bot-status-dot" style="background:#f59e0b;"></span> Nexus</button>
-          <button onclick="UI.selectDot('quill')" id="dot-quill" class="dot-pill"><span class="bot-status-dot" style="background:#8b5cf6;"></span> Quill</button>
+      <!-- Pane 2: API Workbench -->
+      <div id="pane-api" class="pane">
+        <div class="row">
+          <input id="api-endpoint" type="text" class="lux-input" value="https://api.github.com/users/naimish.dev7" placeholder="https://api.endpoint.com/..." />
+          <button class="btn-solid" onclick="runApiBenchmark()"><span>Test</span></button>
         </div>
+        <pre id="api-out" class="code-output">// Enter any REST API to benchmark latency, inspect JSON headers, and spawn a 3D node.</pre>
       </div>
 
-      <div id="status-ticker">
-        <div class="spinner"></div>
-        <span id="ticker-text">Agent routing...</span>
+      <!-- Pane 3: Client Leads -->
+      <div id="pane-leads" class="pane">
+        <div class="row">
+          <input id="lead-query" type="text" class="lux-input" value="pwa frontend OR landing page" placeholder="GitHub niche..." />
+          <button class="btn-solid" onclick="scoutLeads()"><span>Scout</span></button>
+          <button class="btn-editorial" onclick="openGmail()"><span>Gmail</span></button>
+        </div>
+        <pre id="lead-out" class="code-output">// Scout live GitHub repositories to auto-generate client pitches from naimish.dev7@gmail.com.</pre>
       </div>
 
-      <div id="chat-stream"></div>
-
-      <div class="command-dock">
-        <textarea id="prompt-input" rows="2" placeholder="Talk, speak via voice, or instruct your Swarm..."></textarea>
-        <div class="command-actions">
-          <div class="tool-buttons">
-            <button onclick="ENGINE.enhancePrompt()" class="hud-btn" style="color:var(--quill-purple);"><i data-lucide="wand-2" class="icon-sm"></i> Enhance</button>
-          </div>
-          <button onclick="ENGINE.executeWorkflow()" id="send-btn" class="btn-execute">
-            <span>Execute</span> <i data-lucide="arrow-right" class="icon-sm"></i>
-          </button>
+      <!-- Pane 4: Ecosystem -->
+      <div id="pane-projects" class="pane">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <a href="https://naimish-dev.vercel.app" target="_blank" class="btn-editorial" style="justify-content: space-between;"><span>naimish-dev.vercel.app (3D Portfolio)</span><span>↗</span></a>
+          <a href="https://erlytree-alarm.vercel.app" target="_blank" class="btn-editorial" style="justify-content: space-between;"><span>erlytree-alarm.vercel.app (PWA Alarm)</span><span>↗</span></a>
         </div>
       </div>
     </div>
-  </main>
 
-  <!-- SETTINGS MODAL -->
-  <div id="settings-modal">
-    <div class="modal-box">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-light); padding-bottom:8px;">
-        <span style="font-size: 14px; font-weight: 800; display:flex; align-items:center; gap:6px;"><i data-lucide="settings" class="icon-md"></i> Universal API Configuration</span>
-        <button onclick="UI.toggleSettings(false)" style="background:none; border:none; cursor:pointer;"><i data-lucide="x" class="icon-md"></i></button>
+    <div class="dock-footer">
+      <span id="sys-status">SYSTEM NORMAL</span>
+      <span style="color: var(--accent);">AWWARDS MASTER BUILD</span>
+    </div>
+  </section>
+
+  <!-- VAULT MODAL -->
+  <div id="vault-screen">
+    <div class="glass-editorial vault-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+        <strong style="font-size: 13px;">Settings Vault</strong>
+        <button class="btn-editorial" style="height: 26px; padding: 0 6px;" onclick="closeVault()">✕</button>
       </div>
-
-      <div class="field-group" style="margin-top:8px;">
-        <label class="field-label">AI Provider Mode</label>
-        <select id="model-provider" onchange="UI.onProviderChange()" class="field-input">
-          <option value="gemini">Google Gemini (API Key)</option>
-          <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
-          <option value="groq">Groq (Llama 3.3 70B Fast)</option>
-          <option value="custom">Custom Endpoint (OpenRouter / DeepSeek / Ollama)</option>
-        </select>
+      <div class="v-field"><label>OPENROUTER API KEY</label><input id="v-or" type="password" class="lux-input" placeholder="sk-or-v1-..." /></div>
+      <div class="v-field"><label>GITHUB USERNAME (TOPOLOGY SYNC)</label><input id="v-gh" type="text" class="lux-input" /></div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
+        <button class="btn-solid" onclick="saveVault()">Save Vault</button>
       </div>
-
-      <div class="field-group">
-        <label class="field-label" id="key-label">API Key (Gemini AIza..., OpenAI sk-..., Groq gsk_...)</label>
-        <input type="password" id="api-key-input" oninput="UI.saveConfig()" placeholder="Paste your working API key here..." class="field-input" />
-      </div>
-
-      <div class="field-group" id="group-custom-url" style="display:none;">
-        <label class="field-label">Custom Base URL (OpenAI Compatible)</label>
-        <input type="text" id="custom-base-url" oninput="UI.saveConfig()" placeholder="https://openrouter.ai/api/v1 or http://localhost:11434/v1" class="field-input" />
-      </div>
-
-      <div class="field-group" id="group-custom-model" style="display:none;">
-        <label class="field-label">Model Name</label>
-        <input type="text" id="custom-model-name" oninput="UI.saveConfig()" placeholder="deepseek/deepseek-chat or llama3" class="field-input" />
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">Swarm Step Cooldown (ms)</label>
-        <input type="number" id="swarm-cooldown" value="2000" min="0" step="500" onchange="UI.saveConfig()" class="field-input" />
-      </div>
-
-      <button onclick="UI.toggleSettings(false)" class="btn-lock">Save & Apply Configuration</button>
     </div>
   </div>
 
-  <div class="watermark-fixed">created by naimish // opendots v18.2 Master</div>
-
   <!-- SCRIPT -->
   <script>
-    var TAG_START = '\x3c', TAG_END = '\x3e';
+    // Intro Curtain Sequence
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => document.getElementById('intro-fill').style.width = '100%', 100);
+      setTimeout(() => document.getElementById('intro-curtain').classList.add('hidden'), 900);
+    });
 
-    var firebaseConfig = { apiKey: "AIzaSyB8V1ofbOcjmuntEJDStQ48BMnVJWe7VxA", authDomain: "teamdots-d57a8.firebaseapp.com", projectId: "teamdots-d57a8", storageBucket: "teamdots-d57a8.firebasestorage.app", messagingSenderId: "141410499215", appId: "1:141410499215:web:0c2a9ac68f0576ed7d0efa", measurementId: "G-1X58JCFSB2" };
-    var db = null;
+    const Vault = {
+      orKey: localStorage.getItem('aegis_awwards_or') || '',
+      ghUser: localStorage.getItem('aegis_awwards_gh') || 'naimish.dev7'
+    };
 
-    try {
-      if (typeof firebase !== 'undefined') {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-      }
-    } catch (e) { console.warn("Firebase offline mode."); }
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch",function(e){});').catch(function(){});
-      });
+    function openVault() {
+      document.getElementById('v-or').value = Vault.orKey;
+      document.getElementById('v-gh').value = Vault.ghUser;
+      document.getElementById('vault-screen').classList.add('is-open');
+    }
+    function closeVault() { document.getElementById('vault-screen').classList.remove('is-open'); }
+    function saveVault() {
+      Vault.orKey = document.getElementById('v-or').value.trim();
+      Vault.ghUser = document.getElementById('v-gh').value.trim() || 'naimish.dev7';
+      localStorage.setItem('aegis_awwards_or', Vault.orKey);
+      localStorage.setItem('aegis_awwards_gh', Vault.ghUser);
+      closeVault();
+      document.getElementById('sys-status').innerHTML = 'VAULT UPDATED';
+      syncPortfolioTopology();
     }
 
-    var toolInstruction = "\n\nSYSTEM TOOLS: You are connected to the user's OS. If the user asks to SEND an email, WhatsApp, or trigger a Webhook, output ONE format on a new line:\n" +
-                          "[TOOL: GMAIL | body: text]\n[TOOL: WHATSAPP | body: text]\n[TOOL: WEBHOOK | body: {\"action\":\"action_name\", \"data\":\"relevant_data\"}]\n";
+    function switchPane(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
 
-    var STATE = {
-      activeDot: 'swarm', activeSpace: 'computer', isProcessing: false,
-      provider: localStorage.getItem('od_prov') || 'gemini',
-      apiKey: localStorage.getItem('od_key') || localStorage.getItem('od_gemini') || '',
-      customUrl: localStorage.getItem('od_curl') || 'https://openrouter.ai/api/v1',
-      customModel: localStorage.getItem('od_cmod') || 'deepseek/deepseek-chat',
-      cooldown: parseInt(localStorage.getItem('od_cd') || '2000', 10),
-      activeSessionId: 'session_default', sessions: {},
-      dots: {
-        dot: { id: 'dot', name: 'Dot', role: 'Lead Router', color: '#2563eb', prompt: 'You are Dot, Lead OpenDots Router. Orchestrate tasks.' + toolInstruction },
-        scout: { id: 'scout', name: 'Scout', role: 'Researcher', color: '#10b981', prompt: 'You are Scout. Provide concise facts.' + toolInstruction },
-        nexus: { id: 'nexus', name: 'Nexus', role: 'Architect', color: '#f59e0b', prompt: 'You are Nexus. Structure plans.' + toolInstruction },
-        quill: { id: 'quill', name: 'Quill', role: 'Creator', color: '#8b5cf6', prompt: 'You are Quill. Create deliverables.' + toolInstruction }
+    // Robust AI Query with Error Catching
+    async function runAiQuery() {
+      const input = document.getElementById('ai-input');
+      const out = document.getElementById('ai-out');
+      const q = input.value.trim();
+      if (!q) return;
+      input.value = '';
+
+      if (!Vault.orKey) {
+        out.innerHTML = `<span class="alert-pill">ERROR</span> OpenRouter API key is missing. Open Vault (⚙) to add it.`;
+        return;
       }
-    };
-
-    var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
-
-    var MEMORY = {
-      get: function() { return localStorage.getItem('od_user_memory') || 'User is Naimish, mobile web developer using Acode and Vercel.'; },
-      save: function() {
-        var val = document.getElementById('ai-memory-textarea').value;
-        localStorage.setItem('od_user_memory', val);
-        if (db) { db.collection('teamdots_memory').doc('vault').set({ content: val }).catch(function(){}); }
-        alert('🧠 Memory Vault saved!');
-      },
-      init: function() {
-        var localMem = localStorage.getItem('od_user_memory');
-        if (localMem) document.getElementById('ai-memory-textarea').value = localMem;
-      }
-    };
-
-    var VOICE_STUDIO = {
-      log: function(speaker, text) {
-        var feed = document.getElementById('voice-studio-feed'); if (!feed) return;
-        var div = document.createElement('div'); div.innerHTML = '<strong>' + speaker + ':</strong> ' + text;
-        feed.appendChild(div); feed.scrollTop = feed.scrollHeight;
-      },
-      speakAgent: function(dotId, text, callback) {
-        if (!('speechSynthesis' in window)) { if (callback) callback(); return; }
-        window.speechSynthesis.cancel();
-        var utter = new SpeechSynthesisUtterance(text.slice(0, 200));
-        if (dotId === 'dot') { utter.pitch = 1.0; utter.rate = 1.05; }
-        else if (dotId === 'scout') { utter.pitch = 1.3; utter.rate = 1.1; }
-        else if (dotId === 'nexus') { utter.pitch = 0.8; utter.rate = 0.95; }
-        else if (dotId === 'quill') { utter.pitch = 1.1; utter.rate = 1.0; }
-        var el = document.getElementById('node-' + dotId); if (el) el.classList.add('talking');
-        utter.onend = function() { if (el) el.classList.remove('talking'); if (callback) callback(); };
-        utter.onerror = function() { if (el) el.classList.remove('talking'); if (callback) callback(); };
-        window.speechSynthesis.speak(utter);
-      },
-      startDebate: function() {
-        var input = document.getElementById('voice-topic-input'); var topic = input.value.trim() || 'Build an autonomous mobile web app'; input.value = '';
-        this.log('USER', 'Topic: ' + topic); UI.showTicker('🎙️ Voice Studio session active...');
-        var self = this;
-        ENGINE.callLLM('dot', "Start a discussion about: " + topic, "Initial prompt").then(function(dotRes) {
-          self.log('Dot (Lead)', dotRes);
-          self.speakAgent('dot', dotRes, function() {
-            delay(1000).then(function() {
-              ENGINE.callLLM('scout', "Review Dot's proposal on: " + topic, dotRes).then(function(scoutRes) {
-                self.log('Scout (Research)', scoutRes);
-                self.speakAgent('scout', scoutRes, function() {
-                  delay(1000).then(function() {
-                    ENGINE.callLLM('quill', "Give final verdict on: " + topic, scoutRes).then(function(quillRes) {
-                      self.log('Quill (Creator)', quillRes);
-                      self.speakAgent('quill', quillRes, function() { UI.hideTicker(); });
-                    });
-                  });
-                });
-              });
-            });
-          });
+      out.innerText = `// Querying Claude 3.5 Sonnet...`;
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${Vault.orKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'anthropic/claude-3.5-sonnet',
+            messages: [{ role: 'user', content: q }]
+          })
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        out.innerText = data?.choices?.[0]?.message?.content || JSON.stringify(data, null, 2);
+      } catch (e) {
+        out.innerHTML = `<span class="alert-pill">API FAIL</span> ${e.message}. Check your API key or CORS/network status.`;
       }
-    };
+    }
 
-    var CONNECTORS = {
-      list: [
-        { id: 'gmail_app', name: 'Gmail Direct', desc: 'Auto-launches email drafts.', enabled: true, icon: 'mail', configLabel: 'Recipient Email', configValue: 'naimish.dev7@gmail.com' },
-        { id: 'whatsapp_app', name: 'WhatsApp', desc: 'Auto-launches WhatsApp drafts.', enabled: true, icon: 'message-circle', configLabel: 'Default Phone', configValue: '' },
-        { id: 'webhook_app', name: 'Universal Webhook (Zapier/Make)', desc: 'Connects to Canva, GitHub, Notion and 10,000+ apps.', enabled: true, icon: 'webhook', configLabel: 'Webhook URL', configValue: 'https://hook.eu1.make.com/39tyxpr83sedys0q03k4dthak8nhflpx' }
-      ],
-      init: function() { var saved = localStorage.getItem('od_conn_18'); if (saved) { try { this.list = JSON.parse(saved); } catch(e){} } this.render(); },
-      save: function() { localStorage.setItem('od_conn_18', JSON.stringify(this.list)); this.render(); },
-      toggle: function(id) { var c = this.list.find(function(x){return x.id===id}); if(c){ c.enabled = !c.enabled; this.save(); } },
-      configure: function(id) { var c = this.list.find(function(x){return x.id===id}); if(!c) return; var val = prompt(c.configLabel+':', c.configValue||''); if(val!==null){ c.configValue=val.trim(); c.enabled=true; this.save(); } },
-      dispatchGmail: function(body) { var to = this.list[0].configValue||''; window.open('mailto:'+encodeURIComponent(to)+'?subject=OpenDots&body='+encodeURIComponent(body), '_blank'); },
-      dispatchWhatsApp: function(body) { var phone = (this.list[1].configValue||'').replace(/[^0-9]/g,''); window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(body), '_blank'); },
-      dispatchWebhook: function(bodyPayload) {
-        var url = this.list[2].configValue;
-        if (!url) return alert('Configure Universal Webhook URL first in Connectors!');
-        try {
-          var payloadObj = JSON.parse(bodyPayload);
-          fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadObj) })
-            .then(function(r) { if(r.ok) alert('✅ Webhook Fired to Make.com!'); else alert('⚠️ Webhook returned error.'); });
-        } catch (e) { alert('⚠️ Webhook Payload was not valid JSON.'); }
-      },
-      render: function() {
-        var c = document.getElementById('connectors-container'); if (!c) return; c.innerHTML = '';
-        this.list.forEach(function(item) {
-          var d = document.createElement('div');
-          d.style.background = 'var(--surface-card)'; d.style.border = '1px solid '+(item.enabled?'var(--accent-dot)':'var(--border-color)'); d.style.padding = '14px'; d.style.borderRadius = '12px';
-          d.innerHTML = '<strong style="font-size:12px; display:flex; align-items:center; gap:6px;"><i data-lucide="'+item.icon+'" class="icon-md"></i>'+item.name+'</strong><p style="font-size:11px; color:var(--text-muted); margin:8px 0;">'+item.desc+'</p><button onclick="CONNECTORS.configure(\''+item.id+'\')" class="hud-btn" style="font-size:10px; width:100%; justify-content:center;"><i data-lucide="settings" class="icon-sm"></i> Configured URL</button>';
-          c.appendChild(d);
-        });
-        if (window.lucide) lucide.createIcons();
+    // Robust API Benchmark with Error Catching
+    async function runApiBenchmark() {
+      const url = document.getElementById('api-endpoint').value.trim();
+      const out = document.getElementById('api-out');
+      if (!url) return;
+      const t0 = performance.now();
+      out.innerText = `// Benchmarking GET ${url}...`;
+      try {
+        const res = await fetch(url);
+        const ms = Math.round(performance.now() - t0);
+        const text = await res.text();
+        let parsed = text;
+        try { parsed = JSON.parse(text); } catch (_) {}
+        out.innerText = JSON.stringify({ status: res.status, latency_ms: ms, data: parsed }, null, 2);
+        document.getElementById('sys-status').innerText = `LATENCY: ${ms}ms`;
+        
+        // Spawn 3D node
+        spawnTopologyNode({ title: new URL(url).hostname, category: `API [${res.status}]`, color: res.ok ? 0x10b981 : 0xf43f5e });
+      } catch (e) {
+        out.innerHTML = `<span class="alert-pill">REQUEST ERROR</span> ${e.message}. (Note: Some APIs block browser requests due to CORS).`;
       }
-    };
+    }
 
-    var CLI = {
-      execute: function(raw) {
-        var i = document.getElementById('terminal-cli-input'); i.value = '';
-        var line = (raw || '').trim(); if (!line) return;
-        UI.logTerminal('$ ' + line);
-        var parts = line.split(' '); var cmd = parts[0].toLowerCase(); var arg = parts.slice(1).join(' ');
-        if (cmd === 'help') UI.logTerminal("Commands: ls, memory, clear, eval <js>");
-        else if (cmd === 'ls') UI.logTerminal("sessions.json  memory.vault");
-        else if (cmd === 'memory') UI.logTerminal(MEMORY.get());
-        else if (cmd === 'clear') document.getElementById('sim-terminal-output').innerHTML = '';
-        else if (cmd === 'eval') { try { UI.logTerminal("=> " + String(eval(arg))); } catch(e){ UI.logTerminal("Error: " + e.message); } }
-        else UI.logTerminal("Unknown command. Type 'help'.");
+    // Client Lead Scout
+    async function scoutLeads() {
+      const q = document.getElementById('lead-query').value.trim() || 'pwa';
+      const out = document.getElementById('lead-out');
+      out.innerText = `// Scouting GitHub for "${q}"...`;
+      try {
+        const res = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=updated&per_page=1`);
+        if (!res.ok) throw new Error(`GitHub API limit or error (${res.status})`);
+        const data = await res.json();
+        const top = data.items[0];
+        window.pitchBody = `Hey ${top.owner.login},\n\nI saw your repo (${top.full_name}) and can upgrade your frontend with an ultra-fast PWA & Three.js 3D interface.\n\nTest my live portfolio: https://naimish-dev.vercel.app\n\nBest,\nNaimish\nnaimish.dev7@gmail.com`;
+        out.innerText = `TARGET: ${top.full_name}\nURL: ${top.html_url}\n\n${window.pitchBody}`;
+        spawnTopologyNode({ title: top.name, category: 'CLIENT LEAD', color: 0xf59e0b });
+      } catch (e) {
+        out.innerHTML = `<span class="alert-pill">SCOUT FAIL</span> ${e.message}`;
       }
-    };
+    }
 
-    var VOICE = {
-      recognition: null, isListening: false,
-      toggleListening: function() {
-        var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRec) return alert('Speech recognition not supported.');
-        var self = this;
-        if (!this.recognition) {
-          this.recognition = new SpeechRec();
-          this.recognition.continuous = false;
-          this.recognition.onresult = function(e) {
-            document.getElementById('prompt-input').value = e.results[0][0].transcript;
-            ENGINE.executeWorkflow();
-          };
-          this.recognition.onend = function() {
-            self.isListening = false;
-            document.getElementById('mic-toggle-btn').style.borderColor = 'var(--border-color)';
-            document.getElementById('mic-status-text').textContent = 'OFFLINE';
-          };
+    function openGmail() {
+      window.open(`mailto:?subject=Frontend / PWA Upgrade&body=${encodeURIComponent(window.pitchBody || 'Check portfolio: https://naimish-dev.vercel.app')}`, '_blank');
+    }
+
+    // 3D Three.js Spatial Topology
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x09090b, 0.015);
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
+    camera.position.set(0, 14, 28);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.getElementById('webgl-viewport').appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.dampingFactor = 0.04; controls.autoRotate = true; controls.autoRotateSpeed = 0.35;
+    controls.maxDistance = 60; controls.minDistance = 6;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const nodeMeshes = [];
+    const orbitChipsBar = document.getElementById('orbit-chips');
+
+    function spawnTopologyNode(item) {
+      const angle = Math.random() * Math.PI * 2;
+      const rad = 10 + Math.random() * 4;
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.38, 20, 20),
+        new THREE.MeshStandardMaterial({ color: item.color || 0x10b981, emissive: item.color || 0x10b981, roughness: 0.2 })
+      );
+      mesh.position.set(Math.cos(angle) * rad, (Math.random()-0.5)*4, Math.sin(angle) * rad);
+      group.add(mesh);
+      nodeMeshes.push(mesh);
+
+      const chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.innerHTML = `<span class="chip-dot"></span><span>${item.title}</span>`;
+      chip.onclick = () => {
+        controls.autoRotate = false;
+        camera.position.set(mesh.position.x, mesh.position.y + 3, mesh.position.z + 6);
+        controls.target.copy(mesh.position);
+      };
+      orbitChipsBar.appendChild(chip);
+    }
+
+    async function syncPortfolioTopology() {
+      nodeMeshes.forEach(m => group.remove(m));
+      nodeMeshes.length = 0;
+      orbitChipsBar.innerHTML = '';
+
+      const base = [
+        { title: 'naimish-dev.vercel.app', color: 0x10b981 },
+        { title: 'Teamdots Hub', color: 0x06b6d4 },
+        { title: 'earlytree alarm PWA', color: 0xf59e0b }
+      ];
+      base.forEach(b => spawnTopologyNode(b));
+
+      try {
+        const res = await fetch(`https://api.github.com/users/${encodeURIComponent(Vault.ghUser)}/repos?per_page=4`);
+        if (res.ok) {
+          const repos = await res.json();
+          repos.forEach(r => spawnTopologyNode({ title: r.name, color: 0x3b82f6 }));
         }
-        if (this.isListening) { this.recognition.stop(); }
-        else {
-          this.isListening = true;
-          document.getElementById('mic-toggle-btn').style.borderColor = 'var(--scout-green)';
-          document.getElementById('mic-status-text').textContent = 'LISTENING...';
-          this.recognition.start();
-        }
-      }
-    };
+      } catch (_) {}
+    }
 
-    var ENGINE = {
-      callLLM: function(dotId, basePrompt, userText) {
-        var key = STATE.apiKey.trim();
-        var memContext = 'USER MEMORY:\n' + MEMORY.get() + '\n\n';
-        if (!key && STATE.provider !== 'custom') return Promise.resolve("Please configure your API key in Settings (⚙️).");
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    syncPortfolioTopology();
+    animate();
 
-        var prov = STATE.provider;
-        if (prov === 'gemini') {
-          var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(key);
-          return fetch(endpoint, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: memContext + basePrompt + '\n\nUSER:\n' + userText }] }] })
-          }).then(function(res) {
-            return res.json().then(function(d) {
-              return (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text) || 'No response from Gemini.';
-            });
-          });
-        }
-
-        var url = prov === 'openai' ? 'https://api.openai.com/v1/chat/completions' : (prov === 'groq' ? 'https://api.groq.com/openai/v1/chat/completions' : STATE.customUrl.replace(/\/+$/, '') + '/chat/completions');
-        var modelName = prov === 'openai' ? 'gpt-4o-mini' : (prov === 'groq' ? 'llama-3.3-70b-versatile' : STATE.customModel);
-
-        return fetch(url, {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-          body: JSON.stringify({ model: modelName, messages: [{ role: 'system', content: memContext + basePrompt }, { role: 'user', content: userText }] })
-        }).then(function(res) {
-          return res.json().then(function(data) {
-            return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response from API.';
-          });
-        });
-      },
-      enhancePrompt: function() {
-        var i = document.getElementById('prompt-input'); if (!i.value.trim()) return; UI.showTicker("✨ Enhancing...");
-        this.callLLM('dot', "Rewrite perfectly. ONLY output the prompt.", i.value).then(function(r) { i.value = r; }).finally(function() { UI.hideTicker(); });
-      },
-      executeWorkflow: function() {
-        var input = document.getElementById('prompt-input'); var text = input.value.trim(); if (!text) return; input.value = '';
-        UI.appendUserMessage(text);
-
-        if (STATE.activeDot === 'swarm') {
-          UI.showTicker("🟢 Scout researching...");
-          ENGINE.callLLM('scout', STATE.dots.scout.prompt, text).then(function(res) {
-            UI.appendMessage('scout', res); UI.showTicker("⏱️ Cooldown...");
-            return delay(STATE.cooldown).then(function() { return res; });
-          }).then(function(res) {
-            UI.showTicker("🟠 Nexus planning...");
-            return ENGINE.callLLM('nexus', STATE.dots.nexus.prompt, res).then(function(plan) {
-              UI.appendMessage('nexus', plan); UI.showTicker("⏱️ Cooldown...");
-              return delay(STATE.cooldown).then(function() { return plan; });
-            });
-          }).then(function(plan) {
-            UI.showTicker("🟣 Quill drafting...");
-            return ENGINE.callLLM('quill', STATE.dots.quill.prompt, plan).then(function(fin) {
-              UI.appendMessage('quill', fin);
-            });
-          }).finally(function() { UI.hideTicker(); });
-        } else {
-          UI.showTicker(STATE.dots[STATE.activeDot].name + " processing...");
-          ENGINE.callLLM(STATE.activeDot, STATE.dots[STATE.activeDot].prompt, text).then(function(r) {
-            UI.appendMessage(STATE.activeDot, r);
-          }).finally(function() { UI.hideTicker(); });
-        }
-      }
-    };
-
-    var UI = {
-      init: function() {
-        var saved = localStorage.getItem('od_sessions_18');
-        if (saved) { try { STATE.sessions = JSON.parse(saved); } catch(e){} }
-
-        var dId = localStorage.getItem('od_active_session') || Object.keys(STATE.sessions)[0] || 'session_default';
-        if (!STATE.sessions[dId]) {
-          STATE.sessions[dId] = { id: dId, title: '💬 Main Workspace', messages: [] };
-        }
-        STATE.activeSessionId = dId;
-
-        document.getElementById('model-provider').value = STATE.provider;
-        document.getElementById('api-key-input').value = STATE.apiKey;
-        document.getElementById('custom-base-url').value = STATE.customUrl;
-        document.getElementById('custom-model-name').value = STATE.customModel;
-        document.getElementById('swarm-cooldown').value = STATE.cooldown;
-
-        this.onProviderChange();
-        MEMORY.init();
-        CONNECTORS.init();
-        this.renderSessionSelector();
-        this.renderCurrentChat();
-
-        if (db) {
-          db.collection('teamdots_sessions').doc(STATE.activeSessionId).get().then(function(doc) {
-            if (doc.exists && doc.data() && doc.data().messages) {
-              STATE.sessions[STATE.activeSessionId] = doc.data();
-              UI.renderSessionSelector();
-              UI.renderCurrentChat();
-            }
-          }).catch(function(err){});
-        }
-
-        if (window.lucide) lucide.createIcons();
-      },
-
-      saveSessions: function() {
-        var currentSess = STATE.sessions[STATE.activeSessionId] || { id: STATE.activeSessionId, title: '💬 Main Workspace', messages: [] };
-        localStorage.setItem('od_sessions_18', JSON.stringify(STATE.sessions));
-        localStorage.setItem('od_active_session', STATE.activeSessionId);
-
-        if (db) {
-          db.collection('teamdots_sessions').doc(STATE.activeSessionId).set(currentSess, { merge: true }).catch(function(e) {});
-        }
-      },
-
-      renderSessionSelector: function() {
-        var s = document.getElementById('session-selector'); s.innerHTML = '';
-        var keys = Object.keys(STATE.sessions);
-        if (keys.length === 0) keys = ['session_default'];
-        keys.forEach(function(id) {
-          if (!STATE.sessions[id]) STATE.sessions[id] = { id: id, title: '💬 Main Workspace', messages: [] };
-          var o = document.createElement('option'); o.value = id; o.textContent = STATE.sessions[id].title;
-          if (id === STATE.activeSessionId) o.selected = true; s.appendChild(o);
-        });
-      },
-
-      createNewChat: function() {
-        var n = prompt("Name:", "New Chat"); if (!n) return;
-        var id = 'session_' + Date.now();
-        STATE.sessions[id] = { id: id, title: '💬 ' + n, messages: [] };
-        STATE.activeSessionId = id;
-        this.saveSessions();
-        this.renderSessionSelector();
-        document.getElementById('chat-stream').innerHTML = '';
-      },
-
-      renameCurrentChat: function() {
-        var n = prompt("Rename:", STATE.sessions[STATE.activeSessionId].title.replace('💬 ','')); if (!n) return;
-        STATE.sessions[STATE.activeSessionId].title = '💬 ' + n;
-        this.saveSessions();
-        this.renderSessionSelector();
-      },
-
-      clearHistory: function() {
-        document.getElementById('chat-stream').innerHTML = '';
-        if (STATE.sessions[STATE.activeSessionId]) STATE.sessions[STATE.activeSessionId].messages = [];
-        this.saveSessions();
-      },
-
-      switchSession: function(id) {
-        STATE.activeSessionId = id;
-        localStorage.setItem('od_active_session', id);
-        this.renderCurrentChat();
-      },
-
-      renderCurrentChat: function() {
-        var s = document.getElementById('chat-stream'); s.innerHTML = '';
-        var cur = STATE.sessions[STATE.activeSessionId];
-        if (cur && cur.messages) {
-          var self = this;
-          cur.messages.forEach(function(m) {
-            if (m.type === 'user') self.renderUserBubble(m.text, false);
-            else self.renderAgentCard(m.dotId, m.text, false);
-          });
-        }
-      },
-
-      toggleTheme: function() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); },
-      toggleChatPanel: function() { STATE.chatCollapsed = !STATE.chatCollapsed; document.getElementById('chat-drawer').style.transform = STATE.chatCollapsed ? 'translateY(85%)' : 'translateY(0%)'; },
-      toggleSettings: function(open) { document.getElementById('settings-modal').classList.toggle('active', open); },
-
-      onProviderChange: function() {
-        var p = document.getElementById('model-provider').value; STATE.provider = p;
-        document.getElementById('group-custom-url').style.display = (p === 'custom') ? 'flex' : 'none';
-        document.getElementById('group-custom-model').style.display = (p === 'custom') ? 'flex' : 'none';
-        this.saveConfig();
-      },
-
-      saveConfig: function() {
-        STATE.provider = document.getElementById('model-provider').value; STATE.apiKey = document.getElementById('api-key-input').value.trim();
-        STATE.customUrl = document.getElementById('custom-base-url').value.trim(); STATE.customModel = document.getElementById('custom-model-name').value.trim();
-        STATE.cooldown = parseInt(document.getElementById('swarm-cooldown').value || '2000', 10);
-        localStorage.setItem('od_prov', STATE.provider); localStorage.setItem('od_key', STATE.apiKey); localStorage.setItem('od_gemini', STATE.apiKey);
-        localStorage.setItem('od_curl', STATE.customUrl); localStorage.setItem('od_cmod', STATE.customModel); localStorage.setItem('od_cd', STATE.cooldown);
-      },
-
-      switchSpace: function(sp) {
-        ['computer','memory','voicestudio','terminal','connectors'].forEach(function(s) {
-          var t = document.getElementById('space-' + s); if (t) t.classList.toggle('active', s === sp);
-          var o = document.getElementById('overlay-' + s); if (o) o.classList.remove('active');
-        });
-        if (sp !== 'computer') document.getElementById('overlay-' + sp).classList.add('active');
-      },
-
-      selectDot: function(dot) {
-        STATE.activeDot = dot; ['swarm','dot','scout','quill','nexus'].forEach(function(d) {
-          var e = document.getElementById('dot-' + d); if (e) e.classList.toggle('active', d === dot);
-        });
-      },
-
-      showTicker: function(t) { document.getElementById('status-ticker').style.display = 'flex'; document.getElementById('ticker-text').textContent = t; },
-      hideTicker: function() { document.getElementById('status-ticker').style.display = 'none'; },
-
-      logTerminal: function(text) {
-        var term = document.getElementById('sim-terminal-output'); if (!term) return;
-        var line = document.createElement('div'); line.className = 'sim-terminal-line';
-        line.innerHTML = '<span class="sim-terminal-prefix">[log]</span>' + text;
-        term.appendChild(line); term.scrollTop = term.scrollHeight;
-      },
-
-      appendUserMessage: function(txt) { this.renderUserBubble(txt, true); },
-      renderUserBubble: function(txt, save) {
-        var s = document.getElementById('chat-stream'); var b = document.createElement('div'); b.className = 'user-bubble'; b.textContent = txt; s.appendChild(b); s.scrollTop = s.scrollHeight;
-        if (save) {
-          if (!STATE.sessions[STATE.activeSessionId]) STATE.sessions[STATE.activeSessionId] = { id: STATE.activeSessionId, title: '💬 Main Workspace', messages: [] };
-          STATE.sessions[STATE.activeSessionId].messages.push({ type: 'user', text: txt });
-          this.saveSessions();
-        }
-      },
-
-      appendMessage: function(dotId, raw) {
-        var toolRegex = /\[TOOL:\s*(GMAIL|WHATSAPP|WEBHOOK)\s*\|\s*body:\s*([\s\S]*?)\]/i;
-        var toolMatch = raw.match(toolRegex);
-        var finalRaw = raw;
-        var actionTool = null, actionBody = null;
-
-        if (toolMatch) {
-          actionTool = toolMatch[1].toUpperCase();
-          actionBody = toolMatch[2].trim();
-          finalRaw = raw.replace(toolMatch[0], '\n\n*(⚡ Action Requested: ' + actionTool + ')*');
-        }
-
-        this.renderAgentCard(dotId, finalRaw, true);
-
-        if (actionTool) {
-          setTimeout(function() {
-            APPROVALS.renderGatekeeperCard(actionTool, actionBody, function(payload) {
-              if (actionTool === 'GMAIL') CONNECTORS.dispatchGmail(payload);
-              if (actionTool === 'WHATSAPP') CONNECTORS.dispatchWhatsApp(payload);
-              if (actionTool === 'WEBHOOK') CONNECTORS.dispatchWebhook(payload);
-            });
-          }, 600);
-        }
-      },
-
-      renderAgentCard: function(dotId, raw, save) {
-        var s = document.getElementById('chat-stream');
-        var dot = STATE.dots[dotId] || { name: 'AI', role: 'Coworker', color: '#2563eb' };
-        var c = document.createElement('div'); c.className = 'msg-card';
-        c.innerHTML = '<div class="msg-card-header"><span style="font-size:11px; font-weight:800; color:' + dot.color + '; display:flex; align-items:center; gap:6px;"><i data-lucide="cpu" class="icon-sm"></i> ' + dot.name.toUpperCase() + '</span></div>';
-        var body = document.createElement('div'); body.style.fontSize = '12px'; body.style.whiteSpace = 'pre-wrap'; body.textContent = raw;
-        c.appendChild(body); s.appendChild(c); s.scrollTop = s.scrollHeight;
-
-        if (window.lucide) lucide.createIcons();
-        if (save) {
-          if (!STATE.sessions[STATE.activeSessionId]) STATE.sessions[STATE.activeSessionId] = { id: STATE.activeSessionId, title: '💬 Main Workspace', messages: [] };
-          STATE.sessions[STATE.activeSessionId].messages.push({ type: 'agent', dotId: dotId, text: raw });
-          this.saveSessions();
-        }
-      }
-    };
-
-    var APPROVALS = {
-      renderGatekeeperCard: function(type, payload, onApprove) {
-        var s = document.getElementById('chat-stream'); var c = document.createElement('div'); c.className = 'approval-card';
-        c.innerHTML = '<div style="font-size:11.5px; font-weight:800; color:var(--accent-dot); display:flex; align-items:center; gap:6px;"><i data-lucide="shield" class="icon-md"></i> HUMAN APPROVAL REQUIRED</div><p style="font-size:12px; margin:4px 0;">Action requested: Dispatch ' + type.toUpperCase() + '</p><div class="approval-actions"><button class="btn-approve" id="ok-btn"><i data-lucide="check" class="icon-sm"></i> Approve</button><button class="btn-reject" id="no-btn"><i data-lucide="x" class="icon-sm"></i> Reject</button></div>';
-        c.querySelector('#ok-btn').onclick = function() { c.innerHTML = '<span style="font-size:11px; font-weight:700; color:#10b981;">✅ Executed</span>'; if(onApprove) onApprove(payload); };
-        c.querySelector('#no-btn').onclick = function() { c.innerHTML = '<span style="font-size:11px; font-weight:700; color:#ef4444;">❌ Declined</span>'; };
-        s.appendChild(c); s.scrollTop = s.scrollHeight;
-        if (window.lucide) lucide.createIcons();
-      }
-    };
-
-    window.addEventListener('DOMContentLoaded', function() { UI.init(); });
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html>
